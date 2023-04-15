@@ -46,14 +46,19 @@ typedef enum
         DB_ORIENTOR_MOTOR_ACCEL,
         DB_ORIENTOR_TIMEOUT,
         DB_ORIENTOR_MOVE_TRQ,
+        DB_ORIENTOR_POS_1,
+        DB_ORIENTOR_POS_2,
+        DB_ORIENTOR_POS_3,
+        DB_ORIENTOR_POS_4,
         DB_RELSR_MOTOR_SPEED,
         DB_RELSR_MOTOR_ACCEL,
         DB_RELSR_CLOSE_POS,
-        DB_RELSR_OPEN_POS
+        DB_RELSR_OPEN_POS,
+        DB_RELSR_TIMEOUT
 
 } MbRegisterOffsets;
 
-#define CC1_NUM_MODBUS_REGISTERS 36
+#define CC1_NUM_MODBUS_REGISTERS 41
 #define CC1_NODE_NUM 1
 static ModbusRegister cc1_modbus[CC1_NUM_MODBUS_REGISTERS] =
 {
@@ -103,10 +108,15 @@ static ModbusRegister cc1_modbus[CC1_NUM_MODBUS_REGISTERS] =
     {HOLDING_REG, DB_ORIENTOR_MOTOR_ACCEL, 0, nullptr},
     {HOLDING_REG, DB_ORIENTOR_TIMEOUT, 0, nullptr},
     {HOLDING_REG, DB_ORIENTOR_MOVE_TRQ, 0, nullptr},
+    {HOLDING_REG, DB_ORIENTOR_POS_1, 0, nullptr},
+    {HOLDING_REG, DB_ORIENTOR_POS_2, 0, nullptr},
+    {HOLDING_REG, DB_ORIENTOR_POS_3, 0, nullptr},
+    {HOLDING_REG, DB_ORIENTOR_POS_4, 0, nullptr},
     {HOLDING_REG, DB_RELSR_MOTOR_SPEED, 0, nullptr},
     {HOLDING_REG, DB_RELSR_MOTOR_ACCEL, 0, nullptr},
     {HOLDING_REG, DB_RELSR_CLOSE_POS, 0, nullptr},
     {HOLDING_REG, DB_RELSR_OPEN_POS, 0, nullptr},
+    {HOLDING_REG, DB_RELSR_TIMEOUT, 0, nullptr}
 };
 
 /*control node 1*/

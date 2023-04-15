@@ -6,9 +6,9 @@
 */
 
 #include "src\control_node_2.hpp"
-#include "src\keg_light_subsystem.hpp"
-#include "src\drink_pickup_subsystem.hpp"
-#include "src\milk_and_tea_subsystem.hpp"
+// #include "src\keg_light_subsystem.hpp"
+// #include "src\drink_pickup_subsystem.hpp"
+// #include "src\milk_and_tea_subsystem.hpp"
 
 #define cycleTimeMs 20
 #define jitterLimitMs 5
@@ -38,9 +38,9 @@ void setup()
 	ptr_system_errors = CcIoManager.get_mb_data_pointer(MbRegisterOffsets::SYSTEM_ERROR);
 	*ptr_system_errors = SystemErrors::NO_ERRORS;
 
-	keg_light.setup();
-	milk_tea_disp.setup();
-	drink_pickup.setup();
+	// keg_light.setup();
+	// milk_tea_disp.setup();
+	// drink_pickup.setup();
 
 	CcIoManager.reset_watchdog();
 	cycleStartTime = millis();
@@ -58,9 +58,9 @@ void cycleTasks()
 	CcIoManager.read_interfaces();
 	CcIoManager.update_system_mb();
 	
-	keg_light.run();
-	milk_tea_disp.run();
-	drink_pickup.run();
+	// keg_light.run();
+	// milk_tea_disp.run();
+	// drink_pickup.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();

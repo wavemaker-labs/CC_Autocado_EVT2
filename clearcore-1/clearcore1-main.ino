@@ -1,16 +1,12 @@
 /**
  * @file clearcore1-main.ino
  * @copyright Copyright (c) 2023 Vebu Labs. All rights reserved.
- * @brief This is the main executable node for the Clearcore1 - Bobacino.
- * @author Manomit Bal, Mike Lui
+ * @brief This is the main executable node for the Clearcore1 - Autocado.
+ * @author Mike Lui
 */
 
 #include "src\control_node_1.hpp"
-#include "src\ice_disp_subsystem.hpp"
-#include "src\syrup_disp_subsystem.hpp"
-#include "src\cup_trans_subsystem.hpp"
-#include "src\cup_disp_subsystem.hpp"
-#include "src\boba_disp_subsystem.hpp"
+#include "src\release_subsystem.hpp"
 
 
 #define cycleTimeMs 20
@@ -41,11 +37,8 @@ void setup()
 	ptr_system_errors = CcIoManager.get_mb_data_pointer(MbRegisterOffsets::SYSTEM_ERROR);
 	*ptr_system_errors = SystemErrors::NO_ERRORS;
 
-	ice_disp.setup();
-	syrup_disp.setup();
-	cup_trans.setup();
-	cup_disp.setup();
-	boba_disp.setup();
+	// ice_disp.setup();
+	hopper_release.setup();
 
 	CcIoManager.reset_watchdog();
 	cycleStartTime = millis();
@@ -64,11 +57,8 @@ void cycleTasks()
 	CcIoManager.read_interfaces();
 	CcIoManager.update_system_mb();
 	
-	ice_disp.run();
-	syrup_disp.run();
-	cup_trans.run();	
-	cup_disp.run();
-	boba_disp.run();
+	// ice_disp.run();
+	hopper_release.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();

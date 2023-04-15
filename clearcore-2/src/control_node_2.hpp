@@ -17,57 +17,33 @@ typedef enum
     SYSTEM_ERROR,
     FW_VERSION,
     E_STOP,
-    CUP_DISP_RQ,
-    CUP_DISP_STATE,
-    CUP_DISP_CNT,
-    CUP_T_MOVE_RQ,
-    CUP_T_STATE,
-    CUP_T_TIMEOUT,
-    CUP_T_MOVEDONE,
-    CUP_T_CMD_POS,
-    CUP_T_LOADCELL,
-    BOBA_D_RQ,
-    BOBA_D_STATE,
-    BOBA_D_DISPENSED,
-    BOBA_D_HEATER_ST,
-    BOBA_D_TEMP,
-    ICE_D_RQ,
-    ICE_D_STATE,
-    ICE_D_DISPENSED,
-    SYR_D_RQ,
-    SYR_D_STATE,
-    SYR_D_DISPENSED,
-    KEG_TEMP,
-    MTD_MILK_D_RQ,
-    MTD_TEA1_D_RQ,
-    MTD_TEA2_D_RQ,
-    MTD_DRINK_TOLER,
-    MTD_DRINK_TIMEOUT,
-    MTD_DRINK_STATE,
-    MTD_MILK_DISPENSED,
-    MTD_TEA1_DISPENSED,
-    MTD_TEA2_DISPENSED,
-    MTD_TIME_OUT,
-    MTD_LEAK,
-    PICKUP_MOVE_RQ,
-    PICKUP_STATE,
-    PICKUP_TIMEOUT,
-    PICKUP_MOVEDONE,
-    PICKUP_DRINK_SENSOR,
-    PICKUP_CMD_POS,
-    PICKUP_RELAY_STATE,
-    LIGHT_PICKUP,
+    PEELER_CMD,
+    PEELER_STATE,
+    PEELER_CURRENT_1,
+    PEELER_CURRENT_2,
+    GUTTER_CMD,
+    GUTTER_STATE,
+    GUTTER_SENSOR_1,
+    GUTTER_SENSOR_2,
+    TURNTABLE_CMD,
+    TURNTABLE_STATE,
+    TURNTABLE_SENSOR,
+    UI_START_BUTTON,
+    UI_RESET_START,
+    UI_DOOR_DRAWER_STATUS,
     RESET_CC_RQ = 50,
-    IGNORE_WEIGHT_CHECKS,
-    MILK_K_FACTOR,
-    TEA1_K_FACTOR,
-    TEA2_K_FACTOR,
-    LOAD_CELL_OFFSET
+    DB_GUTTER_MOT_SPEED,
+    DB_GUTTER_MOT_ACCEL,
+    DB_GUTTER_TIMEOUT_MS,
+    DB_GUTTER_MAX_MOVE,
+    DB_TURNT_MOT_SPEED,
+    DB_TURNT_MOT_ACCEL,
+    DB_TURNT_MOVE_STEPS    
 
 } MbRegisterOffsets;
 
 
-#define CC2_NUM_MODBUS_REGISTERS 30
+#define CC2_NUM_MODBUS_REGISTERS 27
 #define CC2_NODE_NUM 2
 
 
@@ -79,90 +55,88 @@ static ModbusRegister cc2_modbus[CC2_NUM_MODBUS_REGISTERS] =
     {INPUT_REG, FW_VERSION, 1, nullptr},
     {INPUT_REG, E_STOP, 0, nullptr},
 
-    /*Keg Temp*/
-    {INPUT_REG, KEG_TEMP, 0, nullptr},
+    /*Peeler*/
+    {HOLDING_REG, PEELER_CMD, 0, nullptr},
+    {INPUT_REG, PEELER_STATE, 0, nullptr},
+    {INPUT_REG, PEELER_CURRENT_1, 0, nullptr},
+    {INPUT_REG, PEELER_CURRENT_2, 0, nullptr},
 
-    /*Tea milk Dispense*/
-    {HOLDING_REG, MTD_MILK_D_RQ, 0, nullptr},
-    {HOLDING_REG, MTD_TEA1_D_RQ, 0, nullptr},
-    {HOLDING_REG, MTD_TEA2_D_RQ, 0, nullptr},
-    {HOLDING_REG, MTD_DRINK_TOLER, 0, nullptr},
-    {HOLDING_REG, MTD_DRINK_TIMEOUT, 0, nullptr},
-    {INPUT_REG, MTD_DRINK_STATE, 0, nullptr},
-    {INPUT_REG, MTD_MILK_DISPENSED, 0, nullptr},
-    {INPUT_REG, MTD_TEA1_DISPENSED, 0, nullptr},
-    {INPUT_REG, MTD_TEA2_DISPENSED, 0, nullptr},
-    {INPUT_REG, MTD_TIME_OUT, 0, nullptr},
-    {INPUT_REG, MTD_LEAK, 0, nullptr},
+    /*Gutter*/
+    {HOLDING_REG, GUTTER_CMD, 0, nullptr},
+    {INPUT_REG, GUTTER_STATE, 0, nullptr},
+    {INPUT_REG, GUTTER_SENSOR_1, 0, nullptr},
+    {INPUT_REG, GUTTER_SENSOR_2, 0, nullptr},
 
-    /*Drink Pick Up Dispense*/
-    {HOLDING_REG, PICKUP_MOVE_RQ, 0, nullptr},
-    {INPUT_REG, PICKUP_STATE, 0, nullptr},
-    {INPUT_REG, PICKUP_TIMEOUT, 0, nullptr},
-    {INPUT_REG, PICKUP_MOVEDONE, 0, nullptr},
-    {INPUT_REG, PICKUP_DRINK_SENSOR, 0, nullptr},
-    {INPUT_REG, PICKUP_CMD_POS, 0, nullptr},
-    {INPUT_REG, PICKUP_RELAY_STATE, 0, nullptr},
+    /*Turntable*/
+    {HOLDING_REG, TURNTABLE_CMD, 0, nullptr},
+    {INPUT_REG, TURNTABLE_STATE, 0, nullptr},
+    {INPUT_REG, TURNTABLE_SENSOR, 0, nullptr},
 
-    /*Drink Ready Up Light*/
-    {HOLDING_REG, LIGHT_PICKUP, 0, nullptr},
+    /*UI*/
+    {INPUT_REG, UI_START_BUTTON, 0, nullptr},
+    {HOLDING_REG, UI_RESET_START, 0, nullptr},
+    {INPUT_REG, UI_DOOR_DRAWER_STATUS, 0, nullptr},
 
-    /*Reset or stop*/
+    /*Debug&Tune*/
     {HOLDING_REG, RESET_CC_RQ, 0, nullptr},
-    {HOLDING_REG, IGNORE_WEIGHT_CHECKS, 0, nullptr},
+    {HOLDING_REG, DB_GUTTER_MOT_SPEED, 0, nullptr},
+    {HOLDING_REG, DB_GUTTER_MOT_ACCEL, 60, nullptr},
+    {HOLDING_REG, DB_GUTTER_TIMEOUT_MS, 60, nullptr},
+    {HOLDING_REG, DB_GUTTER_MAX_MOVE, 60, nullptr},
+    {HOLDING_REG, DB_TURNT_MOT_SPEED, 60, nullptr},
+    {HOLDING_REG, DB_TURNT_MOT_ACCEL, 60, nullptr},
+    {HOLDING_REG, DB_TURNT_MOVE_STEPS, 60, nullptr}
 
-    /*flow meter tuning factors*/
-    {HOLDING_REG, MILK_K_FACTOR, 60, nullptr},
-    {HOLDING_REG, TEA1_K_FACTOR, 60, nullptr},
-    {HOLDING_REG, TEA2_K_FACTOR, 60, nullptr}
 };
 
 
 /*control node 2*/
 typedef enum {
-        LOCKER_UNLOCK_OUT = 0,
-        MILK_RELAY_OUT,
-        TEA1_RELAY_OUT, 
-        TEA2_RELAY_OUT,
-        IO4_NOT_USED_IN,
-        PICKUP_LIGHT_OUT,
-        MILK_FLOW_IN,
-        TEA1_FLOW_IN,
-        TEA2_FLOW_IN,
-        PICKUP_SENS_IN,
-        TOP_FILL_SENS_IN,
-        ESTOP_IN,
-        KEG_TEMP_AIN
+        PEELER_RELAY1_OUT = 0,
+        PEELER_RELAY2_OUT,
+        ESTOP_IN, 
+        START_BUTTON_IN,
+        POWER_DISABLE_OUT,
+        START_LED_OUT,
+        DOORS_DRAWER_SEN_IN,
+        GUTTER_SEN2_IN,
+        GUTTER_SEN1_IN,
+        A9_NOT_USED,
+        BOWL_SENS_IN,
+        PEELER_I1_AIN,
+        PEELER_I2_AIN
 } BobaCcPins;
 
 
 #define NUM_CC_IO_PIN 13
 static PinIO cc2_io_pins[NUM_CC_IO_PIN] = {
-    PinIO(DIGITAL_OUT, LOCKER_UNLOCK_OUT, nullptr),
-    PinIO(DIGITAL_OUT, MILK_RELAY_OUT, nullptr),
-    PinIO(DIGITAL_OUT, TEA1_RELAY_OUT, nullptr),
-    PinIO(DIGITAL_OUT, TEA2_RELAY_OUT, nullptr),
-    PinIO(SWITCH_SENSOR_IN, IO4_NOT_USED_IN, nullptr),
-    PinIO(DIGITAL_OUT, PICKUP_LIGHT_OUT, nullptr),
-    PinIO(SWITCH_SENSOR_IN, MILK_FLOW_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, TEA1_FLOW_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, TEA2_FLOW_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, PICKUP_SENS_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, TOP_FILL_SENS_IN, nullptr),
+    PinIO(DIGITAL_OUT, PEELER_RELAY1_OUT, nullptr),
+    PinIO(DIGITAL_OUT, PEELER_RELAY2_OUT, nullptr),
     PinIO(SWITCH_SENSOR_IN, ESTOP_IN, nullptr),
-    PinIO(ANALOG_IN, KEG_TEMP_AIN, nullptr)
+    PinIO(SWITCH_SENSOR_IN, START_BUTTON_IN, nullptr),
+    PinIO(DIGITAL_OUT, POWER_DISABLE_OUT, nullptr),
+    PinIO(SWITCH_SENSOR_IN, START_LED_OUT, nullptr),
+    PinIO(SWITCH_SENSOR_IN, DOORS_DRAWER_SEN_IN, nullptr),
+    PinIO(SWITCH_SENSOR_IN, GUTTER_SEN2_IN, nullptr),
+    PinIO(SWITCH_SENSOR_IN, GUTTER_SEN1_IN, nullptr),
+    PinIO(SWITCH_SENSOR_IN, A9_NOT_USED, nullptr),
+    PinIO(SWITCH_SENSOR_IN, BOWL_SENS_IN, nullptr),
+    PinIO(ANALOG_IN, PEELER_I1_AIN, nullptr),
+    PinIO(ANALOG_IN, PEELER_I2_AIN, nullptr)
 };
 
 
 typedef enum
 {
-    DRINK_PICKUP = 0      
+    GUTTER_STEPPER = 0,
+    TURNTABLE_STEPPER  
 } BobaCc2Motors;
 
 
-#define CC2_NUM_MOTORS 1
+#define CC2_NUM_MOTORS 2
 static MotorIO cc2_motors[CC2_NUM_MOTORS] = {
-    {1000, 400, Connector::ConnectorModes::CPM_MODE_STEP_AND_DIR, &ConnectorM1, MotorDriver::MOVE_TARGET_ABSOLUTE}
+    {1000, 400, Connector::ConnectorModes::CPM_MODE_STEP_AND_DIR, &ConnectorM0, MotorDriver::MOVE_TARGET_REL_END_POSN},
+    {1000, 400, Connector::ConnectorModes::CPM_MODE_STEP_AND_DIR, &ConnectorM1, MotorDriver::MOVE_TARGET_REL_END_POSN},
 };
 
 class CntrlNode2Io : public IoManagerClass {
