@@ -21,11 +21,11 @@ typedef enum
         E_STOP,
         DRUM_MOVE_CMD,
         DRUM_STATE,
-        FLAT_CON_SPEED,
+        FLAT_CON_STEPS,
         FLAT_CON_DIR,
         FLAT_CON_STATE,
-        FLAT_CON_SENSOR_1,
-        FLAT_CON_SENSOR_2,
+        FLAT_CON_EDGE_SENSOR,
+        FLAT_CON_LENGTH_SENSOR,
         INCLINE_CON_CMD,
         INCLINE_CON_STATE,
         ORIENTOR_POS_CMD,
@@ -40,8 +40,8 @@ typedef enum
         UI_DONE_STATUS_CMD,
         RESET_CC_RQ = 50,
         DB_DRUM_TIMEOUT,
-        DB_FLAT_CON_PULLBACK,
-        DB_FLAT_CON_TIMEOUT,
+        DB_FLAT_CON_ACCEL,
+        DB_FLAT_CON_SPEED,
         DB_ORIENTOR_MOTOR_SPEED,
         DB_ORIENTOR_MOTOR_ACCEL,
         DB_ORIENTOR_TIMEOUT,
@@ -73,11 +73,11 @@ static ModbusRegister cc1_modbus[CC1_NUM_MODBUS_REGISTERS] =
     {INPUT_REG, DRUM_STATE, 0, nullptr},
 
     /*Hopper: Flat Convey*/
-    {HOLDING_REG, FLAT_CON_SPEED, 0, nullptr}, 
+    {HOLDING_REG, FLAT_CON_STEPS, 0, nullptr}, 
     {HOLDING_REG, FLAT_CON_DIR, 0, nullptr}, 
     {INPUT_REG, FLAT_CON_STATE, 0, nullptr},
-    {INPUT_REG, FLAT_CON_SENSOR_1, 0, nullptr},
-    {INPUT_REG, FLAT_CON_SENSOR_2, 0, nullptr},
+    {INPUT_REG, FLAT_CON_EDGE_SENSOR, 0, nullptr},
+    {INPUT_REG, FLAT_CON_LENGTH_SENSOR, 0, nullptr},
 
     /*Hopper: Inclined*/
     {HOLDING_REG, INCLINE_CON_CMD, 0, nullptr}, 
@@ -102,8 +102,8 @@ static ModbusRegister cc1_modbus[CC1_NUM_MODBUS_REGISTERS] =
     /*Debug&Tuning*/
     {HOLDING_REG, RESET_CC_RQ, 0, nullptr},
     {HOLDING_REG, DB_DRUM_TIMEOUT, 0, nullptr},
-    {HOLDING_REG, DB_FLAT_CON_PULLBACK, 0, nullptr},
-    {HOLDING_REG, DB_FLAT_CON_TIMEOUT, 0, nullptr},
+    {HOLDING_REG, DB_FLAT_CON_ACCEL, 0, nullptr},
+    {HOLDING_REG, DB_FLAT_CON_SPEED, 0, nullptr},
     {HOLDING_REG, DB_ORIENTOR_MOTOR_SPEED, 0, nullptr},
     {HOLDING_REG, DB_ORIENTOR_MOTOR_ACCEL, 0, nullptr},
     {HOLDING_REG, DB_ORIENTOR_TIMEOUT, 0, nullptr},
@@ -134,7 +134,7 @@ typedef enum {
         AVO_SIZE_AIN,
         ESTOP_IN,
         A12_NOT_USED
-} BobaCcPins;
+} AutocadoCcPins;
 
 #define NUM_CC_IO_PIN 13
 static PinIO cc1_io_pins[NUM_CC_IO_PIN] = {
@@ -159,7 +159,7 @@ typedef enum
     ORIENTOR_ONE_MOT,
     ORIENTOR_TWO_MOT,
     RELEASE_MOT        
-} BobaCc1Motors;
+} AutocadoCc1Motors;
 
 #define CC1_NUM_MOTORS 4
 static MotorIO cc1_motors[CC1_NUM_MOTORS] = {

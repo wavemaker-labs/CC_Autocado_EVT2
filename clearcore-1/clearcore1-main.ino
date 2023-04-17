@@ -6,6 +6,11 @@
 */
 
 #include "src\control_node_1.hpp"
+#include "src\ui_cc1_subsystem.hpp"
+#include "src\hopper_drum_subsystem.hpp"
+#include "src\flat_convey_subsystem.hpp"
+#include "src\incline_con_subsystem.hpp"
+#include "src\orientor_subsystem.hpp"
 #include "src\release_subsystem.hpp"
 
 
@@ -37,7 +42,11 @@ void setup()
 	ptr_system_errors = CcIoManager.get_mb_data_pointer(MbRegisterOffsets::SYSTEM_ERROR);
 	*ptr_system_errors = SystemErrors::NO_ERRORS;
 
-	// ice_disp.setup();
+	ui_cc1.setup();
+	hpr_drum.setup();
+	flat_con.setup();
+	incl_con.setup();
+	orientor.setup();
 	hopper_release.setup();
 
 	CcIoManager.reset_watchdog();
@@ -57,7 +66,11 @@ void cycleTasks()
 	CcIoManager.read_interfaces();
 	CcIoManager.update_system_mb();
 	
-	// ice_disp.run();
+	ui_cc1.run();
+	hpr_drum.run();
+	flat_con.run();
+	incl_con.run();
+	orientor.run();
 	hopper_release.run();
 
 	CcIoManager.write_interfaces();

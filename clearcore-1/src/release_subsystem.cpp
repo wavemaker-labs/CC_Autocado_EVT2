@@ -51,7 +51,7 @@ void ReleaseFSMClass::setup()
     if(!has_setup){
         has_setup = true;
 
-        ptr_release_motor = CcIoManager.get_ptr_motor(BobaCc1Motors::RELEASE_MOT);
+        ptr_release_motor = CcIoManager.get_ptr_motor(AutocadoCc1Motors::RELEASE_MOT);
         ptr_release_motor->enable =  false;
 
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::RELEASER_POS_CMD, &release_hreg_write);
@@ -72,8 +72,8 @@ void ReleaseFSMClass::setup()
 
 void ReleaseFSMClass::read_interfaces()
 {
-    estop_input = CcIoManager.get_input(BobaCcPins::ESTOP_IN);
-    release_sensor = CcIoManager.get_input(BobaCcPins::RELEASE_SENS_IN);
+    estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
+    release_sensor = CcIoManager.get_input(AutocadoCcPins::RELEASE_SENS_IN);
 }
 
 void ReleaseFSMClass::run()

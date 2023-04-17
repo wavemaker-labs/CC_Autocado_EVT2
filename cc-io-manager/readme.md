@@ -1,1 +1,0 @@
-Put this folder in the Aruduino libraries folder. 

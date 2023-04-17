@@ -105,7 +105,7 @@ typedef enum {
         BOWL_SENS_IN,
         PEELER_I1_AIN,
         PEELER_I2_AIN
-} BobaCcPins;
+} AutocadoCcPins;
 
 
 #define NUM_CC_IO_PIN 13
