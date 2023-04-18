@@ -1,35 +1,41 @@
-/**
- * @file keg_light_subsystem.hpp
+ /**
+ * @file ui_cc2_subsystem.hpp
  * @copyright Copyright (c) 2023 Vebu Labs. All rights reserved.
- * @brief This library is used to update the sensors and output for the keg and light
+ * @brief This library is used to control ui on clearcore 2
  * @author Mike Lui
 */
 
-#ifndef KEG_LIGHT_SUBSYSTEM_HPP
-#define KEG_LIGHT_SUBSYSTEM_HPP
+#ifndef UI2_SUBSYSTEM_HPP
+#define UI2_SUBSYSTEM_HPP
 
 #include "C:\Projects\Autocado\autocado-clearcore\clearcore-2\src\control_node_2.hpp"
 
-class KegLightClass {
+class UiCc2Class{
     public:
         void setup();
-        void run();
+        void run();        
 
-        KegLightClass() {
+        UiCc2Class() {
             has_setup = false;
-            light_out = PinStatus::LOW;
+            start_led_out = PinStatus::LOW;
         }
 
     private:
         void read_interfaces();
-        void write_interfaces();
+        void write_interfaces();  
+
         bool has_setup;
 
-        PinStatus light_out;
-        uint16_t mb_light_cmd;
-        uint16_t keg_temp_dc;
+        uint16_t start_button_in;
+        uint16_t start_button_latch;
+
+        uint16_t start_led_cmd;
+        PinStatus start_led_out;
+
+        uint16_t door_drawer_sen_in;       
+        
 };
 
-extern KegLightClass keg_light;
-
-#endif // KEG_LIGHT_SUBSYSTEM_HPP
+extern UiCc2Class ui_cc2;
+ 
+#endif//UI2_SUBSYSTEM_HPP

@@ -30,6 +30,7 @@ typedef enum
     TURNTABLE_SENSOR,
     UI_START_BUTTON,
     UI_RESET_START,
+    UI_START_LED,
     UI_DOOR_DRAWER_STATUS,
     RESET_CC_RQ = 50,
     DB_GUTTER_MOT_SPEED,
@@ -43,7 +44,7 @@ typedef enum
 } MbRegisterOffsets;
 
 
-#define CC2_NUM_MODBUS_REGISTERS 27
+#define CC2_NUM_MODBUS_REGISTERS 28
 #define CC2_NODE_NUM 2
 
 
@@ -75,6 +76,7 @@ static ModbusRegister cc2_modbus[CC2_NUM_MODBUS_REGISTERS] =
     /*UI*/
     {INPUT_REG, UI_START_BUTTON, 0, nullptr},
     {HOLDING_REG, UI_RESET_START, 0, nullptr},
+    {HOLDING_REG, UI_START_LED, 0, nullptr},
     {INPUT_REG, UI_DOOR_DRAWER_STATUS, 0, nullptr},
 
     /*Debug&Tune*/

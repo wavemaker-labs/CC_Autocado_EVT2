@@ -32,12 +32,6 @@ class OrientorFSMClass{
         void setup();
         void run();        
 
-        /*debug tuning variables*/
-        uint16_t timeout_limit_ms;
-        uint16_t motor_speed;
-        uint16_t motor_accel;
-        uint16_t open_position;
-        uint16_t closed_position;
 
         OrientorFSMClass() {
             has_setup = false;
@@ -55,6 +49,15 @@ class OrientorFSMClass{
         bool has_setup;
         
         Orientor::OrientorStates state;
+
+        /*debug tuning variables*/
+        uint16_t timeout_limit_ms;
+        uint16_t motor_speed;
+        uint16_t motor_accel;
+        uint16_t position_1;
+        uint16_t position_2;
+        uint16_t position_3;
+        uint16_t position_4;
 
         int16_t mb_move_request;        
         int16_t estop_input;

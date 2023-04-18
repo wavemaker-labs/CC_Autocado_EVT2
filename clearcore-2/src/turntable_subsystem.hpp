@@ -1,44 +1,32 @@
 /**
- * @file drink_pickup_subsystem.hpp
+ * @file turntable_subsystem.hpp
  * @copyright Copyright (c) 2023 Vebu Labs. All rights reserved.
- * @brief This library is used to control the drink pickup
+ * @brief This library is used to control the wml turntable
  * @author Mike Lui
 */
 
-#ifndef DRINK_PICKUP_SUBSYSTEM_HPP
-#define DRINK_PICKUP_SUBSYSTEM_HPP
+#ifndef TURNTABLE_SUBSYSTEM_HPP
+#define TURNTABLE_SUBSYSTEM_HPP
 
-#include "C:\Autocado\autocado-clearcore\clearcore-2\src\control_node_2.hpp"
+#include "C:\Projects\Autocado\autocado-clearcore\clearcore-2\src\control_node_2.hpp"
 
-namespace DrinkPickup
+namespace Turntable
 {
     typedef enum {
-        UNINITIALIZED = 0,
-        INITIALIZING,        
-        READY,
+        STOPPED = 0,
         MOVING,
-        WAITING_RELAY_HOME = 70,
-        WAITING_RELAY_MOVE,
-        WAITING_MOVE,
         ESTOP = 80,
-        ERROR_HOMING = 90,
-        ERROR_MOVING
-    } DrinkPickupStates;
-} // namespace DrinkPickup
+        ERROR_MOTOR_ALARM = 90
+    } TurntableStates;
+} // namespace Turntable
 
-class DrinkPickupFSMClass {
+class TurntableFSMClass {
     public:
         void setup();
         void run();        
 
-        DrinkPickupFSMClass() {
+        TurntableFSMClass() {
             has_setup = false;
-            state = DrinkPickup::DrinkPickupStates::UNINITIALIZED;
-            estop_input = PinStatus::LOW;
-            locker_relay_out = PinStatus::LOW;
-            mb_move_request = 0;
-            move_start_time_ms = 0;
-            ptr_drink_pickup_motor = nullptr;
         }
 
     private:
@@ -46,17 +34,22 @@ class DrinkPickupFSMClass {
         void write_interfaces();  
 
         bool has_setup;
-        bool move_done;
-        bool move_timeout;
-        DrinkPickup::DrinkPickupStates state;
+        uint16_t move_timeout_ms;
+        Turntable::TurntableStates state;
+
+        uint16_t motor_steps;
+        int16_t signed_motor_steps;
+        uint16_t motor_speed;
+        uint16_t motor_accel;
+        uint16_t max_steps;
+
         int16_t estop_input;
-        int16_t drink_sensor_input;
-        PinStatus locker_relay_out;
-        int16_t mb_move_request;
+        int16_t bowl_sensor_input;
+        
         uint32_t move_start_time_ms;
-        MotorIO * ptr_drink_pickup_motor;
+        uint32_t move_allowance_ms;
 };
 
-extern DrinkPickupFSMClass drink_pickup;
+extern TurntableFSMClass turntable;
 
-#endif //DRINK_PICKUP_SUBSYSTEM_HPP
+#endif //TURNTABLE_SUBSYSTEM_HPP
