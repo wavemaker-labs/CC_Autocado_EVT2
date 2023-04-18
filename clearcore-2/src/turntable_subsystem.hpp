@@ -10,6 +10,9 @@
 
 #include "C:\Projects\Autocado\autocado-clearcore\clearcore-2\src\control_node_2.hpp"
 
+#define TURNABLE_MAX_STEPS 30000
+#define TURNTABLE_MOVE_ALLOWANCE_MS 25
+
 namespace Turntable
 {
     typedef enum {
@@ -41,13 +44,14 @@ class TurntableFSMClass {
         int16_t signed_motor_steps;
         uint16_t motor_speed;
         uint16_t motor_accel;
-        uint16_t max_steps;
 
         int16_t estop_input;
         int16_t bowl_sensor_input;
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;
+
+        MotorIO * ptr_turntable_motor;
 };
 
 extern TurntableFSMClass turntable;

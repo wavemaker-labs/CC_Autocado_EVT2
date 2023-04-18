@@ -10,6 +10,9 @@
 
 #include "C:\Projects\Autocado\autocado-clearcore\clearcore-2\src\control_node_2.hpp"
 
+#define PEELER_PINCH_CMD 1
+#define PEELER_STOP_CMD 0
+
 
 namespace Peeler
 {
@@ -36,7 +39,7 @@ class PeelerFSMClass {
         bool has_setup;
         Peeler::PeelerStates state;
 
-        uint16_t motor_cmd;
+        uint16_t mb_move_request;
 
         PinStatus motor_1_out;
         PinStatus motor_2_out;

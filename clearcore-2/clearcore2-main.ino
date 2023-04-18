@@ -7,6 +7,10 @@
 
 #include "src\control_node_2.hpp"
 #include "src\ui_cc2_subsystem.hpp"
+#include "src\peeler_subsystem.hpp"
+#include "src\gutter_subsystem.hpp"
+#include "src\turntable_subsystem.hpp"
+
 
 #define cycleTimeMs 20
 #define jitterLimitMs 5
@@ -37,6 +41,9 @@ void setup()
 	*ptr_system_errors = SystemErrors::NO_ERRORS;
 
 	ui_cc2.setup();
+	peeler.setup();
+	gutter.setup();
+	turntable.setup();
 
 	CcIoManager.reset_watchdog();
 	cycleStartTime = millis();
@@ -55,6 +62,9 @@ void cycleTasks()
 	CcIoManager.update_system_mb();
 	
 	ui_cc2.run();
+	peeler.run();
+	gutter.run();
+	turntable.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();
