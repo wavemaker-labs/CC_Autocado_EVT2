@@ -90,7 +90,7 @@ void CntrlNode2Io::initialize_ethernet(){
 
 int16_t current_sensor_to_milliamps(int16_t input)
 {
-    return (((input-809)*2500)/3287); // 4-20mA sensor in 503ohms
+    return ((input*10)); //(input*40000)/4096
 }
 
 void CntrlNode2Io::read_pin_inputs() {

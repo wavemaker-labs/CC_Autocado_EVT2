@@ -21,6 +21,7 @@ void UiCc2Class::setup()
         start_button_latch = 0;
         mb_reset_start_latch = 0;
         start_led_out = PinStatus::LOW;
+        power_supply_en_out = PinStatus::HIGH;
         
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::UI_RESET_START, &reset_start_hreg_write);    
     }
@@ -37,7 +38,7 @@ void UiCc2Class::run()
 {
     read_interfaces();
 
-    if(start_led_cmd){
+    if(start_led_cmd == 1){
         start_led_out = PinStatus::HIGH;
     }else{
         start_led_out = PinStatus::LOW;
@@ -58,7 +59,8 @@ void UiCc2Class::run()
 
 void UiCc2Class::write_interfaces()
 {
-    CcIoManager.set_pin_output_state(AutocadoCcPins::START_LED_OUT, start_led_out);    
+    CcIoManager.set_pin_output_state(AutocadoCcPins::START_LED_OUT, start_led_out);
+    CcIoManager.set_pin_output_state(AutocadoCcPins::POWER_DISABLE_OUT, power_supply_en_out);    
     CcIoManager.set_mb_data(MbRegisterOffsets::UI_START_BUTTON, start_button_latch);
     CcIoManager.set_mb_data(MbRegisterOffsets::UI_DOOR_DRAWER_STATUS, door_drawer_sen_in);
 }

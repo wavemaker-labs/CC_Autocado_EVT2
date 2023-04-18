@@ -33,12 +33,6 @@ uint16_t release_hreg_write(TRegister* reg, uint16_t val)
         case MbRegisterOffsets::DB_RELSR_MOTOR_ACCEL:
             hopper_release.motor_accel = val;
             break;
-        case MbRegisterOffsets::DB_RELSR_CLOSE_POS:
-            hopper_release.closed_position = val;
-            break;
-        case MbRegisterOffsets::DB_RELSR_OPEN_POS:
-            hopper_release.open_position = val;
-            break;
         case MbRegisterOffsets::DB_RELSR_TIMEOUT:
             hopper_release.timeout_limit_ms = val;
             break;
@@ -57,13 +51,9 @@ void ReleaseFSMClass::setup()
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::RELEASER_POS_CMD, &release_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::DB_RELSR_MOTOR_SPEED, &release_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::DB_RELSR_MOTOR_ACCEL, &release_hreg_write);
-        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::DB_RELSR_CLOSE_POS, &release_hreg_write);
-        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::DB_RELSR_OPEN_POS, &release_hreg_write);
 
         hopper_release.motor_speed = RELEASE_DEFAULT_MOTOR_SPEED;
         hopper_release.motor_accel = RELEASE_DEFAULT_MOTOR_ACCEL;
-        hopper_release.closed_position = RELEASE_DEFAULT_CLOSED_POS;
-        hopper_release.open_position = RELEASE_DEFAULT_OPEN_POS;
         hopper_release.timeout_limit_ms = RELEASE_DEFAULT_TIMEOUT_MS;
 
         state = Release::ReleaseStates::UNINITIALIZED;
@@ -74,6 +64,45 @@ void ReleaseFSMClass::read_interfaces()
 {
     estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
     release_sensor = CcIoManager.get_input(AutocadoCcPins::RELEASE_SENS_IN);
+
+    timeout_limit_ms = CcIoManager.get_mb_data(MbRegisterOffsets::DB_RELSR_TIMEOUT);
+
+    position_0 = 0;
+    position_1 = CcIoManager.get_mb_data(MbRegisterOffsets::DB_RELSR_POS_1);
+    position_2 = CcIoManager.get_mb_data(MbRegisterOffsets::DB_RELSR_POS_2);
+    position_3 = CcIoManager.get_mb_data(MbRegisterOffsets::DB_RELSR_POS_3);
+    position_4 = CcIoManager.get_mb_data(MbRegisterOffsets::DB_RELSR_POS_4);
+    position_5 = CcIoManager.get_mb_data(MbRegisterOffsets::DB_RELSR_POS_5);
+}
+
+
+void ReleaseFSMClass::set_motor_position(int16_t move_request)
+{
+    if(ptr_release_motor != nullptr)
+    {
+        switch (move_request)
+        {
+            case 1:
+                ptr_release_motor->distance = (position_1);
+                break;
+            case 2:
+                ptr_release_motor->distance = (position_2);
+                break;
+            case 3:
+                ptr_release_motor->distance = (position_3);
+                break;
+            case 4:
+                ptr_release_motor->distance = (position_4);
+                break;
+            case 5:
+                ptr_release_motor->distance = (position_5);
+                break;
+            case 0:
+            default:
+                ptr_release_motor->distance = (position_0);
+                break;
+        }
+    }
 }
 
 void ReleaseFSMClass::run()
@@ -110,21 +139,10 @@ void ReleaseFSMClass::run()
 
                 Serial.println("release motor homed");                
                 ptr_release_motor->ptr_connector->PositionRefSet(0);
-                
-                if(mb_move_request == RELEASE_OPEN_COMMAND){
-                    ptr_release_motor->distance = hopper_release.open_position;
-                    ptr_release_motor->new_move_commanded = true;
-                    move_start_time_ms = CcIoManager.getSystemTime();
-                    state = Release::ReleaseStates::MOVING;
 
-                }else if (mb_move_request == RELEASE_CLOSE_COMMAND){
-                    ptr_release_motor->distance = hopper_release.closed_position;
-                    ptr_release_motor->new_move_commanded = true;
-                    move_start_time_ms = CcIoManager.getSystemTime();
-                    state = Release::ReleaseStates::MOVING;
-                }else {
-                    state = Release::ReleaseStates::MOVE_DONE;
-                }                    
+                set_motor_position(mb_move_request);
+                move_start_time_ms = CcIoManager.getSystemTime();
+                state = Release::ReleaseStates::MOVING;                
 
             }else if (CcIoManager.getSystemTime() - move_start_time_ms > hopper_release.timeout_limit_ms) {
                 state = Release::ReleaseStates::ERROR_HOMING;
@@ -151,20 +169,9 @@ void ReleaseFSMClass::run()
 
                 if(ptr_release_motor->ptr_connector->ValidateMove(false)){
 
-                    if(mb_move_request == RELEASE_OPEN_COMMAND){
-                        ptr_release_motor->distance = hopper_release.open_position;
-                        ptr_release_motor->new_move_commanded = true;
-                        move_start_time_ms = CcIoManager.getSystemTime();
-                        state = Release::ReleaseStates::MOVING;
-
-                    }else if (mb_move_request == RELEASE_CLOSE_COMMAND){
-                        ptr_release_motor->distance = hopper_release.closed_position;
-                        ptr_release_motor->new_move_commanded = true;
-                        move_start_time_ms = CcIoManager.getSystemTime();
-                        state = Release::ReleaseStates::MOVING;
-                    }else {
-                        state = Release::ReleaseStates::MOVE_DONE;
-                    }  
+                    set_motor_position(mb_move_request);
+                    move_start_time_ms = CcIoManager.getSystemTime();
+                    state = Release::ReleaseStates::MOVING; 
 
                 } else {
                     state = Release::ReleaseStates::ERROR_MOTOR_MOVE_INVALID;

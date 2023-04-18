@@ -47,7 +47,7 @@ void HopperDrumFSMClass::setup()
 void HopperDrumFSMClass::read_interfaces()
 {
     plate_sensor_input = CcIoManager.get_input(AutocadoCcPins::DRUM_SENS_IN);
-    estop_input = CcIoManager.get_input(MbRegisterOffsets::E_STOP);
+    estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
 }
 
 void HopperDrumFSMClass::run()

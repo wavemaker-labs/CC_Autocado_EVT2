@@ -11,7 +11,7 @@
 #include "C:\Projects\Autocado\autocado-clearcore\clearcore-2\src\control_node_2.hpp"
 
 #define TURNABLE_MAX_STEPS 30000
-#define TURNTABLE_MOVE_ALLOWANCE_MS 25
+#define TURNTABLE_MOVE_ALLOWANCE_MS 2
 
 namespace Turntable
 {

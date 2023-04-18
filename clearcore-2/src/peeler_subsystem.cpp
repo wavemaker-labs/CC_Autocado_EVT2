@@ -20,7 +20,7 @@ void PeelerFSMClass::setup()
 void PeelerFSMClass::read_interfaces()
 {
     mb_move_request = CcIoManager.get_mb_data(MbRegisterOffsets::PEELER_CMD);
-    estop_input = CcIoManager.get_input(MbRegisterOffsets::E_STOP);
+    estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
 
     motor_1_current = CcIoManager.get_input(AutocadoCcPins::PEELER_I1_AIN);
     motor_2_current = CcIoManager.get_input(AutocadoCcPins::PEELER_I2_AIN);

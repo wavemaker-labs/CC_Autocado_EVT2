@@ -126,7 +126,7 @@ static PinIO cc2_io_pins[NUM_CC_IO_PIN] = {
     PinIO(SWITCH_SENSOR_IN, ESTOP_IN, nullptr),
     PinIO(SWITCH_SENSOR_IN, START_BUTTON_IN, nullptr),
     PinIO(DIGITAL_OUT, POWER_DISABLE_OUT, nullptr),
-    PinIO(SWITCH_SENSOR_IN, START_LED_OUT, nullptr),
+    PinIO(DIGITAL_OUT, START_LED_OUT, nullptr),
     PinIO(SWITCH_SENSOR_IN, DOORS_DRAWER_SEN_IN, nullptr),
     PinIO(SWITCH_SENSOR_IN, GUTTER_SEN2_IN, nullptr),
     PinIO(SWITCH_SENSOR_IN, GUTTER_SEN1_IN, nullptr),

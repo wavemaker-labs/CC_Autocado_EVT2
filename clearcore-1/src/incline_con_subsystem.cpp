@@ -19,7 +19,7 @@ void InclinedConveyorFSMClass::setup()
 void InclinedConveyorFSMClass::read_interfaces()
 {
     mb_move_request = CcIoManager.get_mb_data(MbRegisterOffsets::INCLINE_CON_CMD);
-    estop_input = CcIoManager.get_input(MbRegisterOffsets::E_STOP);
+    estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
 }
 
 void InclinedConveyorFSMClass::run()

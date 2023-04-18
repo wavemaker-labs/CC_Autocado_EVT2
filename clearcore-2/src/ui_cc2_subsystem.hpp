@@ -32,6 +32,8 @@ class UiCc2Class{
         uint16_t start_led_cmd;
         PinStatus start_led_out;
 
+        PinStatus power_supply_en_out;
+
         uint16_t door_drawer_sen_in;       
         
 };

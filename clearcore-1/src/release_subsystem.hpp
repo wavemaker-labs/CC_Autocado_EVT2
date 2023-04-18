@@ -36,8 +36,12 @@ class ReleaseFSMClass {
         uint16_t timeout_limit_ms;
         uint16_t motor_speed;
         uint16_t motor_accel;
-        uint16_t open_position;
-        uint16_t closed_position;
+        uint16_t position_0;
+        uint16_t position_1;
+        uint16_t position_2;
+        uint16_t position_3;
+        uint16_t position_4;
+        uint16_t position_5;
 
         ReleaseFSMClass() {
             has_setup = false;
@@ -49,7 +53,8 @@ class ReleaseFSMClass {
 
     private:
         void read_interfaces();
-        void write_interfaces();  
+        void write_interfaces();
+        void set_motor_position(int16_t move_request); 
 
         bool has_setup;
         

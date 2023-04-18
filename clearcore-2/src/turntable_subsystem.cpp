@@ -94,6 +94,9 @@ void TurntableFSMClass::run()
             case Turntable::TurntableStates::ESTOP:
             default:
                 ptr_turntable_motor->enable = false;
+                if (estop_input == ESTOP_RELEASED) {
+                    state = Turntable::TurntableStates::STOPPED;
+                }
                 break;
         }
 
