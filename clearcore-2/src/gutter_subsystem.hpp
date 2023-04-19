@@ -17,8 +17,8 @@
 #define GUTTER_CMD_OPEN 1
 #define GUTTER_CMD_CLOSE 0
 
-#define GUTTER_DIR_TO_OPEN 1
-#define GUTTER_DIR_TO_CLOSE -1
+#define GUTTER_DIR_TO_OPEN -1
+#define GUTTER_DIR_TO_CLOSE 1
 
 namespace Gutter
 {

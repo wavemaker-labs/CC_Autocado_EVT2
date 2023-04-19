@@ -79,8 +79,26 @@ void IoManagerClass::write_motor_cmds() {
     /*Command  motors*/
     if(ptr_motor_array != nullptr) {
         for (int i = 0; i < motor_array_size; i++) {
+
+            /*enable request*/
+            if(ptr_motor_array[i].enable && !ptr_motor_array[i].ptr_connector->EnableRequest()) {
+                ptr_motor_array[i].ptr_connector->EnableRequest(ptr_motor_array[i].enable);
+            }
+
+            /*disable request*/
+            if(!ptr_motor_array[i].enable && ptr_motor_array[i].ptr_connector->EnableRequest()) {
+                ptr_motor_array[i].ptr_connector->EnableRequest(ptr_motor_array[i].enable);
+            }
+
             /* if enabled then move based on type*/
             if(ptr_motor_array[i].new_move_commanded && ptr_motor_array[i].ptr_connector->EnableRequest()) {
+                if(ptr_motor_array[i].ptr_connector->ValidateMove(false)){
+                    Serial.println("Motor state");
+                    Serial.println(ptr_motor_array[i].ptr_connector->AlertReg().reg);
+                    Serial.println(ptr_motor_array[i].ptr_connector->StatusReg().reg);
+                    Serial.println(ptr_motor_array[i].ptr_connector->ValidateMove(false));
+                }                    
+
                 if(ptr_motor_array[i].motor_mode == Connector::ConnectorModes::CPM_MODE_STEP_AND_DIR){
                     Serial.println("Motor will move");
                     Serial.println(i);                   
@@ -111,20 +129,11 @@ void IoManagerClass::write_motor_cmds() {
                 ptr_motor_array[i].new_move_commanded = false;
             }
 
-            /*enable request*/
-            if(ptr_motor_array[i].enable && !ptr_motor_array[i].ptr_connector->EnableRequest()) {
-                ptr_motor_array[i].ptr_connector->EnableRequest(ptr_motor_array[i].enable);
-            }
-
-            /*disable request*/
-            if(!ptr_motor_array[i].enable && ptr_motor_array[i].ptr_connector->EnableRequest()) {
-                ptr_motor_array[i].ptr_connector->EnableRequest(ptr_motor_array[i].enable);
-            }
-
             /*if abrupt stop*/
             if(ptr_motor_array[i].stop_abrupt)
             {
                 ptr_motor_array[i].ptr_connector->MoveStopAbrupt();
+                ptr_motor_array[i].stop_abrupt = false;
             }
         }
     }

@@ -56,6 +56,7 @@ void TurntableFSMClass::run()
                 
                 if(new_mb_turntable_cmd){
                     new_mb_turntable_cmd = false;
+                    ptr_turntable_motor->ptr_connector->ClearAlerts();
 
                     if(motor_steps != 0){
                         ptr_turntable_motor->ptr_connector->VelMax(motor_speed);

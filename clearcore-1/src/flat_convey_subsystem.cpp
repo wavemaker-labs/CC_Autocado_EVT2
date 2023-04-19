@@ -57,6 +57,7 @@ void FlatConveyorFSMClass::run()
             
             if(new_flat_con_mb_cmd && motor_steps != 0){
                 new_flat_con_mb_cmd = false;
+                ptr_flat_con_motor->ptr_connector->ClearAlerts();
                 ptr_flat_con_motor->ptr_connector->VelMax(motor_speed);
                 ptr_flat_con_motor->ptr_connector->AccelMax(motor_accel);
 
@@ -89,7 +90,7 @@ void FlatConveyorFSMClass::run()
             
             if(new_flat_con_mb_cmd && motor_steps == 0){
                 new_flat_con_mb_cmd = false;
-                ptr_flat_con_motor->enable = false;
+                ptr_flat_con_motor->stop_abrupt = true;
                 state = FlatConvey::FlatConStates::STOPPED;
             }            
             break;
