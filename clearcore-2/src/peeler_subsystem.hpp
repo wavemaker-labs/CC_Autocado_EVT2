@@ -23,12 +23,12 @@ namespace Peeler
     } PeelerStates;
 } // namespace Peeler
 
-class PeelerFSMClass {
+class Peeler1FSMClass {
     public:
         void setup();
         void run();        
 
-        PeelerFSMClass() {
+        Peeler1FSMClass() {
             has_setup = false;
         }
 
@@ -38,19 +38,36 @@ class PeelerFSMClass {
 
         bool has_setup;
         Peeler::PeelerStates state;
-
         uint16_t mb_move_request;
-
-        PinStatus motor_1_out;
-        PinStatus motor_2_out;
-
-        uint16_t motor_1_current;
-        uint16_t motor_2_current;
-
+        PinStatus motor_out;
+        uint16_t motor_current;
         int16_t estop_input;       
 
 };
 
-extern PeelerFSMClass peeler;
+class Peeler2FSMClass {
+    public:
+        void setup();
+        void run();        
+
+        Peeler2FSMClass() {
+            has_setup = false;
+        }
+
+    private:
+        void read_interfaces();
+        void write_interfaces();  
+
+        bool has_setup;
+        Peeler::PeelerStates state;
+        uint16_t mb_move_request;
+        PinStatus motor_out;
+        uint16_t motor_current;
+        int16_t estop_input;       
+
+};
+
+extern Peeler1FSMClass peeler_m1;
+extern Peeler2FSMClass peeler_m2;
 
 #endif //PEELER_SUBSYSTEM_HPP

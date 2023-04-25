@@ -41,7 +41,8 @@ void setup()
 	*ptr_system_errors = SystemErrors::NO_ERRORS;
 
 	ui_cc2.setup();
-	peeler.setup();
+	peeler_m1.setup();
+	peeler_m2.setup();
 	gutter.setup();
 	turntable.setup();
 
@@ -62,7 +63,8 @@ void cycleTasks()
 	CcIoManager.update_system_mb();
 	
 	ui_cc2.run();
-	peeler.run();
+	peeler_m1.run();
+	peeler_m2.run();
 	gutter.run();
 	turntable.run();
 
