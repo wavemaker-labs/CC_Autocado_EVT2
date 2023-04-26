@@ -32,7 +32,9 @@ struct MotorIO
    /*Feedback*/
    MotorDriver::HlfbStates hlfb_state;
    bool steps_complete;
-   MotorDriver::StatusRegMotor statusreg;   
+   MotorDriver::StatusRegMotor statusreg;
+   MotorDriver::AlertRegMotor alertreg;
+   float hlfb_duty;
 
 
    MotorIO(MotorDriver::HlfbModes hlfb_mode_, MotorDriver::HlfbCarrierFrequency hlfb_mode_freq_, int16_t velocity_limit_, int16_t accel_limit_, Connector::ConnectorModes motor_mode_, MotorDriver * ptr_connector_, StepGenerator::MoveTarget move_mode_) { 
@@ -49,7 +51,9 @@ struct MotorIO
         steps_complete = false;
         stop_abrupt = false;
         hlfb_state = MotorDriver::HlfbStates::HLFB_UNKNOWN; 
+        hlfb_duty = 0;
         statusreg = 0;
+        alertreg = 0;
         move_mode = move_mode_;
    }
    MotorIO(int16_t velocity_limit_, int16_t accel_limit_, Connector::ConnectorModes motor_mode_, MotorDriver * ptr_connector_, StepGenerator::MoveTarget move_mode_) { 
@@ -63,8 +67,10 @@ struct MotorIO
         new_move_commanded = false;
         steps_complete = false;
         stop_abrupt = false;
-        hlfb_state = MotorDriver::HlfbStates::HLFB_UNKNOWN; 
+        hlfb_state = MotorDriver::HlfbStates::HLFB_UNKNOWN;
+        hlfb_duty = 0;
         statusreg = 0;
+        alertreg = 0;
         hlfb_mode = MotorDriver::HlfbModes::HLFB_MODE_HAS_BIPOLAR_PWM;
         hlfb_mode_freq = MotorDriver::HlfbCarrierFrequency::HLFB_CARRIER_482_HZ;        
         move_mode = move_mode_;
@@ -80,8 +86,10 @@ struct MotorIO
         new_move_commanded = false;
         steps_complete = false;
         stop_abrupt = false;
-        hlfb_state = MotorDriver::HlfbStates::HLFB_UNKNOWN; 
+        hlfb_state = MotorDriver::HlfbStates::HLFB_UNKNOWN;
+        hlfb_duty = 0;
         statusreg = 0;
+        alertreg = 0;
         hlfb_mode = MotorDriver::HlfbModes::HLFB_MODE_HAS_BIPOLAR_PWM;
         hlfb_mode_freq = MotorDriver::HlfbCarrierFrequency::HLFB_CARRIER_482_HZ;        
         move_mode = MotorDriver::MOVE_TARGET_ABSOLUTE;

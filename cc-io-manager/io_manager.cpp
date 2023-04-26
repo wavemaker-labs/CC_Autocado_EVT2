@@ -60,7 +60,11 @@ void IoManagerClass::read_motor_parameters() {
         for (int i = 0; i < motor_array_size; i++) {
             ptr_motor_array[i].hlfb_state = ptr_motor_array[i].ptr_connector->HlfbState();
             ptr_motor_array[i].steps_complete = ptr_motor_array[i].ptr_connector->StepsComplete();            
-            // ptr_motor_array[i].statusreg = ptr_motor_array[i].ptr_connector->StatusReg();
+            ptr_motor_array[i].statusreg.reg = ptr_motor_array[i].ptr_connector->StatusReg().reg;
+            ptr_motor_array[i].alertreg.reg = ptr_motor_array[i].ptr_connector->AlertReg().reg;
+            if(ptr_motor_array[i].hlfb_state == MotorDriver::HlfbStates::HLFB_HAS_MEASUREMENT){
+                ptr_motor_array[i].hlfb_duty = ptr_motor_array[i].ptr_connector->HlfbPercent();
+            }
         }
     }
 }
@@ -133,6 +137,7 @@ void IoManagerClass::write_motor_cmds() {
             if(ptr_motor_array[i].stop_abrupt)
             {
                 ptr_motor_array[i].ptr_connector->MoveStopAbrupt();
+                ptr_motor_array[i].new_move_commanded = false;
                 ptr_motor_array[i].stop_abrupt = false;
             }
         }

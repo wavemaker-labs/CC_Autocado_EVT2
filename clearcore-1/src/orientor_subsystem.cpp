@@ -95,6 +95,18 @@ bool OrientorFSMClass::motor_move_done()
     return ret;
 }
 
+bool OrientorFSMClass::motor_at_torq()
+{   
+    bool ret = false;
+    if(ptr_right_orientor_motor != nullptr && ptr_left_orientor_motor != nullptr)
+    {   
+        ret = (ptr_right_orientor_motor->hlfb_duty >= motor_torque || 
+        ptr_left_orientor_motor->hlfb_duty >= motor_torque);
+    }
+
+    return ret;
+}
+
 void OrientorFSMClass::set_motor_distance(uint16_t distance)
 {
     if(ptr_right_orientor_motor != nullptr && ptr_left_orientor_motor != nullptr)
@@ -123,11 +135,11 @@ void OrientorFSMClass::set_motor_position(uint16_t pos_request)
                 set_motor_distance(position_4);
                 break;
             case 5:
-                set_motor_distance(position_5);
+                set_motor_distance(position_5); //clamp/close
                 break;                    
             default:
             case 0:
-                set_motor_distance(position_0);
+                set_motor_distance(position_0); //home
                 break;
         }
     }
@@ -192,7 +204,17 @@ void OrientorFSMClass::run()
             break;
 
         case Orientor::OrientorStates::MOVING_TO_TQ:
-            /* code */
+            if((motor_move_done() || motor_at_torq()) &&
+            CcIoManager.getSystemTime() - move_start_time_ms > ORIENTOR_MOVE_ALLOWANCE_MS){
+
+                Serial.println(" motors at pos OR torquw");
+                ptr_right_orientor_motor->stop_abrupt = true;
+                ptr_left_orientor_motor->stop_abrupt = true;
+                state = Orientor::OrientorStates::MOVE_DONE;
+               
+            }else if (CcIoManager.getSystemTime() - move_start_time_ms > timeout_limit_ms) {
+                state = Orientor::OrientorStates::ERROR_MOVING;
+            }
             break;
 
         case Orientor::OrientorStates::MOVE_DONE:
@@ -205,6 +227,13 @@ void OrientorFSMClass::run()
                 move_start_time_ms = CcIoManager.getSystemTime();
                 
                 state = Orientor::OrientorStates::MOVING_TO_POS;
+            }
+            if(new_mb_orient_torq_cmd){
+                new_mb_orient_torq_cmd = false;
+                set_motor_position(mb_pos_move_request);                
+                ptr_right_orientor_motor->new_move_commanded = true;
+                ptr_left_orientor_motor->new_move_commanded = true;
+                move_start_time_ms = CcIoManager.getSystemTime();
             }
             break;
             

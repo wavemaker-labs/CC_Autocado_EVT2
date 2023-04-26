@@ -45,6 +45,7 @@ class OrientorFSMClass{
         void set_motor_parameters();
         void enable_motors(bool val);
         bool motor_move_done();
+        bool motor_at_torq();
         void set_motor_distance(uint16_t distance);
         void set_motor_position(uint16_t pos_request);
 
