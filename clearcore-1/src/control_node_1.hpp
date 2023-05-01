@@ -10,7 +10,7 @@
 
 #include <io_manager.hpp>
 
-#define FIRMWARE_VER 1
+#define CC1_FW_VERSION 1
 
 typedef enum
 {
@@ -70,7 +70,7 @@ static ModbusRegister cc1_modbus[CC1_NUM_MODBUS_REGISTERS] =
     {INPUT_REG, CC_NUMBER, CC1_NODE_NUM, nullptr}, 
     {INPUT_REG, WD_COUNTER, 0, nullptr},
     {INPUT_REG, SYSTEM_ERROR, 0, nullptr},
-    {INPUT_REG, FW_VERSION, FIRMWARE_VER, nullptr},
+    {INPUT_REG, FW_VERSION, CC1_FW_VERSION, nullptr},
     {INPUT_REG, E_STOP, 0, nullptr},
 
     /*Hopper: Drum*/

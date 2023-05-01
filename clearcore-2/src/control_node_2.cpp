@@ -27,9 +27,9 @@ void CntrlNode2Io::assign_io_pins() {
      /*Clearcore 2 specific declarations
         Link: https://wavemakerlabs.atlassian.net/wiki/spaces/BOBA/pages/1742798849/Control+Architecture
         Inputs: 
-        IO2 - E stop in
-        IO3 - Start button (Digital In)
-        DI6 - Doors and Drawer (Digital In)
+        IO0 - Start button (Digital In)
+        IO2 - Doors and Drawer (Digital In)
+        IO6 - E stop in
         DI7 - Gutter Switch # 2 (Digital In)
         DI8 - Gutter Switch # 1 (Digital In)
         A9 -  Not used
@@ -37,10 +37,10 @@ void CntrlNode2Io::assign_io_pins() {
         A11 - Peeler Current 1 (Analog In)
         A12 - Peeler Current 2 (Analog In)
         Outputs:
-        IO0 - Peeler Relay 1 (Digital Out)
-        IO1 - Peeler Relay 2 (Digital Out)
-        IO4 - Power disable (Digital Out)
-        IO5 - Start LED (Digital Out)
+        IO1 - Start LED (Digital Out)
+        IO3 - Power disable (Digital Out)
+        IO4 - Peeler Relay 1 (Digital Out)
+        IO5 - Peeler Relay 2 (Digital Out)
     */
         
     ptr_io_array = cc2_io_pins;
@@ -48,8 +48,8 @@ void CntrlNode2Io::assign_io_pins() {
 
     /*set up inputs*/
     ClearCore::AdcMgr.AdcResolution(adcResolution);
+    ConnectorIO0.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorIO2.Mode(ClearCore::Connector::INPUT_DIGITAL);
-    ConnectorIO3.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorDI6.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorDI7.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorDI8.Mode(ClearCore::Connector::INPUT_DIGITAL);
@@ -60,8 +60,8 @@ void CntrlNode2Io::assign_io_pins() {
     ConnectorA12.FilterTc(20, AdcManager::FILTER_UNIT_MS); 
     
     /*set up outputs*/
-    ConnectorIO0.Mode(ClearCore::Connector::OUTPUT_DIGITAL);
     ConnectorIO1.Mode(ClearCore::Connector::OUTPUT_DIGITAL);
+    ConnectorIO3.Mode(ClearCore::Connector::OUTPUT_DIGITAL);
     ConnectorIO4.Mode(ClearCore::Connector::OUTPUT_DIGITAL);
     ConnectorIO5.Mode(ClearCore::Connector::OUTPUT_DIGITAL);
 
@@ -96,9 +96,9 @@ int16_t current_sensor_to_milliamps(int16_t input)
 void CntrlNode2Io::read_pin_inputs() {
     /* Clearcore 2 specific 
         Inputs: 
-        IO2 - E stop in
-        IO3 - Start button (Digital In)
-        DI6 - Doors and Drawer (Digital In)
+        IO0 - Start button (Digital In)
+        IO2 - Doors and Drawer (Digital In)
+        IO6 - E stop in
         DI7 - Gutter Switch # 2 (Digital In)
         DI8 - Gutter Switch # 1 (Digital In)
         A9 -  Not used
@@ -108,9 +108,9 @@ void CntrlNode2Io::read_pin_inputs() {
 
 
 
-    ptr_io_array[ESTOP_IN].value = ConnectorIO2.State();
-    ptr_io_array[START_BUTTON_IN].value = ConnectorIO3.InputRisen(); // Or Fallen
-    ptr_io_array[DOORS_DRAWER_SEN_IN].value = ConnectorDI6.State();
+    ptr_io_array[START_BUTTON_IN].value = ConnectorIO0.InputRisen(); // Or Fallen
+    ptr_io_array[DOORS_DRAWER_SEN_IN].value = ConnectorIO2.State();
+    ptr_io_array[ESTOP_IN].value = ConnectorDI6.State();
     ptr_io_array[GUTTER_SEN2_IN].value = ConnectorDI7.State();
     ptr_io_array[GUTTER_SEN1_IN].value = ConnectorDI8.State();
     ptr_io_array[A9_NOT_USED].value = 0;
@@ -122,14 +122,14 @@ void CntrlNode2Io::read_pin_inputs() {
 void CntrlNode2Io::write_pin_outputs () {
     /*Clearcore 2 specific 
        Outputs:
-        IO0 - Peeler Relay 1 (Digital Out)
-        IO1 - Peeler Relay 2 (Digital Out)
-        IO4 - Power disable (Digital Out)
-        IO5 - Start LED (Digital Out) */
-    ConnectorIO0.State(ptr_io_array[PEELER_RELAY1_OUT].state);
-    ConnectorIO1.State(ptr_io_array[PEELER_RELAY2_OUT].state);
-    ConnectorIO4.State(ptr_io_array[POWER_DISABLE_OUT].state);
-    ConnectorIO5.State(ptr_io_array[START_LED_OUT].state);
+        IO1 - Start LED (Digital Out)
+        IO3 - Power disable (Digital Out)
+        IO4 - Peeler Relay 1 (Digital Out)
+        IO5 - Peeler Relay 2 (Digital Out) */
+    ConnectorIO1.State(ptr_io_array[START_LED_OUT].state);
+    ConnectorIO3.State(ptr_io_array[POWER_DISABLE_OUT].state);
+    ConnectorIO4.State(ptr_io_array[PEELER_RELAY1_OUT].state);
+    ConnectorIO5.State(ptr_io_array[PEELER_RELAY2_OUT].state);
 }
 
 void CntrlNode2Io::update_system_mb () {
