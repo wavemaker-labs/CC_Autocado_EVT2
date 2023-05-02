@@ -70,7 +70,7 @@ void HopperDrumFSMClass::run()
                 move_timeout_ms = new_mb_timeout;     
                 mb_move_request = CcIoManager.get_mb_data(MbRegisterOffsets::DRUM_MOVE_CMD);
 
-                if(plate_sensor_input == PinStatus::HIGH){
+                if(plate_sensor_input == PinStatus::LOW){
                     dir_out = DRUM_DIR_TO_LOAD;
                     run_stop_out = PinStatus::HIGH;
                     move_start_time_ms = CcIoManager.getSystemTime();
@@ -93,7 +93,7 @@ void HopperDrumFSMClass::run()
             if(CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS)
             {
                 /*if sensor is cleared that means we were at the dump pos*/
-                if(plate_sensor_input == PinStatus::LOW){
+                if(plate_sensor_input == PinStatus::HIGH){
                     if(mb_move_request == DRUM_CMD_MOVE_TO_LOAD){
                         dir_out = DRUM_DIR_TO_LOAD;
                         run_stop_out = PinStatus::HIGH;
@@ -119,7 +119,7 @@ void HopperDrumFSMClass::run()
             if(CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS)
             {
                 /*if sensor is cleared that means we were at the load pos*/
-                if(plate_sensor_input == PinStatus::LOW){
+                if(plate_sensor_input == PinStatus::HIGH){
                     if(mb_move_request == DRUM_CMD_MOVE_TO_LOAD){
                         dir_out = DRUM_DIR_TO_LOAD;
                         run_stop_out = PinStatus::HIGH;
@@ -140,7 +140,7 @@ void HopperDrumFSMClass::run()
             break;
 
         case HopperDrum::DrumStates::MOVING_TO_LOAD:
-            if(plate_sensor_input == PinStatus::HIGH){
+            if(plate_sensor_input == PinStatus::LOW && CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS){
                 run_stop_out = PinStatus::LOW;
                 state = HopperDrum::DrumStates::AT_LOAD_POS;
             }else if(CcIoManager.getSystemTime() - move_start_time_ms > move_timeout_ms){
@@ -149,7 +149,7 @@ void HopperDrumFSMClass::run()
             break;
 
         case HopperDrum::DrumStates::MOVING_TO_DUMP:
-            if(plate_sensor_input == PinStatus::HIGH){
+            if(plate_sensor_input == PinStatus::LOW && CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS){
                 run_stop_out = PinStatus::LOW;
                 state = HopperDrum::DrumStates::AT_DUMP_POS;
             }else if(CcIoManager.getSystemTime() - move_start_time_ms > move_timeout_ms){

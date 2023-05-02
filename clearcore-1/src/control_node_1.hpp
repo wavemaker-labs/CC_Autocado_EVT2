@@ -10,7 +10,7 @@
 
 #include <io_manager.hpp>
 
-#define CC1_FW_VERSION 1
+#define CC1_FW_VERSION 2
 
 typedef enum
 {
