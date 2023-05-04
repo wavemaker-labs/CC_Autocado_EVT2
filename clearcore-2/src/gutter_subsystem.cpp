@@ -23,6 +23,7 @@ void GutterFSMClass::setup()
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::GUTTER_CMD, &gutter_hreg_write);
 
         ptr_gutter_motor = CcIoManager.get_ptr_motor(AutocadoCc2Motors::GUTTER_STEPPER);
+        ptr_gutter_motor->ptr_connector->PolarityInvertSDEnable(true);
         ptr_gutter_motor->enable = false;
 
         state = Gutter::GutterStates::UNINITIATED;
@@ -68,7 +69,7 @@ void GutterFSMClass::run()
                 if(mb_command == GUTTER_CMD_OPEN){
                     ptr_gutter_motor->enable = true;
 
-                    if(open_sensor_input == PinStatus::LOW){
+                    if(open_sensor_input == GUTTER_FLAG_DETECTED){
                         state = Gutter::GutterStates::AT_OPEN;
                     }else{
                         ptr_gutter_motor->distance = max_motor_steps * GUTTER_DIR_TO_OPEN;
@@ -81,7 +82,7 @@ void GutterFSMClass::run()
                 }else if(mb_command == GUTTER_CMD_CLOSE){
                     ptr_gutter_motor->enable = true;
 
-                    if(closed_sensor_input == PinStatus::LOW){
+                    if(closed_sensor_input == GUTTER_FLAG_DETECTED){
                         state = Gutter::GutterStates::AT_CLOSED;
                     }else{
                         ptr_gutter_motor->distance = max_motor_steps * GUTTER_DIR_TO_CLOSE;
@@ -95,7 +96,7 @@ void GutterFSMClass::run()
             break;
         
         case Gutter::GutterStates::MOVING_OPEN:
-            if(open_sensor_input == PinStatus::LOW){
+            if(open_sensor_input == GUTTER_FLAG_DETECTED){
                 // ptr_gutter_motor->enable = false;
                 ptr_gutter_motor->stop_abrupt = true;
                 state = Gutter::GutterStates::AT_OPEN;
@@ -106,7 +107,7 @@ void GutterFSMClass::run()
             break;
         
         case Gutter::GutterStates::MOVING_CLOSED:
-            if(closed_sensor_input == PinStatus::LOW){
+            if(closed_sensor_input == GUTTER_FLAG_DETECTED){
                 // ptr_gutter_motor->enable = false;                
                 ptr_gutter_motor->stop_abrupt = true;
                 state = Gutter::GutterStates::AT_CLOSED;
@@ -117,7 +118,7 @@ void GutterFSMClass::run()
             break;
 
         case Gutter::GutterStates::AT_OPEN:
-            if(open_sensor_input != PinStatus::LOW){state = Gutter::GutterStates::UNINITIATED;}
+            if(open_sensor_input != GUTTER_FLAG_DETECTED){state = Gutter::GutterStates::UNINITIATED;}
 
             if(new_gutter_mb_cmd && mb_command == GUTTER_CMD_CLOSE){
                 new_gutter_mb_cmd = false;
@@ -132,7 +133,7 @@ void GutterFSMClass::run()
             break;
         
         case Gutter::GutterStates::AT_CLOSED:
-            if(closed_sensor_input != PinStatus::LOW){state = Gutter::GutterStates::UNINITIATED;}
+            if(closed_sensor_input != GUTTER_FLAG_DETECTED){state = Gutter::GutterStates::UNINITIATED;}
 
             if(new_gutter_mb_cmd && mb_command == GUTTER_CMD_OPEN){
                 new_gutter_mb_cmd = false;

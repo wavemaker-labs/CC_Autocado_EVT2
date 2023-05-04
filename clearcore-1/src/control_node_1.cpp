@@ -79,8 +79,17 @@ void CntrlNode1Io::initialize_ethernet(){
 
 int16_t adc_to_avo_size(int16_t input)
 {
-    if(input > 0){}
-    return 1;
+    int16_t out = AVO_SIZE_SMALL;
+    if(input < AVO_SIZE_SMALL_ADC_LIMIT){
+        out = AVO_SIZE_SMALL;
+    }else if(input < AVO_SIZE_XLARGE_ADC_LIMIT){
+        out = AVO_SIZE_XLARGE;
+    }else if(input < AVO_SIZE_LARGE_ADC_LIMIT){
+        out = AVO_SIZE_LARGE;
+    }else if(input < AVO_SIZE_MED_ADC_LIMIT){
+        out = AVO_SIZE_MED;
+    }
+    return out;
 }
 
 void CntrlNode1Io::read_pin_inputs() {

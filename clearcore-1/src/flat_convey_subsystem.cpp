@@ -23,6 +23,7 @@ void FlatConveyorFSMClass::setup()
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::FLAT_CON_STEPS, &flat_con_hreg_write);
 
         ptr_flat_con_motor = CcIoManager.get_ptr_motor(AutocadoCc1Motors::FLAT_CON_MOT);
+        ptr_flat_con_motor->ptr_connector->PolarityInvertSDEnable(true);
         motor_steps = 0;
 
         state = FlatConvey::FlatConStates::STOPPED;

@@ -22,6 +22,7 @@ void TurntableFSMClass::setup()
         new_mb_turntable_cmd = false;
 
         ptr_turntable_motor = CcIoManager.get_ptr_motor(AutocadoCc2Motors::TURNTABLE_STEPPER);
+        ptr_turntable_motor->ptr_connector->PolarityInvertSDEnable(true);
         ptr_turntable_motor->enable = false;
 
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::TURNTABLE_CMD, &turntable_hreg_write);

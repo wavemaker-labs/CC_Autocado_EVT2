@@ -7,11 +7,8 @@
 
 #include "release_subsystem.hpp"
 
-#define RELEASE_DEFAULT_MOTOR_SPEED 1000
-#define RELEASE_DEFAULT_MOTOR_ACCEL 1000
 #define RELEASE_DEFAULT_OPEN_POS 10
 #define RELEASE_DEFAULT_CLOSED_POS 100
-#define RELEASE_DEFAULT_TIMEOUT_MS 10000 // 10 seconds
 
 #define TIME_TO_START_MOVE_MS 100
 
@@ -22,6 +19,9 @@ static bool new_mb_release_cmd = false;
 
 uint16_t release_hreg_write(TRegister* reg, uint16_t val) 
 {
+    Serial.println("release_hreg_write");
+    Serial.println(reg->address.address);
+    Serial.println(val);
     switch(reg->address.address)
     {
         case MbRegisterOffsets::RELEASER_POS_CMD:
@@ -169,7 +169,8 @@ void ReleaseFSMClass::run()
 
                 if(ptr_release_motor->ptr_connector->ValidateMove(false)){
 
-                    set_motor_position(mb_move_request);
+                    set_motor_position(mb_move_request);                
+                    ptr_release_motor->new_move_commanded = true;
                     move_start_time_ms = CcIoManager.getSystemTime();
                     state = Release::ReleaseStates::MOVING; 
 
