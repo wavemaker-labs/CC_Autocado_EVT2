@@ -79,15 +79,17 @@ void CntrlNode1Io::initialize_ethernet(){
 
 int16_t adc_to_avo_size(int16_t input)
 {
-    int16_t out = AVO_SIZE_SMALL;
-    if(input < AVO_SIZE_SMALL_ADC_LIMIT){
-        out = AVO_SIZE_SMALL;
-    }else if(input < AVO_SIZE_XLARGE_ADC_LIMIT){
+    int16_t out;
+    if(input < AVO_SIZE_XLARGE_ADC_LIMIT){
         out = AVO_SIZE_XLARGE;
+    }else if(input < AVO_SIZE_SMALL_ADC_LIMIT){
+        out = AVO_SIZE_SMALL;
     }else if(input < AVO_SIZE_LARGE_ADC_LIMIT){
         out = AVO_SIZE_LARGE;
     }else if(input < AVO_SIZE_MED_ADC_LIMIT){
         out = AVO_SIZE_MED;
+    }else{
+        out = AVO_SIZE_ERROR;
     }
     return out;
 }
@@ -107,7 +109,8 @@ void CntrlNode1Io::read_pin_inputs() {
     ptr_io_array[DRUM_SENS_IN].value = ConnectorDI7.State();
     ptr_io_array[RELEASE_SENS_IN].value = ConnectorDI8.State();
     ptr_io_array[FLAT_CON_LENGTH_SEN_IN].value = ConnectorA9.State(); 
-    ptr_io_array[AVO_SIZE_AIN].value = adc_to_avo_size(ConnectorA10.State());
+    /*if statement ignores the middle points between dials (0)*/
+    if(ConnectorA10.State() > AVO_SIZE_MIN_ADC){ptr_io_array[AVO_SIZE_AIN].value = adc_to_avo_size(ConnectorA10.State());}
     ptr_io_array[ESTOP_IN].value = ConnectorA11.State();
     ptr_io_array[A12_NOT_USED].value = 0;
 

@@ -55,7 +55,7 @@ void CntrlNode2Io::assign_io_pins() {
     ConnectorDI8.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorA10.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorA11.Mode(ClearCore::Connector::INPUT_ANALOG);
-    ConnectorA12.FilterTc(20, AdcManager::FILTER_UNIT_MS); 
+    ConnectorA11.FilterTc(20, AdcManager::FILTER_UNIT_MS); 
     ConnectorA12.Mode(ClearCore::Connector::INPUT_ANALOG);
     ConnectorA12.FilterTc(20, AdcManager::FILTER_UNIT_MS); 
     
