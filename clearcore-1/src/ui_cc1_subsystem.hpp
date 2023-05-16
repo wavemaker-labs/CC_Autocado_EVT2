@@ -52,6 +52,8 @@ class UiCc1Class{
 
         uint16_t done_status;
         PinStatus done_out;
+
+        int16_t estop_input;
         
 };
 

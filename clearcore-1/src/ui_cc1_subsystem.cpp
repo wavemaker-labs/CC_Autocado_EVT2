@@ -8,10 +8,19 @@
 #include "ui_cc1_subsystem.hpp"
 
 
+bool new_buzzer_mb_cmd = false;
+
+uint16_t buzzer_hreg_write(TRegister* reg, uint16_t val) {
+    new_buzzer_mb_cmd = true;
+    return val;
+}
+
 void UiCc1Class::setup()
 {
     if(!has_setup){
         has_setup = true;
+
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::UI_BUZZER_MODE_CMD, &buzzer_hreg_write);
     }
 }
 
@@ -21,16 +30,25 @@ void UiCc1Class::read_interfaces()
     buzzer_duration_ms = CcIoManager.get_mb_data(MbRegisterOffsets::UI_BUZZER_MODE_CMD);
     alert_mode = CcIoManager.get_mb_data(MbRegisterOffsets::UI_ALERT_MODE_CMD);
     done_status = CcIoManager.get_mb_data(MbRegisterOffsets::UI_DONE_STATUS_CMD);
+    estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
 }
 
 void UiCc1Class::run()
 {
     read_interfaces();
 
-    if(buzzer_duration_ms != 0 && buzzer_started == false){
+    if (estop_input == ESTOP_ACTIVE)
+    {
+        buzzer_out = PinStatus::LOW;
+        new_buzzer_mb_cmd = false;
+        buzzer_started = false;
+    }
+
+    if(buzzer_duration_ms != 0 && new_buzzer_mb_cmd){
         buzzer_start_ms = CcIoManager.getSystemTime();
         buzzer_out = PinStatus::HIGH;
         buzzer_started = true;
+        new_buzzer_mb_cmd = false;
     }
 
     if(buzzer_started == true && CcIoManager.getSystemTime() - buzzer_start_ms > buzzer_duration_ms){

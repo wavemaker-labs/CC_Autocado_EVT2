@@ -131,7 +131,7 @@ void CntrlNode1Io::write_pin_outputs () {
     ConnectorIO2.State(ptr_io_array[DRUM_RUN_STOP_OUT].state);
     ConnectorIO3.State(ptr_io_array[DRUM_DIR_OUT].state);
     ConnectorIO4.State(ptr_io_array[INCLINE_RUN_STOP_OUT].state);
-    ConnectorIO5.State(ptr_io_array[BUZZER].value);    
+    ConnectorIO5.State(ptr_io_array[BUZZER].state);    
 } 
 
 void CntrlNode1Io::update_system_mb () {
