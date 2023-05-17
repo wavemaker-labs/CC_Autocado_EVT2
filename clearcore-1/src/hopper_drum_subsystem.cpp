@@ -90,7 +90,7 @@ void HopperDrumFSMClass::run()
             break;
 
         case HopperDrum::DrumStates::CLEAR_LOAD:
-            if(CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS)
+            if(CcIoManager.getSystemTime() - move_start_time_ms > DRUM_INIT_CLEAR_SENSOR_TIME_MS)
             {
                 /*if sensor is cleared that means we were at the load pos*/
                 if(plate_sensor_input == PinStatus::HIGH){
@@ -116,7 +116,7 @@ void HopperDrumFSMClass::run()
             break;
 
         case HopperDrum::DrumStates::CLEAR_DUMP:
-            if(CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS)
+            if(CcIoManager.getSystemTime() - move_start_time_ms > DRUM_INIT__DUMP_CLEAR_SENSOR_TIME_MS)
             {
                 /*if sensor is cleared that means we were at the dump pos*/
                 if(plate_sensor_input == PinStatus::HIGH){
@@ -139,9 +139,8 @@ void HopperDrumFSMClass::run()
             }
             break;
 
-
         case HopperDrum::DrumStates::MOVING_TO_LOAD:
-            if(plate_sensor_input == PinStatus::LOW && CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS){
+            if(plate_sensor_input == PinStatus::LOW && CcIoManager.getSystemTime() - move_start_time_ms > DRUM_MOVE_CLEAR_SENSOR_TIME_MS){
                 run_stop_out = PinStatus::LOW;
                 state = HopperDrum::DrumStates::AT_LOAD_POS;
             }else if(CcIoManager.getSystemTime() - move_start_time_ms > move_timeout_ms){
@@ -150,7 +149,7 @@ void HopperDrumFSMClass::run()
             break;
 
         case HopperDrum::DrumStates::MOVING_TO_DUMP:
-            if(plate_sensor_input == PinStatus::LOW && CcIoManager.getSystemTime() - move_start_time_ms > DRUM_CLEAR_SENSOR_TIME_MS){
+            if(plate_sensor_input == PinStatus::LOW && CcIoManager.getSystemTime() - move_start_time_ms > DRUM_MOVE_CLEAR_SENSOR_TIME_MS){
                 run_stop_out = PinStatus::LOW;
                 state = HopperDrum::DrumStates::AT_DUMP_POS;
             }else if(CcIoManager.getSystemTime() - move_start_time_ms > move_timeout_ms){

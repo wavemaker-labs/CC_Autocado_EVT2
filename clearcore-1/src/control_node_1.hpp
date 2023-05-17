@@ -10,7 +10,7 @@
 
 #include <io_manager.hpp>
 
-#define CC1_FW_VERSION 5
+#define CC1_FW_VERSION 6
 
 #define DEFAULT_FLAT_CON_ACCEL 200
 #define DEFAULT_FLAT_CON_SPEED 600

@@ -162,6 +162,8 @@ void OrientorFSMClass::run()
             
             if(new_mb_orient_pos_cmd){
                 new_mb_orient_pos_cmd = false;
+                ptr_right_orientor_motor->ptr_connector->ClearAlerts();
+                ptr_left_orientor_motor->ptr_connector->ClearAlerts();
                 set_motor_parameters();
                 enable_motors(true);
                 move_start_time_ms = CcIoManager.getSystemTime();
