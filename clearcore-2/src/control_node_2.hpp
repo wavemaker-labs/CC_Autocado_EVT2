@@ -10,7 +10,7 @@
 
 #include <io_manager.hpp>
 
-#define CC2_FW_VER 3
+#define CC2_FW_VER 4
 
 #define DB_GUTTER_MAX_MOVE_DEFAULT 7000
 #define DB_GUTTER_TIMEOUT_MS_DEFAULT 9000
@@ -108,44 +108,8 @@ static ModbusRegister cc2_modbus[CC2_NUM_MODBUS_REGISTERS] =
 
 
 /*control node 2*/
-/* changes before EE box
 typedef enum {
-        PEELER_RELAY1_OUT = 0,
-        PEELER_RELAY2_OUT,
-        ESTOP_IN, 
-        START_BUTTON_IN,
-        POWER_DISABLE_OUT,
-        START_LED_OUT,
-        DOORS_DRAWER_SEN_IN,
-        GUTTER_SEN2_IN,
-        GUTTER_SEN1_IN,
-        A9_NOT_USED,
-        BOWL_SENS_IN,
-        PEELER_I1_AIN,
-        PEELER_I2_AIN
-} AutocadoCcPins;
-
-#define NUM_CC_IO_PIN 13
-static PinIO cc2_io_pins[NUM_CC_IO_PIN] = {
-    PinIO(DIGITAL_OUT, PEELER_RELAY1_OUT, nullptr),
-    PinIO(DIGITAL_OUT, PEELER_RELAY2_OUT, nullptr),
-    PinIO(SWITCH_SENSOR_IN, ESTOP_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, START_BUTTON_IN, nullptr),
-    PinIO(DIGITAL_OUT, POWER_DISABLE_OUT, nullptr),
-    PinIO(DIGITAL_OUT, START_LED_OUT, nullptr),
-    PinIO(SWITCH_SENSOR_IN, DOORS_DRAWER_SEN_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, GUTTER_SEN2_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, GUTTER_SEN1_IN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, A9_NOT_USED, nullptr),
-    PinIO(SWITCH_SENSOR_IN, BOWL_SENS_IN, nullptr),
-    PinIO(ANALOG_IN, PEELER_I1_AIN, nullptr),
-    PinIO(ANALOG_IN, PEELER_I2_AIN, nullptr)
-};
-*/
-
-/*control node 2*/
-typedef enum {
-        START_BUTTON_IN = 0,
+         BOWL_SENS_IN = 0,
         START_LED_OUT,
         DOORS_DRAWER_SEN_IN, 
         POWER_DISABLE_OUT,
@@ -155,7 +119,7 @@ typedef enum {
         GUTTER_SEN2_IN,
         GUTTER_SEN1_IN,
         A9_NOT_USED,
-        BOWL_SENS_IN,
+        START_BUTTON_IN,
         PEELER_I1_AIN,
         PEELER_I2_AIN
 } AutocadoCcPins;
@@ -163,7 +127,7 @@ typedef enum {
 
 #define NUM_CC_IO_PIN 13
 static PinIO cc2_io_pins[NUM_CC_IO_PIN] = {
-    PinIO(SWITCH_SENSOR_IN, START_BUTTON_IN, nullptr),
+    PinIO(SWITCH_SENSOR_IN, BOWL_SENS_IN, nullptr),
     PinIO(DIGITAL_OUT, START_LED_OUT, nullptr),
     PinIO(SWITCH_SENSOR_IN, DOORS_DRAWER_SEN_IN, nullptr),
     PinIO(DIGITAL_OUT, POWER_DISABLE_OUT, nullptr),
@@ -173,7 +137,7 @@ static PinIO cc2_io_pins[NUM_CC_IO_PIN] = {
     PinIO(SWITCH_SENSOR_IN, GUTTER_SEN2_IN, nullptr),
     PinIO(SWITCH_SENSOR_IN, GUTTER_SEN1_IN, nullptr),
     PinIO(SWITCH_SENSOR_IN, A9_NOT_USED, nullptr),
-    PinIO(SWITCH_SENSOR_IN, BOWL_SENS_IN, nullptr),
+    PinIO(SWITCH_SENSOR_IN, START_BUTTON_IN, nullptr),
     PinIO(ANALOG_IN, PEELER_I1_AIN, nullptr),
     PinIO(ANALOG_IN, PEELER_I2_AIN, nullptr)
 };

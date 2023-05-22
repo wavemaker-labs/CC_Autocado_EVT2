@@ -27,13 +27,14 @@ void CntrlNode2Io::assign_io_pins() {
      /*Clearcore 2 specific declarations
         Link: https://wavemakerlabs.atlassian.net/wiki/spaces/BOBA/pages/1742798849/Control+Architecture
         Inputs: 
-        IO0 - Start button (Digital In)
+        Clearcore 2 specific 
+        IO0 - Bowl Switch (Digital In)
         IO2 - Doors and Drawer (Digital In)
         IO6 - E stop in
         DI7 - Gutter Switch # 2 (Digital In)
         DI8 - Gutter Switch # 1 (Digital In)
         A9 -  Not used
-        A10 - Bowl Switch (Digital In)
+        A10 - Start button (Digital In) 
         A11 - Peeler Current 1 (Analog In)
         A12 - Peeler Current 2 (Analog In)
         Outputs:
@@ -96,25 +97,25 @@ int16_t current_sensor_to_milliamps(int16_t input)
 void CntrlNode2Io::read_pin_inputs() {
     /* Clearcore 2 specific 
         Inputs: 
-        IO0 - Start button (Digital In)
+        IO0 - Bowl Switch (Digital In)
         IO2 - Doors and Drawer (Digital In)
         IO6 - E stop in
         DI7 - Gutter Switch # 2 (Digital In)
         DI8 - Gutter Switch # 1 (Digital In)
         A9 -  Not used
-        A10 - Bowl Switch (Digital In)
+        A10 - Start button (Digital In) 
         A11 - Peeler Current 1 (Analog In)
         A12 - Peeler Current 2 (Analog In)*/
 
 
 
-    ptr_io_array[START_BUTTON_IN].value = ConnectorIO0.InputRisen(); // Or Fallen
+    ptr_io_array[BOWL_SENS_IN].value = ConnectorIO0.State();
     ptr_io_array[DOORS_DRAWER_SEN_IN].value = ConnectorIO2.State();
     ptr_io_array[ESTOP_IN].value = ConnectorDI6.State();
     ptr_io_array[GUTTER_SEN2_IN].value = ConnectorDI7.State();
     ptr_io_array[GUTTER_SEN1_IN].value = ConnectorDI8.State();
     ptr_io_array[A9_NOT_USED].value = 0;
-    ptr_io_array[BOWL_SENS_IN].value = ConnectorA10.State();
+    ptr_io_array[START_BUTTON_IN].value = ConnectorA10.InputRisen(); // Or Fallen
     ptr_io_array[PEELER_I1_AIN].value = current_sensor_to_milliamps(ConnectorA11.State());
     ptr_io_array[PEELER_I2_AIN].value = current_sensor_to_milliamps(ConnectorA12.State());
 }
