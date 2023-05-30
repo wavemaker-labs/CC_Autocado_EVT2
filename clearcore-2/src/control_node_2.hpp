@@ -10,7 +10,7 @@
 
 #include <io_manager.hpp>
 
-#define CC2_FW_VER 4
+#define CC2_FW_VER 5
 
 #define DB_GUTTER_MAX_MOVE_DEFAULT 7000
 #define DB_GUTTER_TIMEOUT_MS_DEFAULT 9000

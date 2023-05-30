@@ -117,10 +117,12 @@ void GutterFSMClass::run()
 
         case Gutter::GutterStates::AT_OPEN:
             if(open_sensor_input != GUTTER_FLAG_DETECTED){state = Gutter::GutterStates::UNINITIATED;}
+            ptr_gutter_motor->enable = false;
 
             if(new_gutter_mb_cmd && mb_command == GUTTER_CMD_CLOSE){
                 new_gutter_mb_cmd = false;
                 
+                ptr_gutter_motor->enable = true;
                 ptr_gutter_motor->distance = max_motor_steps * GUTTER_DIR_TO_CLOSE;
                 ptr_gutter_motor->new_move_commanded = true;
                 move_start_time_ms = CcIoManager.getSystemTime();
@@ -131,10 +133,12 @@ void GutterFSMClass::run()
         
         case Gutter::GutterStates::AT_CLOSED:
             if(closed_sensor_input != GUTTER_FLAG_DETECTED){state = Gutter::GutterStates::UNINITIATED;}
+            ptr_gutter_motor->enable = false;
 
             if(new_gutter_mb_cmd && mb_command == GUTTER_CMD_OPEN){
                 new_gutter_mb_cmd = false;
 
+                ptr_gutter_motor->enable = true;
                 ptr_gutter_motor->distance = max_motor_steps * GUTTER_DIR_TO_OPEN;
                 ptr_gutter_motor->new_move_commanded = true;
                 move_start_time_ms = CcIoManager.getSystemTime();
