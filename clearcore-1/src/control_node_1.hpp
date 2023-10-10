@@ -143,10 +143,64 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
     {STEPPER_3, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
 };
 
+// Default Register values
+#define R00 0x00000004  // GCONF
+#define R09 0x00010606  // SHORTCONF
+#define R0A 0x00080400  // DRVCONF
+#define R10 0x00060F0A  // IHOLD_IRUN 
+#define R11 0x0000000A  // TPOWERDOWN
+#define R13 0x000001F4  // TPWMTHRS
+#define R20 0x00000000  // RAMPMODE = 0 (Target position move)
+#define R24 0x000003E8  // A1
+#define R25 0x0000C350  // V1
+#define R26 0x000001F4  // AMAX= 500 Acceleration above V1
+#define R27 0x00030D40  // VMAX= 200 000
+#define R28 0x000002BC  // DMAX= 700 Deceleration above V1
+#define R2A 0x00000578  // D1= 1400 Deceleration below V1
+#define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
+#define R3A 0x00010000  // ENC_CONST
+#define R6C 0x000100C3  // CHOPCONF
+#define R70 0xC40C001E  // PWMCONF
+
+static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, 0,   0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+// Undefine the default register values.
+// This prevents warnings in case multiple TMC-API chip headers are included at once
+#undef R00
+#undef R09
+#undef R0A
+#undef R10
+#undef R11
+#undef R13
+#undef R20
+#undef R24
+#undef R25
+#undef R26
+#undef R27
+#undef R28
+#undef R2A
+#undef R2B
+#undef R3A
+#undef R6C
+#undef R70
+
+
+/*These are used on reset*/
 static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = { 
-    tmc5160_defaultRegisterResetState,
-    tmc5160_defaultRegisterResetState,
-    tmc5160_defaultRegisterResetState,
+    tmc5160_StepperRegisterResetState,
+    tmc5160_StepperRegisterResetState,
+    tmc5160_StepperRegisterResetState,
 };
 
 class CntrlNode1Io : public IoManagerClass {

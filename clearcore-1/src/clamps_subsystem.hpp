@@ -23,7 +23,7 @@ namespace Clamp
         SQUISHING,
         SQUISHED,
         ESTOP = 80,
-        ERROR_MOTOR = 90    
+        ERROR_MOTOR = 90
     } ClampStates;
 }
 

@@ -97,6 +97,8 @@ void CntrlNode1Io::assign_motor_parameters() {
 
     ptr_step_config_array = Cc5160StepperCfg;
     step_config_array_size = CC_NUM_DAISY_STEP_MOTORS;
+
+    SPI.begin(); //daisy chain SPI motors need SPI
 }
 
 void CntrlNode1Io::initialize_ethernet(){

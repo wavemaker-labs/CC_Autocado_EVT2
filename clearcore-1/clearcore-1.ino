@@ -10,11 +10,11 @@
 #include "TMC5160.hpp"
 #include "src\control_node_1.hpp"
 #include "src\rail_subsystem.hpp"
-#include "src\clamps_subsystem.hpp"
 #include "src\cutter_subsystem.hpp"
+#include "src\clamps_subsystem.hpp"
 #include "src\ui_cc1_subsystem.hpp"
 
-#define cycleTimeMs 20
+#define cycleTimeMs 100
 #define jitterLimitMs 10
 uint32_t cycleStartTime;
 uint32_t cycleLastTime;

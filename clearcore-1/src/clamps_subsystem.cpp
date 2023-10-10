@@ -50,12 +50,22 @@ void ClampsFSMClass::run()
     switch (state)
     {
         case Clamp::ClampStates::SETUP:
-            ptr_5160_clamp_lt_stepper->set_velocity(-40000);
-
+            if(ptr_5160_clamp_lt_stepper->config_ready())
+            {
+                Serial.println("Clamp Config ready");
+                state = Clamp::ClampStates::OPENING;
+            }else
+            {
+                Serial.println("Clamp Config being set up");
+                Serial.println(ptr_5160_clamp_lt_stepper->step_5160_motor_cfg.configIndex);
+            }
 
             break;
         case Clamp::ClampStates::OPENING:           
 
+            Serial.println("Attempting cutter move");
+            ptr_5160_clamp_lt_stepper->set_velocity(50000);       
+            state = Clamp::ClampStates::RECIEVING;
             break;
 
         case Clamp::ClampStates::RECIEVING:

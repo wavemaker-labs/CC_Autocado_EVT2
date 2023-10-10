@@ -45,12 +45,22 @@ void CutterFSMClass::run()
     switch (state)
     {
         case Cutter::CutterStates::SETUP:
-            ptr_5160_cut_stepper->set_velocity(-90000);
-
+            if(ptr_5160_cut_stepper->config_ready())
+            {
+                Serial.println("Cutter Config ready");
+                state = Cutter::CutterStates::STOPPED;
+            }else
+            {
+                Serial.println("Cutter Config being set up");
+                Serial.println(ptr_5160_cut_stepper->step_5160_motor_cfg.configIndex);
+            }
 
             break;
-        case Cutter::CutterStates::STOPPED:           
+        case Cutter::CutterStates::STOPPED: 
 
+            Serial.println("Attempting cutter move");
+            ptr_5160_cut_stepper->set_velocity(80000);       
+            state = Cutter::CutterStates::WINDING;
             break;
 
         case Cutter::CutterStates::WINDING:

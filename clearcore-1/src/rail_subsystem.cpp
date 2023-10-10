@@ -45,15 +45,32 @@ void RailFSMClass::run()
     switch (state)
     {
         case Rail::RailStates::SETUP:
-            ptr_5160_rail_stepper->set_velocity(90000);
+            
+            if(ptr_5160_rail_stepper->config_ready())
+            {
+                Serial.println("Config ready");
+                state = Rail::RailStates::STOPPED;
+            }else
+            {
+                Serial.println("Config being set up");
+                Serial.println(ptr_5160_rail_stepper->step_5160_motor_cfg.configIndex);
+            }
 
 
             break;
-        case Rail::RailStates::STOPPED:           
+        case Rail::RailStates::STOPPED:            
+            Serial.println("current ticks");
+            Serial.println(ptr_5160_rail_stepper->get_ticks());
+            Serial.println("Attempting move");
+            ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_ticks() + 51200, 10000);
+            state = Rail::RailStates::MOVING;
 
             break;
 
         case Rail::RailStates::MOVING:
+            // Serial.println("Velocity + ticks");
+            // Serial.println(ptr_5160_rail_stepper->get_velocity());    
+            // Serial.println(ptr_5160_rail_stepper->get_ticks());        
   
             break;
 
