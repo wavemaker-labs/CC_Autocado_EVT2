@@ -16,6 +16,10 @@ namespace Clamp
     typedef enum {
         STOPPED,        
         SETUP,
+        MOVE_AWAY_FROM_HOME,
+        START_HOMING,
+        SET_SG,
+        HOME_DONE,
         OPENING,
         RECIEVING,
         CLAMPING,

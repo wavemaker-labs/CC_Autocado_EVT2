@@ -10,15 +10,28 @@
 
 #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
+#define RAIL_STEPS_AWAY_HOME    -51200
+#define RAIL_HOME_VMAX          51200
+#define RAIL_MOVE_VMAX          80000
+
+#define DEFAULT_RECEIVE_POS 3000
+#define DEFAULT_SQUISH_POS  -100000
+#define DEFAULT_CORE_POS    900000
+
 
 namespace Rail
 {
     typedef enum {
-        STOPPED,
-        MOVING,
         SETUP,
-        CYCLE,
-        CYCLE_WAIT,
+        MOVING_AWAY_FROM_HOME,
+        START_HOMING,
+        SET_SG,
+        WAIT_SG_HOME_DONE,
+        STOPPED,
+        MOVING_TO_RECIEVE,       
+        MOVING_TO_SQUISH,       
+        MOVING_TO_CORE,       
+        MOVING,       
         ESTOP = 80,
         ERROR_MOTOR = 90    
     } RailStates;

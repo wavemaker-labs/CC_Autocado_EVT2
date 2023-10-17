@@ -14,7 +14,7 @@
 #include "src\clamps_subsystem.hpp"
 #include "src\ui_cc1_subsystem.hpp"
 
-#define cycleTimeMs 100
+#define cycleTimeMs 180
 #define jitterLimitMs 10
 uint32_t cycleStartTime;
 uint32_t cycleLastTime;
@@ -28,7 +28,7 @@ typedef enum {
 void setup() 
 {
 	Serial.begin(9600);     // Open serial communications and wait for port to open
-	uint32_t timeout = 5000;
+	uint32_t timeout = 2000;
 	uint32_t startTime = millis();
 	while (!Serial && millis() - startTime < timeout) {
 		continue;
@@ -47,8 +47,6 @@ void setup()
     rail.setup();
     cutter.setup();
 	clamps.setup();
-	// ui_cc1.setup();
-	// flat_con.setup();
 
 	CcIoManager.reset_watchdog();
 	cycleStartTime = millis();
@@ -69,10 +67,8 @@ void cycleTasks()
 	CcIoManager.update_system_mb();
 	
 	rail.run();
-	cutter.run();
-	clamps.run();
-	// ui_cc1.run();
-	// flat_con.run();
+	// cutter.run();
+	// clamps.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();

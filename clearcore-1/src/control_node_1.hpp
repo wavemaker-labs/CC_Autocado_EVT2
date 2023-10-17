@@ -131,25 +131,32 @@ static MotorIO cc1_motors[CC1_NUM_MOTORS] = {
 
 
 typedef enum {
-        STEPPER_1 = 0,
-        STEPPER_2,
-        STEPPER_3
+        STEPPER_CUTTER = 0,
+        STEPPER_CLAMP_LT,
+        STEPPER_CLAMP_LB,
+        STEPPER_CLAMP_RT,
+        STEPPER_CLAMP_RB,
+        STEPPER_RAIL,
 } AutocadoCcSteppers;
 
-#define CC_NUM_DAISY_STEP_MOTORS 3
+#define CC_NUM_DAISY_STEP_MOTORS 6
 static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
-    {STEPPER_1, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
-    {STEPPER_2, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
-    {STEPPER_3, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_CUTTER, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_CLAMP_LT, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_CLAMP_LB, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_CLAMP_RT, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_CLAMP_RB, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_RAIL, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
 };
 
 // Default Register values
 #define R00 0x00000004  // GCONF
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
-#define R10 0x00060F0A  // IHOLD_IRUN 
+#define R10 0x0006070A  // IHOLD_IRUN 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
+#define R14 0x00001388  // TCOOLTHRS
 #define R20 0x00000000  // RAMPMODE = 0 (Target position move)
 #define R24 0x000003E8  // A1
 #define R25 0x0000C350  // V1
@@ -160,18 +167,19 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
 #define R3A 0x00010000  // ENC_CONST
 #define R6C 0x000100C3  // CHOPCONF
+#define R6D 0x00020000  // COOLCONF
 #define R70 0xC40C001E  // PWMCONF
 
 static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 {
 //	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
 	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
-	R10, R11, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R10, R11, 0,   0,   R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
 	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
-	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, 0,   0,   0, // 0x60 - 0x6F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
 	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
 };
 
@@ -183,6 +191,7 @@ static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 #undef R10
 #undef R11
 #undef R13
+#undef R14
 #undef R20
 #undef R24
 #undef R25
@@ -193,6 +202,7 @@ static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 #undef R2B
 #undef R3A
 #undef R6C
+#undef R6D
 #undef R70
 
 
@@ -201,6 +211,9 @@ static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = {
     tmc5160_StepperRegisterResetState,
     tmc5160_StepperRegisterResetState,
     tmc5160_StepperRegisterResetState,
+    tmc5160_StepperRegisterResetState,
+    tmc5160_StepperRegisterResetState,
+    tmc5160_StepperRegisterResetState
 };
 
 class CntrlNode1Io : public IoManagerClass {

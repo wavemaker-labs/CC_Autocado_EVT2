@@ -22,7 +22,7 @@ void RailFSMClass::setup()
         has_setup = true;        
 
         state = Rail::RailStates::SETUP;
-        ptr_5160_rail_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_3);
+        ptr_5160_rail_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_RAIL);
     }
 }
 
@@ -49,38 +49,65 @@ void RailFSMClass::run()
             if(ptr_5160_rail_stepper->config_ready())
             {
                 Serial.println("Config ready");
-                state = Rail::RailStates::STOPPED;
+                Serial.println("current ticks");
+                Serial.println(ptr_5160_rail_stepper->get_ticks());
+                Serial.println("Attempting away from home");
+                ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_ticks() + RAIL_STEPS_AWAY_HOME, 10000);
+                state = Rail::RailStates::MOVING_AWAY_FROM_HOME;
             }else
             {
                 Serial.println("Config being set up");
                 Serial.println(ptr_5160_rail_stepper->step_5160_motor_cfg.configIndex);
             }
-
-
             break;
-        case Rail::RailStates::STOPPED:            
-            Serial.println("current ticks");
-            Serial.println(ptr_5160_rail_stepper->get_ticks());
-            Serial.println("Attempting move");
-            ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_ticks() + 51200, 10000);
-            state = Rail::RailStates::MOVING;
 
+        case Rail::RailStates::MOVING_AWAY_FROM_HOME:
+            
+            Serial.println(ptr_5160_rail_stepper->get_driver_status(), HEX);
+            if(ptr_5160_rail_stepper->at_position())
+            {
+                Serial.println("Rail at position");
+                ptr_5160_rail_stepper->set_velocity(RAIL_HOME_VMAX);
+                state = Rail::RailStates::SET_SG;
+            }
+            
+            break;
+
+        case Rail::RailStates::SET_SG:
+
+            Serial.println(ptr_5160_rail_stepper->get_driver_status(), HEX);
+            if(ptr_5160_rail_stepper->at_vmax())
+            {
+                Serial.println("Rail at vmax, setting sg");
+                ptr_5160_rail_stepper->set_enable_stallgaurd(true);
+                state = Rail::RailStates::WAIT_SG_HOME_DONE;
+            }
+     
+            break;
+
+        case Rail::RailStates::WAIT_SG_HOME_DONE:
+            
+            Serial.println("waiting for home");
+            Serial.println(ptr_5160_rail_stepper->get_driver_status(), HEX);
+            if(ptr_5160_rail_stepper->at_sg_stall())
+            {
+                Serial.println("at stall");
+                ptr_5160_rail_stepper->set_velocity(0);
+                ptr_5160_rail_stepper->set_enable_stallgaurd(false);
+                ptr_5160_rail_stepper->zero_xactual();
+                state = Rail::RailStates::STOPPED;
+            }            
+            break;
+
+        case Rail::RailStates::STOPPED:            
+            Serial.println("Homed");
+            ptr_5160_rail_stepper->set_target_position(DEFAULT_SQUISH_POS, RAIL_MOVE_VMAX);
             break;
 
         case Rail::RailStates::MOVING:
-            // Serial.println("Velocity + ticks");
-            // Serial.println(ptr_5160_rail_stepper->get_velocity());    
-            // Serial.println(ptr_5160_rail_stepper->get_ticks());        
+     
   
-            break;
-
-        case Rail::RailStates::CYCLE:
-
-            break;
-
-        case Rail::RailStates::CYCLE_WAIT:
-   
-            break;      
+            break; 
 
         case Rail::RailStates::ERROR_MOTOR:
 

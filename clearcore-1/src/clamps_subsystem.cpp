@@ -22,10 +22,10 @@ void ClampsFSMClass::setup()
         has_setup = true;        
 
         state = Clamp::ClampStates::SETUP;
-        ptr_5160_clamp_lt_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_1);
-        ptr_5160_clamp_lb_stepper = nullptr;
-        ptr_5160_clamp_rt_stepper = nullptr;
-        ptr_5160_clamp_rb_stepper = nullptr;
+        ptr_5160_clamp_lt_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_LT);
+        ptr_5160_clamp_lb_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_LB);
+        ptr_5160_clamp_rt_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_RT);
+        ptr_5160_clamp_rb_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_RB);
     }
 }
 
@@ -50,7 +50,10 @@ void ClampsFSMClass::run()
     switch (state)
     {
         case Clamp::ClampStates::SETUP:
-            if(ptr_5160_clamp_lt_stepper->config_ready())
+            if(ptr_5160_clamp_lt_stepper->config_ready() &&
+             ptr_5160_clamp_lb_stepper->config_ready() &&
+             ptr_5160_clamp_rt_stepper->config_ready() &&
+             ptr_5160_clamp_rb_stepper->config_ready())
             {
                 Serial.println("Clamp Config ready");
                 state = Clamp::ClampStates::OPENING;
@@ -64,7 +67,10 @@ void ClampsFSMClass::run()
         case Clamp::ClampStates::OPENING:           
 
             Serial.println("Attempting cutter move");
-            ptr_5160_clamp_lt_stepper->set_velocity(50000);       
+            ptr_5160_clamp_lt_stepper->set_velocity(90000);       
+            ptr_5160_clamp_lb_stepper->set_velocity(90000);       
+            ptr_5160_clamp_rt_stepper->set_velocity(90000);       
+            ptr_5160_clamp_rb_stepper->set_velocity(90000);       
             state = Clamp::ClampStates::RECIEVING;
             break;
 

@@ -22,7 +22,7 @@ void CutterFSMClass::setup()
         has_setup = true;        
 
         state = Cutter::CutterStates::SETUP;
-        ptr_5160_cut_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_2);
+        ptr_5160_cut_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CUTTER);
     }
 }
 
@@ -58,7 +58,6 @@ void CutterFSMClass::run()
             break;
         case Cutter::CutterStates::STOPPED: 
 
-            Serial.println("Attempting cutter move");
             ptr_5160_cut_stepper->set_velocity(80000);       
             state = Cutter::CutterStates::WINDING;
             break;

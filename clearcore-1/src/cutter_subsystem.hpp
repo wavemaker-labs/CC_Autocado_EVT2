@@ -16,6 +16,7 @@ namespace Cutter
     typedef enum {
         STOPPED,        
         SETUP,
+        HOMING,
         WINDING,
         WOUND,
         RELEASE,
