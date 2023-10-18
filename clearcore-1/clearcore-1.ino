@@ -68,7 +68,7 @@ void cycleTasks()
 	
 	rail.run();
 	// cutter.run();
-	// clamps.run();
+	clamps.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();

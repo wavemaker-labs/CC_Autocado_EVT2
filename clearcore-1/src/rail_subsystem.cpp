@@ -30,6 +30,14 @@ void RailFSMClass::read_interfaces()
 {
     switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
     switch_1_input = CcIoManager.get_input(D1_RAIL_SW_1);
+
+    if(switch_0_input == PinStatus::HIGH && switch_1_input == PinStatus::LOW){ 
+        cmd_position = Rail::RailPositions::RECEIVE_POS;
+    }else if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::LOW){ 
+        cmd_position = Rail::RailPositions::SQUISH_POS;
+    }else if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::HIGH){
+        cmd_position = Rail::RailPositions::CORE_POS;
+    }
 }
 
 void RailFSMClass::run()
@@ -40,7 +48,6 @@ void RailFSMClass::run()
     // {
     //     state = Rail::RailStates::ESTOP;
     // }
-
 
     switch (state)
     {
@@ -63,7 +70,6 @@ void RailFSMClass::run()
 
         case Rail::RailStates::MOVING_AWAY_FROM_HOME:
             
-            Serial.println(ptr_5160_rail_stepper->get_driver_status(), HEX);
             if(ptr_5160_rail_stepper->at_position())
             {
                 Serial.println("Rail at position");
@@ -75,7 +81,6 @@ void RailFSMClass::run()
 
         case Rail::RailStates::SET_SG:
 
-            Serial.println(ptr_5160_rail_stepper->get_driver_status(), HEX);
             if(ptr_5160_rail_stepper->at_vmax())
             {
                 Serial.println("Rail at vmax, setting sg");
@@ -88,7 +93,6 @@ void RailFSMClass::run()
         case Rail::RailStates::WAIT_SG_HOME_DONE:
             
             Serial.println("waiting for home");
-            Serial.println(ptr_5160_rail_stepper->get_driver_status(), HEX);
             if(ptr_5160_rail_stepper->at_sg_stall())
             {
                 Serial.println("at stall");
@@ -100,13 +104,90 @@ void RailFSMClass::run()
             break;
 
         case Rail::RailStates::STOPPED:            
-            Serial.println("Homed");
-            ptr_5160_rail_stepper->set_target_position(DEFAULT_SQUISH_POS, RAIL_MOVE_VMAX);
+            Serial.println("Homed/Stopped");
+
+            if(cmd_position == Rail::RailPositions::RECEIVE_POS){
+                ptr_5160_rail_stepper->set_target_position(recieve_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_RECIEVE;
+            }else if (cmd_position == Rail::RailPositions::SQUISH_POS){
+                ptr_5160_rail_stepper->set_target_position(squish_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_SQUISH;
+            }else if (cmd_position == Rail::RailPositions::CORE_POS){
+                ptr_5160_rail_stepper->set_target_position(core_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_CORE;
+            }
             break;
 
-        case Rail::RailStates::MOVING:
-     
-  
+        case Rail::RailStates::MOVING_TO_RECIEVE:    
+    
+            if(ptr_5160_rail_stepper->at_position()){
+                state = Rail::RailStates::AT_RECIEVE;
+            }else if (cmd_position == Rail::RailPositions::SQUISH_POS){
+                ptr_5160_rail_stepper->set_target_position(squish_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_SQUISH;
+            }else if (cmd_position == Rail::RailPositions::CORE_POS){
+                ptr_5160_rail_stepper->set_target_position(core_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_CORE;
+            }
+            break; 
+
+        case Rail::RailStates::AT_RECIEVE:    
+    
+            if (cmd_position == Rail::RailPositions::SQUISH_POS){
+                ptr_5160_rail_stepper->set_target_position(squish_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_SQUISH;
+            }else if (cmd_position == Rail::RailPositions::CORE_POS){
+                ptr_5160_rail_stepper->set_target_position(core_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_CORE;
+            }  
+            break; 
+
+        case Rail::RailStates::MOVING_TO_SQUISH:    
+    
+            if(ptr_5160_rail_stepper->at_position()){
+                state = Rail::RailStates::AT_SQUISH;
+            }else if (cmd_position == Rail::RailPositions::RECEIVE_POS){
+                ptr_5160_rail_stepper->set_target_position(recieve_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_RECIEVE;
+            }else if (cmd_position == Rail::RailPositions::CORE_POS){
+                ptr_5160_rail_stepper->set_target_position(core_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_CORE;
+            }
+            break; 
+
+        case Rail::RailStates::AT_SQUISH:    
+    
+            if (cmd_position == Rail::RailPositions::RECEIVE_POS){
+                ptr_5160_rail_stepper->set_target_position(recieve_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_RECIEVE;
+            }else if (cmd_position == Rail::RailPositions::CORE_POS){
+                ptr_5160_rail_stepper->set_target_position(core_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_CORE;
+            }  
+            break; 
+
+        case Rail::RailStates::MOVING_TO_CORE:    
+    
+            if(ptr_5160_rail_stepper->at_position()){
+                state = Rail::RailStates::AT_CORE;
+            }else if (cmd_position == Rail::RailPositions::RECEIVE_POS){
+                ptr_5160_rail_stepper->set_target_position(recieve_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_RECIEVE;
+            }else if (cmd_position == Rail::RailPositions::SQUISH_POS){
+                ptr_5160_rail_stepper->set_target_position(squish_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_SQUISH;
+            }
+            break; 
+
+        case Rail::RailStates::AT_CORE:    
+    
+            if (cmd_position == Rail::RailPositions::RECEIVE_POS){
+                ptr_5160_rail_stepper->set_target_position(recieve_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_RECIEVE;
+            }else if (cmd_position == Rail::RailPositions::SQUISH_POS){
+                ptr_5160_rail_stepper->set_target_position(squish_position, RAIL_MOVE_VMAX);
+                state = Rail::RailStates::MOVING_TO_SQUISH;
+            }  
             break; 
 
         case Rail::RailStates::ERROR_MOTOR:

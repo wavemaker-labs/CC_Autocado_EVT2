@@ -123,10 +123,11 @@ void CntrlNode1Io::read_pin_inputs() {
     ptr_io_array[D1_RAIL_SW_1].value = ConnectorIO1.State();
     ptr_io_array[D6_CUT_BUTTON].value = ConnectorDI6.InputRisen();
     ptr_io_array[D7_LOAD_CUT_BUTTON].value = ConnectorDI7.InputRisen();
+    ptr_io_array[D8_CLP_SQUISH_BTN].value = ConnectorDI8.InputRisen();
     ptr_io_array[A9_CLP_OPEN_BUTTON].value = ConnectorA9.InputRisen();
     ptr_io_array[A10_CLP_RECIEVE_BTN].value = ConnectorA10.InputRisen();
     ptr_io_array[A11_CLP_CLAMP_BTN].value = ConnectorA11.InputRisen();
-    ptr_io_array[A12_CLP_SQUISH_BTN].value = ConnectorA12.InputRisen();
+    ptr_io_array[A12_NOT_USED].value = ConnectorA12.InputRisen();
 
 }
 

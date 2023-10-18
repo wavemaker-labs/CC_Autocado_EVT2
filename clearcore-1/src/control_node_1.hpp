@@ -92,11 +92,11 @@ typedef enum {
         D5_NOT_USED,
         D6_CUT_BUTTON,
         D7_LOAD_CUT_BUTTON,
-        D8_NOT_USED,
+        D8_CLP_SQUISH_BTN,
         A9_CLP_OPEN_BUTTON,
         A10_CLP_RECIEVE_BTN,
         A11_CLP_CLAMP_BTN,
-        A12_CLP_SQUISH_BTN
+        A12_NOT_USED
 } AutocadoCcPins;
 
 #define NUM_CC_IO_PIN 13
@@ -109,11 +109,11 @@ static PinIO cc1_io_pins[NUM_CC_IO_PIN] = {
     PinIO(SWITCH_SENSOR_IN, D5_NOT_USED, nullptr),
     PinIO(SWITCH_SENSOR_IN, D6_CUT_BUTTON, nullptr),
     PinIO(SWITCH_SENSOR_IN, D7_LOAD_CUT_BUTTON, nullptr),
-    PinIO(SWITCH_SENSOR_IN, D8_NOT_USED, nullptr),
+    PinIO(SWITCH_SENSOR_IN, D8_CLP_SQUISH_BTN, nullptr),
     PinIO(SWITCH_SENSOR_IN, A9_CLP_OPEN_BUTTON, nullptr),
     PinIO(SWITCH_SENSOR_IN, A10_CLP_RECIEVE_BTN, nullptr),
     PinIO(SWITCH_SENSOR_IN, A11_CLP_CLAMP_BTN, nullptr),
-    PinIO(SWITCH_SENSOR_IN, A12_CLP_SQUISH_BTN, nullptr)
+    PinIO(SWITCH_SENSOR_IN, A12_NOT_USED, nullptr)
 };
 
 typedef enum
@@ -160,10 +160,10 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R20 0x00000000  // RAMPMODE = 0 (Target position move)
 #define R24 0x000003E8  // A1
 #define R25 0x0000C350  // V1
-#define R26 0x000001F4  // AMAX= 500 Acceleration above V1
+#define R26 0x000003E8  // AMAX= 1000 Acceleration above V1
 #define R27 0x00030D40  // VMAX= 200 000
-#define R28 0x000002BC  // DMAX= 700 Deceleration above V1
-#define R2A 0x00000578  // D1= 1400 Deceleration below V1
+#define R28 0x000003E8  // DMAX= 1000 Deceleration above V1
+#define R2A 0x000007D0  // D1= 2000 Deceleration below V1
 #define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
 #define R3A 0x00010000  // ENC_CONST
 #define R6C 0x000100C3  // CHOPCONF
@@ -205,14 +205,87 @@ static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 #undef R6D
 #undef R70
 
+// Default Register values
+#define R00i 0x00000014  // GCONF inverted shaft
+#define R00 0x00000004  // GCONF normal shaft
+#define R09 0x00010606  // SHORTCONF
+#define R0A 0x00080400  // DRVCONF
+#define R0B 0x0000009E  // GLOBAL SCALER
+#define R10 0x00070701  // IHOLD_IRUN IRUN = 0.7A ; IHOLD = 0.17A 
+#define R11 0x0000000A  // TPOWERDOWN
+#define R13 0x000001F4  // TPWMTHRS
+#define R14 0x00001388  // TCOOLTHRS
+#define R20 0x00000000  // RAMPMODE = 0 (Target position move)
+#define R24 0x000018E8  // A1
+#define R25 0x000061A8  // V1
+#define R26 0x000001F4  // AMAX= 1000 Acceleration above V1
+#define R27 0x0000C800  // VMAX= 500 000
+#define R28 0x000002BC  // DMAX= 700 Deceleration above V1
+#define R2A 0x000001F4  // D1= 1400 Deceleration below V1
+#define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
+#define R3A 0x00010000  // ENC_CONST
+#define R6C 0x000100C3  // CHOPCONF
+#define R6D 0x00010000  // COOLCONF
+#define R70 0xC40C001E  // PWMCONF
+
+//inverted shaft for right top and left bottom
+static const int32_t tmc5160_ClampInvertStepperRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00i,0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, R0B, 0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,   0,   R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+static const int32_t tmc5160_ClampStepperRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, R0B, 0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,   0,   R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+// Undefine the default register values.
+// This prevents warnings in case multiple TMC-API chip headers are included at once
+#undef R00
+#undef R09
+#undef R0A
+#undef R10
+#undef R11
+#undef R13
+#undef R14
+#undef R20
+#undef R24
+#undef R25
+#undef R26
+#undef R27
+#undef R28
+#undef R2A
+#undef R2B
+#undef R3A
+#undef R6C
+#undef R6D
+#undef R70
+
+
 
 /*These are used on reset*/
 static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = { 
     tmc5160_StepperRegisterResetState,
-    tmc5160_StepperRegisterResetState,
-    tmc5160_StepperRegisterResetState,
-    tmc5160_StepperRegisterResetState,
-    tmc5160_StepperRegisterResetState,
+    tmc5160_ClampStepperRegisterResetState,
+    tmc5160_ClampInvertStepperRegisterResetState,
+    tmc5160_ClampInvertStepperRegisterResetState,
+    tmc5160_ClampStepperRegisterResetState,
     tmc5160_StepperRegisterResetState
 };
 
