@@ -11,6 +11,9 @@
 #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
 
+#define CUTTER_VELOCITY  200000
+#define CUT_MOVE_TICKS   80000
+
 namespace Cutter
 {
     typedef enum {

@@ -55,7 +55,7 @@ void RailFSMClass::run()
             
             if(ptr_5160_rail_stepper->config_ready())
             {
-                Serial.println("Config ready");
+                Serial.println("Rail Config ready");
                 Serial.println("current ticks");
                 Serial.println(ptr_5160_rail_stepper->get_ticks());
                 Serial.println("Attempting away from home");
@@ -63,7 +63,7 @@ void RailFSMClass::run()
                 state = Rail::RailStates::MOVING_AWAY_FROM_HOME;
             }else
             {
-                Serial.println("Config being set up");
+                // Serial.println("Config being set up");
                 Serial.println(ptr_5160_rail_stepper->step_5160_motor_cfg.configIndex);
             }
             break;
@@ -72,7 +72,7 @@ void RailFSMClass::run()
             
             if(ptr_5160_rail_stepper->at_position())
             {
-                Serial.println("Rail at position");
+                // Serial.println("Rail at position");
                 ptr_5160_rail_stepper->set_velocity(RAIL_HOME_VMAX);
                 state = Rail::RailStates::SET_SG;
             }
@@ -83,7 +83,7 @@ void RailFSMClass::run()
 
             if(ptr_5160_rail_stepper->at_vmax())
             {
-                Serial.println("Rail at vmax, setting sg");
+                // Serial.println("Rail at vmax, setting sg");
                 ptr_5160_rail_stepper->set_enable_stallgaurd(true);
                 state = Rail::RailStates::WAIT_SG_HOME_DONE;
             }
@@ -92,10 +92,10 @@ void RailFSMClass::run()
 
         case Rail::RailStates::WAIT_SG_HOME_DONE:
             
-            Serial.println("waiting for home");
+            // Serial.println("waiting for home");
             if(ptr_5160_rail_stepper->at_sg_stall())
             {
-                Serial.println("at stall");
+                // Serial.println("at stall");
                 ptr_5160_rail_stepper->set_velocity(0);
                 ptr_5160_rail_stepper->set_enable_stallgaurd(false);
                 ptr_5160_rail_stepper->zero_xactual();
@@ -104,7 +104,7 @@ void RailFSMClass::run()
             break;
 
         case Rail::RailStates::STOPPED:            
-            Serial.println("Homed/Stopped");
+            // Serial.println("Homed/Stopped");
 
             if(cmd_position == Rail::RailPositions::RECEIVE_POS){
                 ptr_5160_rail_stepper->set_target_position(recieve_position, RAIL_MOVE_VMAX);

@@ -10,14 +10,15 @@
 
 #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
-#define CLAMPS_STEPS_AWAY_HOME    -10000
-#define CLAMPS_HOME_VMAX          51200
-#define CLAMPS_MOVE_VMAX          512000
+#define CLAMPS_STEPS_AWAY_HOME    10000
+#define CLAMPS_HOME_VMAX          -51200
+#define CLAMPS_MOVE_VMAX          -512000
 
-#define CLAMPS_DEFAULT_RECEIVE_POS -200000
-#define CLAMPS_DEFAULT_SQUISH_POS  -700000
-#define CLAMPS_DEFAULT_CLAMP_POS   -600000
-#define CLAMPS_DEFAULT_OPEN_POS    -80000
+#define CLAMPS_DEFAULT_RECEIVE_TOP_POS 30000
+#define CLAMPS_DEFAULT_RECEIVE_BOT_POS 440000
+#define CLAMPS_DEFAULT_SQUISH_POS  700000
+#define CLAMPS_DEFAULT_CLAMP_POS   560000
+#define CLAMPS_DEFAULT_OPEN_POS    30000
 
 namespace Clamp
 {
@@ -34,6 +35,7 @@ namespace Clamp
         MOVING_TO_RECIEVE,
         AT_RECIEVE,
         MOVING_TO_CLAMPING,
+        DETECTED_CLAMP,
         AT_CLAMPING,
         MOVING_TO_SQUISH,
         AT_SQUISH,
@@ -58,7 +60,8 @@ class ClampsFSMClass {
             rt_state = Clamp::ClampStates::SETUP;
             rb_state = Clamp::ClampStates::SETUP;
             open_position = CLAMPS_DEFAULT_OPEN_POS;
-            recieve_position = CLAMPS_DEFAULT_RECEIVE_POS;
+            recieve_position_top = CLAMPS_DEFAULT_RECEIVE_TOP_POS;
+            recieve_position_bot = CLAMPS_DEFAULT_RECEIVE_BOT_POS;
             clamp_position = CLAMPS_DEFAULT_CLAMP_POS;
             squish_position = CLAMPS_DEFAULT_SQUISH_POS;
             estop_input = ESTOP_RELEASED;
@@ -89,7 +92,8 @@ class ClampsFSMClass {
         int16_t squish_switch_input;
 
         int32_t open_position;
-        int32_t recieve_position;
+        int32_t recieve_position_top;
+        int32_t recieve_position_bot;
         int32_t clamp_position;
         int32_t squish_position;
         

@@ -151,6 +151,7 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 
 // Default Register values
 #define R00 0x00000004  // GCONF
+#define R00i 0x00000014  // GCONF inverted shaft
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
 #define R10 0x0006070A  // IHOLD_IRUN 
@@ -174,7 +175,20 @@ static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 {
 //	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
 	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
-	R10, R11, 0,   0,   R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00i,0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
 	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
@@ -216,26 +230,29 @@ static const int32_t tmc5160_StepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
 #define R20 0x00000000  // RAMPMODE = 0 (Target position move)
-#define R24 0x000018E8  // A1
-#define R25 0x000061A8  // V1
-#define R26 0x000001F4  // AMAX= 1000 Acceleration above V1
-#define R27 0x0000C800  // VMAX= 500 000
-#define R28 0x000002BC  // DMAX= 700 Deceleration above V1
-#define R2A 0x000001F4  // D1= 1400 Deceleration below V1
-#define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
-#define R3A 0x00010000  // ENC_CONST
+#define R24 0x00002710  // A1 10000
+#define R25 0x0003D090  // V1 250000
+#define R26 0x00001388  // AMAX= 5000 Acceleration above V1
+#define R27 0x0007A120  // VMAX= 500,000ppt
+#define R28 0x00002388  // DMAX= 5000 Deceleration above V1
+#define R2A 0x00004710  // D1= 10000 Deceleration below V1
+#define R2B 0x0000005A  // VSTOP= 100 Stop velocity (Near to zero)
+#define R38 0x00000200  // ENCMODE, bit 10 to set enc prescale to decimal
+#define R3A 0x024707D0  // ENC_CONST 583.2
+#define R3Ai 0x0FDB81F40  // ENC_CONST -583.2 for inverted
+#define R3D 0x0000C350  // ENC_DEVIATION 50,000 max number of steps deviation
 #define R6C 0x000100C3  // CHOPCONF
-#define R6D 0x00010000  // COOLCONF
+#define R6D 0x00020000  // COOLCONF
 #define R70 0xC40C001E  // PWMCONF
 
-//inverted shaft for right top and left bottom
+//inverted shaft for left top and right bottom
 static const int32_t tmc5160_ClampInvertStepperRegisterResetState[TMC5160_REGISTER_COUNT] =
 {
 //	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
 	R00i,0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, R0B, 0,   0,   0,   0, // 0x00 - 0x0F
-	R10, R11, 0,   0,   R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
 	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   R38, 0,   R3Ai,0,   0,   R3D, 0,   0, // 0x30 - 0x3F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
 	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
@@ -246,9 +263,9 @@ static const int32_t tmc5160_ClampStepperRegisterResetState[TMC5160_REGISTER_COU
 {
 //	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
 	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, R0B, 0,   0,   0,   0, // 0x00 - 0x0F
-	R10, R11, 0,   0,   R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
 	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   R38, 0,   R3A, 0,   0,   R3D, 0,   0, // 0x30 - 0x3F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
 	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
@@ -258,6 +275,7 @@ static const int32_t tmc5160_ClampStepperRegisterResetState[TMC5160_REGISTER_COU
 // Undefine the default register values.
 // This prevents warnings in case multiple TMC-API chip headers are included at once
 #undef R00
+#undef R00i
 #undef R09
 #undef R0A
 #undef R10
@@ -282,11 +300,11 @@ static const int32_t tmc5160_ClampStepperRegisterResetState[TMC5160_REGISTER_COU
 /*These are used on reset*/
 static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = { 
     tmc5160_StepperRegisterResetState,
-    tmc5160_ClampStepperRegisterResetState,
-    tmc5160_ClampInvertStepperRegisterResetState,
     tmc5160_ClampInvertStepperRegisterResetState,
     tmc5160_ClampStepperRegisterResetState,
-    tmc5160_StepperRegisterResetState
+    tmc5160_ClampStepperRegisterResetState,
+    tmc5160_ClampInvertStepperRegisterResetState,
+    tmc5160_StepperInvertedRegisterResetState
 };
 
 class CntrlNode1Io : public IoManagerClass {
