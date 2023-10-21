@@ -67,7 +67,7 @@ void cycleTasks()
 	CcIoManager.update_system_mb();
 	
 	rail.run();
-	// cutter.run();
+	cutter.run();
 	clamps.run();
 
 	CcIoManager.write_interfaces();

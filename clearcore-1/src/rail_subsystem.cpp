@@ -56,8 +56,8 @@ void RailFSMClass::run()
             if(ptr_5160_rail_stepper->config_ready())
             {
                 Serial.println("Rail Config ready");
-                Serial.println("current ticks");
-                Serial.println(ptr_5160_rail_stepper->get_ticks());
+                // Serial.println("current ticks");
+                // Serial.println(ptr_5160_rail_stepper->get_ticks());
                 Serial.println("Attempting away from home");
                 ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_ticks() + RAIL_STEPS_AWAY_HOME, 10000);
                 state = Rail::RailStates::MOVING_AWAY_FROM_HOME;

@@ -12,7 +12,8 @@
 
 
 #define CUTTER_VELOCITY  200000
-#define CUT_MOVE_TICKS   80000
+#define CUTTER_LOAD_TICKS   2000000
+#define CUTTER_CUT_TICKS    1000000
 
 namespace Cutter
 {

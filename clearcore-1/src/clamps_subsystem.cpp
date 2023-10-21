@@ -116,9 +116,9 @@ void ClampsFSMClass::run()
                 if(run_ptr_stepper->config_ready())
                 {
                     Serial.println("Clamp Config ready");
-                    Serial.println("current ticks");
+                    // Serial.println("current ticks");
                     Serial.println(run_ptr_stepper->get_ticks());
-                    Serial.println("Attempting away from home");
+                    // Serial.println("Attempting away from home");
                     run_ptr_stepper->set_target_position(run_ptr_stepper->get_ticks() + CLAMPS_STEPS_AWAY_HOME, CLAMPS_HOME_VMAX);
                     *run_prt_state = Clamp::ClampStates::MOVING_AWAY_FROM_HOME;
                 }else
@@ -133,7 +133,7 @@ void ClampsFSMClass::run()
                 
                 if(run_ptr_stepper->at_position())
                 {
-                    Serial.println("clamp at position");
+                    // Serial.println("clamp at position");
                     run_ptr_stepper->set_velocity(CLAMPS_HOME_VMAX);
                     *run_prt_state = Clamp::ClampStates::SET_SG;
                 }
@@ -144,7 +144,7 @@ void ClampsFSMClass::run()
 
                 if(run_ptr_stepper->at_vmax())
                 {
-                    Serial.println("clamp at vmax, setting sg");
+                    // Serial.println("clamp at vmax, setting sg");
                     run_ptr_stepper->set_enable_stallgaurd(true);
                     *run_prt_state = Clamp::ClampStates::WAIT_SG_HOME_DONE;
                 }
@@ -153,7 +153,7 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::WAIT_SG_HOME_DONE:
                 
-                Serial.println(" waiting for home");
+                // Serial.println(" waiting for home");
                 if(run_ptr_stepper->at_sg_stall())
                 {
                     Serial.println("at stall");

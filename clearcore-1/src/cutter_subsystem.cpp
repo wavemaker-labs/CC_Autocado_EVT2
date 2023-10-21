@@ -57,20 +57,39 @@ void CutterFSMClass::run()
 
             break;
         case Cutter::CutterStates::STOPPED: 
-
-            ptr_5160_cut_stepper->set_velocity(80000);       
-            state = Cutter::CutterStates::WINDING;
+            if(load_switch_input == PinStatus::HIGH)
+            {                
+                ptr_5160_cut_stepper->set_enable_right_sw(true);
+                ptr_5160_cut_stepper->set_target_position(CUTTER_LOAD_TICKS, CUTTER_VELOCITY);
+                state = Cutter::CutterStates::WINDING;
+            }            
             break;
 
         case Cutter::CutterStates::WINDING:
-  
+            Serial.println(ptr_5160_cut_stepper->at_r_sw());
+            Serial.println(ptr_5160_cut_stepper->at_stop());
+            if(ptr_5160_cut_stepper->at_r_sw() &&                       ptr_5160_cut_stepper->at_stop()){
+                ptr_5160_cut_stepper->set_target_position(0, 1);
+                ptr_5160_cut_stepper->zero_xactual();
+                ptr_5160_cut_stepper->set_enable_right_sw(false);
+                state = Cutter::CutterStates::WOUND;
+            }  
             break;
 
         case Cutter::CutterStates::WOUND:
+            if(cut_switch_input == PinStatus::HIGH)
+            { 
+                ptr_5160_cut_stepper->set_target_position(CUTTER_CUT_TICKS, CUTTER_VELOCITY);
+                state = Cutter::CutterStates::RELEASE;
+            }
 
             break;
 
         case Cutter::CutterStates::RELEASE:
+            if(ptr_5160_cut_stepper->at_stop()){
+                Serial.println("Done");
+                state = Cutter::CutterStates::STOPPED;
+            }  
    
             break;      
         
@@ -93,7 +112,7 @@ void CutterFSMClass::run()
 
 void CutterFSMClass::write_interfaces()
 {
-    CcIoManager.set_pin_output_value(AutocadoCcPins::D4_CUT_SOLENOID, relay_output);
+    CcIoManager.set_pin_output_state(AutocadoCcPins::D4_CUT_SOLENOID, relay_output);
 }
 
 CutterFSMClass cutter;
