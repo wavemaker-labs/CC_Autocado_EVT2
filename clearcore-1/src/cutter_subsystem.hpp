@@ -8,7 +8,8 @@
 #ifndef CUTTER_SUBSYSTEM_HPP
 #define CUTTER_SUBSYSTEM_HPP
 
-#include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
+// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
+#include "control_node_1.hpp"
 
 
 #define CUTTER_VELOCITY     200000

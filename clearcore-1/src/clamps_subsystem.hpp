@@ -8,7 +8,8 @@
 #ifndef CLAMP_SUBSYSTEM_HPP
 #define CLAMP_SUBSYSTEM_HPP
 
-#include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
+#include "control_node_1.hpp"
+// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
 #define CLAMPS_STEPS_AWAY_HOME    10000
 #define CLAMPS_HOME_VMAX          -51200

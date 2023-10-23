@@ -8,7 +8,7 @@
 #ifndef RAIL_SUBSYSTEM_HPP
 #define RAIL_SUBSYSTEM_HPP
 
-#include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
+#include "control_node_1.hpp"
 
 #define RAIL_STEPS_AWAY_HOME    10000
 #define RAIL_HOME_VMAX          -51200
@@ -16,7 +16,7 @@
 
 #define RAIL_DEFAULT_RECEIVE_POS 50000
 #define RAIL_DEFAULT_SQUISH_POS  200000
-#define RAIL_DEFAULT_CORE_POS    550000
+#define RAIL_DEFAULT_CORE_POS    610000
 
 
 namespace Rail
