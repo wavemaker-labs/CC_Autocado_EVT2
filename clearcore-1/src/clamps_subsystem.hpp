@@ -12,13 +12,14 @@
 
 #define CLAMPS_STEPS_AWAY_HOME    10000
 #define CLAMPS_HOME_VMAX          -51200
-#define CLAMPS_MOVE_VMAX          -512000
+#define CLAMPS_MOVE_VMAX          -312000
 
-#define CLAMPS_DEFAULT_RECEIVE_TOP_POS 30000
-#define CLAMPS_DEFAULT_RECEIVE_BOT_POS 440000
-#define CLAMPS_DEFAULT_SQUISH_POS  700000
-#define CLAMPS_DEFAULT_CLAMP_POS   560000
-#define CLAMPS_DEFAULT_OPEN_POS    30000
+#define CLAMPS_DEFAULT_RECEIVE_TOP_POS  30000
+#define CLAMPS_DEFAULT_RECEIVE_BOT_POS  440000
+#define CLAMPS_DEFAULT_SQUISH_POS       750000
+#define CLAMPS_DEFAULT_CLAMP_POS        560000
+#define CLAMPS_DEFAULT_PRE_CLAMP_POS    400000
+#define CLAMPS_DEFAULT_OPEN_POS         30000
 
 namespace Clamp
 {
@@ -34,6 +35,9 @@ namespace Clamp
         AT_OPEN,
         MOVING_TO_RECIEVE,
         AT_RECIEVE,
+        MOVING_TO_PRE_CLAMPING,
+        WAIT_ALL_PRE_CLAMPING,
+        AT_PRE_CLAMPING,
         MOVING_TO_CLAMPING,
         DETECTED_CLAMP,
         AT_CLAMPING,
@@ -63,6 +67,7 @@ class ClampsFSMClass {
             recieve_position_top = CLAMPS_DEFAULT_RECEIVE_TOP_POS;
             recieve_position_bot = CLAMPS_DEFAULT_RECEIVE_BOT_POS;
             clamp_position = CLAMPS_DEFAULT_CLAMP_POS;
+            pre_clamp_position = CLAMPS_DEFAULT_PRE_CLAMP_POS;
             squish_position = CLAMPS_DEFAULT_SQUISH_POS;
             estop_input = ESTOP_RELEASED;
         }
@@ -95,6 +100,7 @@ class ClampsFSMClass {
         int32_t recieve_position_top;
         int32_t recieve_position_bot;
         int32_t clamp_position;
+        int32_t pre_clamp_position;
         int32_t squish_position;
         
         uint32_t move_start_time_ms;

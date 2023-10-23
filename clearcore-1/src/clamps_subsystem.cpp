@@ -29,7 +29,7 @@ void ClampsFSMClass::setup()
         ptr_5160_clamp_lb_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_LB);
         ptr_5160_clamp_rt_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_RT);
         ptr_5160_clamp_rb_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_RB);
-        ptr_5160_clamp_rb_stepper->special_flag = true; //ue this flag to denote bottom clamps, bc they move differently
+        ptr_5160_clamp_rb_stepper->special_flag = true; //use this flag to denote bottom clamps, bc they move differently
         ptr_5160_clamp_lb_stepper->special_flag = true;
     }
 }
@@ -61,12 +61,14 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
         }        
         *ptr_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
     }else if (clamp_switch_input == PinStatus::HIGH && 
-    (*ptr_state != Clamp::ClampStates::AT_CLAMPING||
-     *ptr_state != Clamp::ClampStates::MOVING_TO_CLAMPING)){
-        ptr_stepper->clear_enc_dev();
-        ptr_stepper->set_target_position(clamp_position, CLAMPS_MOVE_VMAX);
-        *ptr_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
-        Serial.println("moving to clamping");
+    (*ptr_state != Clamp::ClampStates::AT_CLAMPING ||
+     *ptr_state != Clamp::ClampStates::MOVING_TO_CLAMPING ||
+     *ptr_state != Clamp::ClampStates::MOVING_TO_PRE_CLAMPING ||
+     *ptr_state != Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING ||
+     *ptr_state != Clamp::ClampStates::AT_PRE_CLAMPING ||
+     *ptr_state != Clamp::ClampStates::DETECTED_CLAMP)){
+        ptr_stepper->set_target_position(pre_clamp_position, CLAMPS_MOVE_VMAX);
+        *ptr_state = Clamp::ClampStates::MOVING_TO_PRE_CLAMPING;
     }else if (squish_switch_input == PinStatus::HIGH && 
     (*ptr_state != Clamp::ClampStates::AT_SQUISH ||  *ptr_state != Clamp::ClampStates::MOVING_TO_SQUISH)){
         ptr_stepper->set_target_position(squish_position, CLAMPS_MOVE_VMAX);
@@ -117,9 +119,9 @@ void ClampsFSMClass::run()
                 {
                     Serial.println("Clamp Config ready");
                     // Serial.println("current ticks");
-                    Serial.println(run_ptr_stepper->get_ticks());
+                    Serial.println(run_ptr_stepper->get_old_x());
                     // Serial.println("Attempting away from home");
-                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_ticks() + CLAMPS_STEPS_AWAY_HOME, CLAMPS_HOME_VMAX);
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_STEPS_AWAY_HOME, CLAMPS_HOME_VMAX);
                     *run_prt_state = Clamp::ClampStates::MOVING_AWAY_FROM_HOME;
                 }else
                 {
@@ -194,6 +196,36 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::AT_RECIEVE:
                 act_on_button(run_ptr_stepper, run_prt_state);  
+                break;
+
+            case Clamp::ClampStates::MOVING_TO_PRE_CLAMPING:
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }
+                break;
+
+            case Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING:
+                /*all at same state*/
+                if(lt_state == Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING &&
+                    lb_state == Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING &&
+                    rt_state == Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING &&
+                    rb_state == Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING){
+                        lt_state = Clamp::ClampStates::AT_PRE_CLAMPING;
+                        lb_state = Clamp::ClampStates::AT_PRE_CLAMPING;
+                        rt_state = Clamp::ClampStates::AT_PRE_CLAMPING;
+                        rb_state = Clamp::ClampStates::AT_PRE_CLAMPING;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }
+                break;
+            
+             case Clamp::ClampStates::AT_PRE_CLAMPING:
+                /*all at same state*/                
+                run_ptr_stepper->clear_enc_dev();
+                run_ptr_stepper->set_target_position(clamp_position, CLAMPS_MOVE_VMAX);
+                *run_prt_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
                 break;
 
             case Clamp::ClampStates::MOVING_TO_CLAMPING:           

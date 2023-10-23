@@ -14,7 +14,7 @@
 #include "src\clamps_subsystem.hpp"
 #include "src\ui_cc1_subsystem.hpp"
 
-#define cycleTimeMs 180
+#define cycleTimeMs 100
 #define jitterLimitMs 10
 uint32_t cycleStartTime;
 uint32_t cycleLastTime;

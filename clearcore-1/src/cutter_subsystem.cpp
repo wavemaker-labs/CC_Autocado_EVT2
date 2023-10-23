@@ -47,18 +47,16 @@ void CutterFSMClass::run()
         case Cutter::CutterStates::SETUP:
             if(ptr_5160_cut_stepper->config_ready())
             {
-                Serial.println("Cutter Config ready");
                 state = Cutter::CutterStates::STOPPED;
             }else
             {
-                Serial.println("Cutter Config being set up");
                 Serial.println(ptr_5160_cut_stepper->step_5160_motor_cfg.configIndex);
             }
 
             break;
-        case Cutter::CutterStates::STOPPED: 
-            if(load_switch_input == PinStatus::HIGH)
-            {                
+        case Cutter::CutterStates::STOPPED:
+        case Cutter::CutterStates::RELEASED:
+            if(load_switch_input == PinStatus::HIGH){                
                 ptr_5160_cut_stepper->set_enable_right_sw(true);
                 ptr_5160_cut_stepper->set_target_position(CUTTER_LOAD_TICKS, CUTTER_VELOCITY);
                 state = Cutter::CutterStates::WINDING;
@@ -66,9 +64,7 @@ void CutterFSMClass::run()
             break;
 
         case Cutter::CutterStates::WINDING:
-            Serial.println(ptr_5160_cut_stepper->at_r_sw());
-            Serial.println(ptr_5160_cut_stepper->at_stop());
-            if(ptr_5160_cut_stepper->at_r_sw() &&                       ptr_5160_cut_stepper->at_stop()){
+            if(ptr_5160_cut_stepper->at_r_sw() && ptr_5160_cut_stepper->at_stop()){
                 ptr_5160_cut_stepper->set_target_position(0, 1);
                 ptr_5160_cut_stepper->zero_xactual();
                 ptr_5160_cut_stepper->set_enable_right_sw(false);
@@ -80,22 +76,17 @@ void CutterFSMClass::run()
             if(cut_switch_input == PinStatus::HIGH)
             { 
                 ptr_5160_cut_stepper->set_target_position(CUTTER_CUT_TICKS, CUTTER_VELOCITY);
-                state = Cutter::CutterStates::RELEASE;
+                state = Cutter::CutterStates::RELEASING;
             }
 
             break;
 
-        case Cutter::CutterStates::RELEASE:
+        case Cutter::CutterStates::RELEASING:
             if(ptr_5160_cut_stepper->at_stop()){
-                Serial.println("Done");
                 state = Cutter::CutterStates::STOPPED;
             }  
    
             break;      
-        
-        case Cutter::CutterStates::RELEASED:
-   
-            break;  
 
         case Cutter::CutterStates::ERROR_MOTOR:
 

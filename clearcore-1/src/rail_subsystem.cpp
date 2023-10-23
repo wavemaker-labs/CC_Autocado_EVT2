@@ -40,6 +40,10 @@ void RailFSMClass::read_interfaces()
     }
 }
 
+void RailFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rail::RailStates * ptr_state)
+{
+}
+
 void RailFSMClass::run()
 {
     read_interfaces();
@@ -59,7 +63,7 @@ void RailFSMClass::run()
                 // Serial.println("current ticks");
                 // Serial.println(ptr_5160_rail_stepper->get_ticks());
                 Serial.println("Attempting away from home");
-                ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_ticks() + RAIL_STEPS_AWAY_HOME, 10000);
+                ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_old_x() + RAIL_STEPS_AWAY_HOME, 10000);
                 state = Rail::RailStates::MOVING_AWAY_FROM_HOME;
             }else
             {

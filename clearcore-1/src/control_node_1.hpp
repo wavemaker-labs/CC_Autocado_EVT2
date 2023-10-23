@@ -154,7 +154,7 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R00i 0x00000014  // GCONF inverted shaft
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
-#define R10 0x00070602  // IHOLD_IRUN 
+#define R10 0x00070F02  // IHOLD_IRUN 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
@@ -217,12 +217,12 @@ static const int32_t tmc5160_CutterStepperRegisterResetState[TMC5160_REGISTER_CO
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
 #define R20 0x00000000  // RAMPMODE = 0 (Target position move)
-#define R24 0x000003E8  // A1
+#define R24 0x00002710  // A1  10000
 #define R25 0x0000C350  // V1
-#define R26 0x000003E8  // AMAX= 1000 Acceleration above V1
-#define R27 0x00030D40  // VMAX= 200 000
-#define R28 0x000003E8  // DMAX= 1000 Deceleration above V1
-#define R2A 0x000007D0  // D1= 2000 Deceleration below V1
+#define R26 0x00004E20  // AMAX= 5000 Acceleration above V1
+#define R27 0x0007A120  // VMAX= 500 000
+#define R28 0x00002710  // DMAX= 5000 Deceleration above V1
+#define R2A 0x00004E20   // D1= 10000 Deceleration below V1
 #define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
 #define R3A 0x00010000  // ENC_CONST
 #define R6C 0x000100C3  // CHOPCONF
@@ -283,7 +283,7 @@ static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
 #define R0B 0x0000009E  // GLOBAL SCALER
-#define R10 0x00070701  // IHOLD_IRUN IRUN = 0.7A ; IHOLD = 0.17A 
+#define R10 0x00070A01  // IHOLD_IRUN IRUN = 0.7A ; IHOLD = 0.17A 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
@@ -362,7 +362,8 @@ static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = {
     tmc5160_ClampStepperRegisterResetState,
     tmc5160_ClampStepperRegisterResetState,
     tmc5160_ClampInvertStepperRegisterResetState,
-    tmc5160_StepperInvertedRegisterResetState
+    tmc5160_StepperRegisterResetState
+    // tmc5160_StepperInvertedRegisterResetState
 };
 
 class CntrlNode1Io : public IoManagerClass {

@@ -11,7 +11,7 @@
 #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
 
-#define CUTTER_VELOCITY  200000
+#define CUTTER_VELOCITY     200000
 #define CUTTER_LOAD_TICKS   2000000
 #define CUTTER_CUT_TICKS    1000000
 
@@ -23,7 +23,7 @@ namespace Cutter
         HOMING,
         WINDING,
         WOUND,
-        RELEASE,
+        RELEASING,
         RELEASED,
         ESTOP = 80,
         ERROR_MOTOR = 90    

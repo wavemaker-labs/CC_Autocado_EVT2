@@ -12,11 +12,11 @@
 
 #define RAIL_STEPS_AWAY_HOME    10000
 #define RAIL_HOME_VMAX          -51200
-#define RAIL_MOVE_VMAX          200000
+#define RAIL_MOVE_VMAX          900000
 
 #define RAIL_DEFAULT_RECEIVE_POS 50000
 #define RAIL_DEFAULT_SQUISH_POS  200000
-#define RAIL_DEFAULT_CORE_POS    500000
+#define RAIL_DEFAULT_CORE_POS    550000
 
 
 namespace Rail
@@ -82,6 +82,8 @@ class RailFSMClass {
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;
+
+        void act_on_button(Cc5160Stepper * ptr_stepper, Rail::RailStates * ptr_state);
 
 };
 
