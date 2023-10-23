@@ -64,6 +64,9 @@ void CutterFSMClass::run()
             break;
 
         case Cutter::CutterStates::WINDING:
+            Serial.println("winding");
+            Serial.println(ptr_5160_cut_stepper->at_r_sw());
+            Serial.println(ptr_5160_cut_stepper->at_stop());
             if(ptr_5160_cut_stepper->at_r_sw() && ptr_5160_cut_stepper->at_stop()){
                 ptr_5160_cut_stepper->set_target_position(0, 1);
                 ptr_5160_cut_stepper->zero_xactual();
