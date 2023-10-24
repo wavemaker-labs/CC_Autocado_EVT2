@@ -47,6 +47,7 @@ void setup()
     rail.setup();
     cutter.setup();
 	clamps.setup();
+	ui_cc1.setup();
 
 	CcIoManager.reset_watchdog();
 	cycleStartTime = millis();
@@ -69,6 +70,7 @@ void cycleTasks()
 	rail.run();
 	cutter.run();
 	clamps.run();
+	ui_cc1.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();

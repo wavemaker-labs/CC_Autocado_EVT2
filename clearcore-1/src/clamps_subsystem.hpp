@@ -17,9 +17,10 @@
 
 #define CLAMPS_DEFAULT_RECEIVE_TOP_POS  30000
 #define CLAMPS_DEFAULT_RECEIVE_BOT_POS  440000
-#define CLAMPS_DEFAULT_SQUISH_POS       750000
-#define CLAMPS_DEFAULT_CLAMP_POS        560000
+#define CLAMPS_DEFAULT_SQUISH_POS       800000
+#define CLAMPS_DEFAULT_CLAMP_POS        600000
 #define CLAMPS_DEFAULT_PRE_CLAMP_POS    400000
+#define CLAMPS_DEFAULT_POST_CLAMP_POS   30000 //moving to close more after clamping stops, this plus the clamp pos should not be more than squish
 #define CLAMPS_DEFAULT_OPEN_POS         30000
 
 namespace Clamp
@@ -42,6 +43,9 @@ namespace Clamp
         MOVING_TO_CLAMPING,
         DETECTED_CLAMP,
         AT_CLAMPING,
+        MOVING_TO_POST_CLAMP,
+        WAITING_POST_CLAMP,
+        AT_POST_CLAMP,
         MOVING_TO_SQUISH,
         AT_SQUISH,
         ESTOP = 80,

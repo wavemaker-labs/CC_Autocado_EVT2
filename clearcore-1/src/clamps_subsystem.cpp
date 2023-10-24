@@ -66,7 +66,10 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
      *ptr_state != Clamp::ClampStates::MOVING_TO_PRE_CLAMPING ||
      *ptr_state != Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING ||
      *ptr_state != Clamp::ClampStates::AT_PRE_CLAMPING ||
-     *ptr_state != Clamp::ClampStates::DETECTED_CLAMP)){
+     *ptr_state != Clamp::ClampStates::DETECTED_CLAMP||
+     *ptr_state != Clamp::ClampStates::MOVING_TO_POST_CLAMP||
+     *ptr_state != Clamp::ClampStates::WAITING_POST_CLAMP||
+     *ptr_state != Clamp::ClampStates::AT_POST_CLAMP)){
         ptr_stepper->set_target_position(pre_clamp_position, CLAMPS_MOVE_VMAX);
         *ptr_state = Clamp::ClampStates::MOVING_TO_PRE_CLAMPING;
     }else if (squish_switch_input == PinStatus::HIGH && 
@@ -250,12 +253,43 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::AT_CLAMPING:
-                // if(i == 0){
-                //     Serial.println("at clamped");
-                //     Serial.println(run_ptr_stepper->get_ticks());
-                //     Serial.println(run_ptr_stepper->get_encoder_count());} 
-                act_on_button(run_ptr_stepper, run_prt_state); 
+                /*all at same state*/
+                if(lt_state == Clamp::ClampStates::AT_CLAMPING &&
+                    lb_state == Clamp::ClampStates::AT_CLAMPING &&
+                    rt_state == Clamp::ClampStates::AT_CLAMPING &&
+                    rb_state == Clamp::ClampStates::AT_CLAMPING){
+                        lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                } 
                 break;
+
+            case Clamp::ClampStates::MOVING_TO_POST_CLAMP:
+                /*all at same state*/
+                Serial.println("Post clamp move");
+                Serial.println(run_ptr_stepper->get_old_x());
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_POST_CLAMP_POS, CLAMPS_MOVE_VMAX);
+                *run_prt_state = Clamp::ClampStates::WAITING_POST_CLAMP;
+                
+                break;
+
+            case Clamp::ClampStates::WAITING_POST_CLAMP:
+                Serial.println("WAITING_POST_CLAMP");
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Clamp::ClampStates::AT_POST_CLAMP;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }                 
+                break;
+
+            case Clamp::ClampStates::AT_POST_CLAMP:
+                Serial.println("AT_POST_CLAMP");
+                act_on_button(run_ptr_stepper, run_prt_state);                
+                break;
+
 
             case Clamp::ClampStates::MOVING_TO_SQUISH:           
                 if(run_ptr_stepper->at_position()){
