@@ -9,6 +9,7 @@
 #define UI1_SUBSYSTEM_HPP
 
 #include "control_node_1.hpp"
+#include "dwin_screen.hpp"
 
 class UiCc1Class{
     public:
