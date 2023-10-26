@@ -227,7 +227,7 @@ void ClampsFSMClass::run()
              case Clamp::ClampStates::AT_PRE_CLAMPING:
                 /*all at same state*/                
                 run_ptr_stepper->clear_enc_dev();
-                run_ptr_stepper->set_target_position(clamp_position, CLAMPS_MOVE_VMAX);
+                run_ptr_stepper->set_target_position(clamp_position, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
                 break;
 
@@ -271,7 +271,7 @@ void ClampsFSMClass::run()
                 /*all at same state*/
                 Serial.println("Post clamp move");
                 Serial.println(run_ptr_stepper->get_old_x());
-                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_POST_CLAMP_POS, CLAMPS_MOVE_VMAX);
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::WAITING_POST_CLAMP;
                 
                 break;
@@ -287,9 +287,50 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::AT_POST_CLAMP:
                 Serial.println("AT_POST_CLAMP");
+
+                /*all at same state*/
+                if(lt_state == Clamp::ClampStates::AT_POST_CLAMP &&
+                    lb_state == Clamp::ClampStates::AT_POST_CLAMP &&
+                    rt_state == Clamp::ClampStates::AT_POST_CLAMP &&
+                    rb_state == Clamp::ClampStates::AT_POST_CLAMP){
+                        lt_state = Clamp::ClampStates::MOVING_TO_PRE_SQUISH;
+                        lb_state = Clamp::ClampStates::MOVING_TO_PRE_SQUISH;
+                        rt_state = Clamp::ClampStates::MOVING_TO_PRE_SQUISH;
+                        rb_state = Clamp::ClampStates::MOVING_TO_PRE_SQUISH;
+                        move_start_time_ms = CcIoManager.getSystemTime();
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state); 
+                } 
+                break;
+
+            case Clamp::ClampStates::MOVING_TO_PRE_SQUISH:
+                /*all at same state*/
+
+                if (CcIoManager.getSystemTime() - move_start_time_ms > PRE_SQUISH_DELAY)
+                {
+                Serial.println("Pre squish move");
+                Serial.println(run_ptr_stepper->get_old_x());
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
+                *run_prt_state = Clamp::ClampStates::WAITING_PRE_SQUISH;
+                }
+                
+                break;
+
+            case Clamp::ClampStates::WAITING_PRE_SQUISH:
+                Serial.println("WAITING_PRE_SQUISH");
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Clamp::ClampStates::AT_PRE_SQUISH;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }                 
+                break;
+
+            case Clamp::ClampStates::AT_PRE_SQUISH:
+                Serial.println("AT_PRE_SQUISH");
                 act_on_button(run_ptr_stepper, run_prt_state);                
                 break;
 
+//
 
             case Clamp::ClampStates::MOVING_TO_SQUISH:           
                 if(run_ptr_stepper->at_position()){

@@ -154,7 +154,8 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R00i 0x00000014  // GCONF inverted shaft
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
-#define R10 0x00070F02  // IHOLD_IRUN 
+//#define R10 0x00070F02  // IHOLD_IRUN
+#define R10 0x00071602  // IHOLD_IRUN 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
@@ -289,7 +290,7 @@ static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_
 #undef R6D
 #undef R70
 
-// Default Register values
+// Default Clamps Register values
 #define R00i 0x00000014  // GCONF inverted shaft
 #define R00 0x00000004  // GCONF normal shaft
 #define R09 0x00010606  // SHORTCONF
@@ -310,7 +311,7 @@ static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_
 #define R38 0x00000200  // ENCMODE, bit 10 to set enc prescale to decimal
 #define R3A 0x024707D0  // ENC_CONST 583.2
 #define R3Ai 0x0FDB81F40  // ENC_CONST -583.2 for inverted
-#define R3D 0x0000C350  // ENC_DEVIATION 50,000 max number of steps deviation
+#define R3D 0x00014050  // ENC_DEVIATION 82,000 max number of steps deviation
 #define R6C 0x000100C3  // CHOPCONF
 #define R6D 0x00020000  // COOLCONF
 #define R70 0xC40C001E  // PWMCONF
