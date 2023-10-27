@@ -39,6 +39,7 @@ void ClampsFSMClass::read_interfaces()
     open_switch_input = CcIoManager.get_input(A9_CLP_OPEN_BUTTON);
     recieve_switch_input = CcIoManager.get_input(A10_CLP_RECIEVE_BTN);
     clamp_switch_input = CcIoManager.get_input(A11_CLP_CLAMP_BTN);
+    grab_switch_input = CcIoManager.get_input(D2_CLP_GRAB_BUTTON);
     squish_switch_input = CcIoManager.get_input(D8_CLP_SQUISH_BTN);
 
 }
@@ -76,6 +77,23 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
     (*ptr_state != Clamp::ClampStates::AT_SQUISH ||  *ptr_state != Clamp::ClampStates::MOVING_TO_SQUISH)){
         ptr_stepper->set_target_position(squish_position, CLAMPS_MOVE_VMAX);
         *ptr_state = Clamp::ClampStates::MOVING_TO_SQUISH;
+    }else if (grab_switch_input == PinStatus::HIGH && 
+    (*ptr_state != Clamp::ClampStates::MOVING_TO_PRE_CORE)){
+        *ptr_state = Clamp::ClampStates::MOVING_TO_PRE_CORE;
+    }
+
+    if ( 
+     *ptr_state == Clamp::ClampStates::HOME_DONE ||
+     *ptr_state == Clamp::ClampStates::AT_OPEN ||
+     *ptr_state == Clamp::ClampStates::AT_RECIEVE ||
+     *ptr_state == Clamp::ClampStates::AT_POST_CLAMP ||
+     *ptr_state == Clamp::ClampStates::AT_PRE_CORE ||
+     *ptr_state == Clamp::ClampStates::AT_SQUISH)
+     {
+        led_output = PinStatus::LOW;
+    }else
+    {
+        led_output = PinStatus::HIGH;
     }
 }
 
@@ -179,7 +197,8 @@ void ClampsFSMClass::run()
             case Clamp::ClampStates::MOVING_TO_OPEN:
 
                 if(run_ptr_stepper->at_position()){
-                    *run_prt_state = Clamp::ClampStates::AT_OPEN;
+                    run_ptr_stepper->set_velocity(CLAMPS_HOME_VMAX);
+                    *run_prt_state = Clamp::ClampStates::SET_SG;
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
@@ -227,7 +246,7 @@ void ClampsFSMClass::run()
              case Clamp::ClampStates::AT_PRE_CLAMPING:
                 /*all at same state*/                
                 run_ptr_stepper->clear_enc_dev();
-                run_ptr_stepper->set_target_position(clamp_position, CLAMPS_MOVE_VMAX);
+                run_ptr_stepper->set_target_position(clamp_position, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
                 break;
 
@@ -271,7 +290,7 @@ void ClampsFSMClass::run()
                 /*all at same state*/
                 Serial.println("Post clamp move");
                 Serial.println(run_ptr_stepper->get_old_x());
-                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_POST_CLAMP_POS, CLAMPS_MOVE_VMAX);
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::WAITING_POST_CLAMP;
                 
                 break;
@@ -287,9 +306,29 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::AT_POST_CLAMP:
                 Serial.println("AT_POST_CLAMP");
-                act_on_button(run_ptr_stepper, run_prt_state);                
+                act_on_button(run_ptr_stepper, run_prt_state); 
                 break;
 
+            case Clamp::ClampStates::MOVING_TO_PRE_CORE:
+                Serial.println("Pre core move");
+                Serial.println(run_ptr_stepper->get_old_x());
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
+                *run_prt_state = Clamp::ClampStates::WAITING_PRE_CORE;
+                break;
+
+            case Clamp::ClampStates::WAITING_PRE_CORE:
+                Serial.println("WAITING_PRE_CORE");
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Clamp::ClampStates::AT_PRE_CORE;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }                 
+                break;
+
+            case Clamp::ClampStates::AT_PRE_CORE:
+                Serial.println("AT_PRE_CORE");
+                act_on_button(run_ptr_stepper, run_prt_state);                
+                break;
 
             case Clamp::ClampStates::MOVING_TO_SQUISH:           
                 if(run_ptr_stepper->at_position()){
@@ -316,7 +355,7 @@ void ClampsFSMClass::run()
 
 void ClampsFSMClass::write_interfaces()
 {
-    // CcIoManager.set_pin_output_value(AutocadoCcPins::D4_CUT_SOLENOID, relay_output);
+    CcIoManager.set_pin_output_state (AutocadoCcPins::D3_CLAPS_BUSY_LED, led_output);
 }
 
 ClampsFSMClass clamps;
