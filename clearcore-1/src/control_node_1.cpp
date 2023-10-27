@@ -106,6 +106,11 @@ void CntrlNode1Io::initialize_ethernet(){
     Ethernet.begin(mac, clear_core_ip); // start the Ethernet connection
 }
 
+void CntrlNode1Io::initialize_uart(){
+    Serial1.begin(115200);
+    Serial1.ttl(true);
+}
+
 
 void CntrlNode1Io::read_pin_inputs() {
 
@@ -143,6 +148,10 @@ void CntrlNode1Io::write_pin_outputs () {
     ConnectorIO3.State(ptr_io_array[D3_CLAPS_BUSY_LED].state);
     ConnectorIO4.State(ptr_io_array[D4_CUT_SOLENOID].state);
 } 
+
+void CntrlNode1Io::write_screen_output(const uint8_t *buffer, size_t size) {
+    Serial1.write(buffer, size);
+}
 
 void CntrlNode1Io::update_system_mb () {
     ptr_mb_reg_array[MbRegisterOffsets::WD_COUNTER].data = m_watchdog_counter;

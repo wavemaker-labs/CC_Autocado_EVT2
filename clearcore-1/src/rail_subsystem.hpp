@@ -49,6 +49,7 @@ class RailFSMClass {
     public:
         void setup();
         void run();  
+        SubsystemComms::SubsystemStates get_subsystem_state(void);
 
         RailFSMClass() {
             has_setup = false;
@@ -58,6 +59,7 @@ class RailFSMClass {
             recieve_position = RAIL_DEFAULT_RECEIVE_POS;
             squish_position = RAIL_DEFAULT_SQUISH_POS;
             core_position = RAIL_DEFAULT_CORE_POS;
+            reported_state = SubsystemComms::SubsystemStates::SETUP;
         }
 
     private:
@@ -67,6 +69,7 @@ class RailFSMClass {
         bool has_setup;
         uint16_t move_timeout_ms;
         Rail::RailStates state;
+        SubsystemComms::SubsystemStates reported_state;
 
         Cc5160Stepper * ptr_5160_rail_stepper;
 

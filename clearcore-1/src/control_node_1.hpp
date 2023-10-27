@@ -390,9 +390,11 @@ class CntrlNode1Io : public IoManagerClass {
         void assign_motor_parameters() override;
 
         void initialize_ethernet() override;
+        void initialize_uart() override;
 
         void read_pin_inputs() override;
-        void write_pin_outputs() override;           
+        void write_pin_outputs() override;
+        void write_screen_output(const uint8_t *buffer, size_t size) override;
 };
 
 extern CntrlNode1Io CcIoManager;

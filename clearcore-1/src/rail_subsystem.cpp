@@ -60,14 +60,12 @@ void RailFSMClass::run()
             if(ptr_5160_rail_stepper->config_ready())
             {
                 Serial.println("Rail Config ready");
-                // Serial.println("current ticks");
-                // Serial.println(ptr_5160_rail_stepper->get_ticks());
                 Serial.println("Attempting away from home");
                 ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_old_x() + RAIL_STEPS_AWAY_HOME, 10000);
                 state = Rail::RailStates::MOVING_AWAY_FROM_HOME;
+                reported_state = SubsystemComms::SubsystemStates::HOMING;
             }else
             {
-                // Serial.println("Config being set up");
                 Serial.println(ptr_5160_rail_stepper->step_5160_motor_cfg.configIndex);
             }
             break;
@@ -104,6 +102,7 @@ void RailFSMClass::run()
                 ptr_5160_rail_stepper->set_enable_stallgaurd(false);
                 ptr_5160_rail_stepper->zero_xactual();
                 state = Rail::RailStates::STOPPED;
+                reported_state = SubsystemComms::SubsystemStates::WAITING_INPUT;
             }            
             break;
 
@@ -210,6 +209,11 @@ void RailFSMClass::run()
 void RailFSMClass::write_interfaces()
 {
 
+}
+
+SubsystemComms::SubsystemStates RailFSMClass::get_subsystem_state(void)
+{
+    return reported_state;
 }
 
 RailFSMClass rail;

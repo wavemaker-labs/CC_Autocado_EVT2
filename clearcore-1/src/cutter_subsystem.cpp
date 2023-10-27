@@ -56,6 +56,7 @@ void CutterFSMClass::run()
             break;
         case Cutter::CutterStates::STOPPED:
         case Cutter::CutterStates::RELEASED:
+            reported_state = SubsystemComms::SubsystemStates::WAITING_INPUT;
             if(load_switch_input == PinStatus::HIGH){                
                 ptr_5160_cut_stepper->set_enable_right_sw(true);
                 ptr_5160_cut_stepper->set_target_position(CUTTER_LOAD_TICKS, CUTTER_VELOCITY);
@@ -80,6 +81,7 @@ void CutterFSMClass::run()
             { 
                 ptr_5160_cut_stepper->set_target_position(CUTTER_CUT_TICKS, CUTTER_VELOCITY);
                 state = Cutter::CutterStates::RELEASING;
+                reported_state = SubsystemComms::SubsystemStates::MOVING;
             }
 
             break;
@@ -107,6 +109,11 @@ void CutterFSMClass::run()
 void CutterFSMClass::write_interfaces()
 {
     CcIoManager.set_pin_output_state(AutocadoCcPins::D4_CUT_SOLENOID, relay_output);
+}
+
+SubsystemComms::SubsystemStates CutterFSMClass::get_subsystem_state(void)
+{
+    return reported_state;
 }
 
 CutterFSMClass cutter;

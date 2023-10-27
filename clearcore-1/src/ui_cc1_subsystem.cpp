@@ -11,6 +11,8 @@
 bool new_buzzer_mb_cmd = false;
 uint32_t timer;
 uint8_t screen_num = 0;
+SubsystemComms::SubsystemStates last_cutter_state;
+
 
 uint16_t buzzer_hreg_write(TRegister* reg, uint16_t val) {
     new_buzzer_mb_cmd = true;
@@ -21,12 +23,6 @@ void UiCc1Class::setup()
 {
     if(!has_setup){
         has_setup = true;
-        Serial1.begin(115200);
-        Serial1.ttl(true);
-
-        // Serial1.write();
-
-        // CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::UI_BUZZER_MODE_CMD, &buzzer_hreg_write);
     }
 }
 
@@ -39,26 +35,19 @@ void UiCc1Class::read_interfaces()
     // estop_input = CcIoManager.get_input(AutocadoCcPins::ESTOP_IN);
 }
 
-void UiCc1Class::run()
+void UiCc1Class::run(SubsystemComms::SubsystemStates rail_state, SubsystemComms::SubsystemStates cutter_state)
 {
     read_interfaces();
 
-    // if (estop_input == ESTOP_ACTIVE)
-    // {
-    // }
-
-    if(CcIoManager.getSystemTime() - timer > 1000){
-        timer = CcIoManager.getSystemTime();
-        Serial1.write(change_screen, CHANGE_SCREEN_LEN);
-        Serial1.write((uint8_t) 0x00);
-        Serial1.write(screen_num);
-        screen_num++;
-        if(screen_num == 23){
-            screen_num = 0;
-        }
+    if(rail_state == SubsystemComms::SubsystemStates::WAITING_INPUT){
+        CcIoManager.set_uart_tx(disp_ready, READY_SCREEN_LEN);
     }
 
-    
+    if(last_cutter_state == SubsystemComms::SubsystemStates::WAITING_INPUT && cutter_state == SubsystemComms::SubsystemStates::MOVING){
+        CcIoManager.set_uart_tx(play_sound, PLAY_SOUND_LEN);
+    }
+
+    last_cutter_state = cutter_state;
 
     write_interfaces();
 }
