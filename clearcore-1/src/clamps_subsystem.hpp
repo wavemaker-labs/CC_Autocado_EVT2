@@ -23,8 +23,8 @@
 
 #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
 #define CLAMPS_DEFAULT_CLAMP_POS                  800000    //was 600000, Limit if encoders don't stop the clamps
-#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    40000     //was 30000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
-#define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   60000     //Moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    60000     //was 40000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
+#define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   40000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
 
 #define PRE_SQUISH_DELAY                          5000  //timer until pre core offset action   
 
@@ -51,10 +51,10 @@ namespace Clamp
         MOVING_TO_POST_CLAMP,
         WAITING_POST_CLAMP,
         AT_POST_CLAMP,
-        MOVING_TO_PRE_SQUISH,
+        MOVING_TO_PRE_CORE,
         MOVING_TO_SQUISH,
-        WAITING_PRE_SQUISH,
-        AT_PRE_SQUISH,
+        WAITING_PRE_CORE,
+        AT_PRE_CORE,
         AT_SQUISH,
         ESTOP = 80,
         ERROR_MOTOR = 90
@@ -107,6 +107,7 @@ class ClampsFSMClass {
         int16_t open_switch_input;
         int16_t recieve_switch_input;
         int16_t clamp_switch_input;
+        int16_t grab_switch_input;
         int16_t squish_switch_input;
 
         int32_t open_position;
@@ -118,6 +119,8 @@ class ClampsFSMClass {
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;
+
+        PinStatus led_output;
 
 };
 

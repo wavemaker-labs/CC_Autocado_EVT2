@@ -76,7 +76,7 @@ void CntrlNode1Io::assign_io_pins() {
     ConnectorIO0.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorIO1.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorIO2.Mode(ClearCore::Connector::INPUT_DIGITAL);
-    ConnectorIO3.Mode(ClearCore::Connector::INPUT_DIGITAL);    
+       
     ConnectorIO5.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorDI6.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorDI7.Mode(ClearCore::Connector::INPUT_DIGITAL);
@@ -85,7 +85,8 @@ void CntrlNode1Io::assign_io_pins() {
     ConnectorA10.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorA11.Mode(ClearCore::Connector::INPUT_DIGITAL);
 
-    /*set up outputs*/    
+    /*set up outputs*/
+    ConnectorIO3.Mode(ClearCore::Connector::OUTPUT_DIGITAL);     
     ConnectorIO4.Mode(ClearCore::Connector::OUTPUT_DIGITAL);
 }
 void CntrlNode1Io::assign_motor_parameters() {
@@ -121,6 +122,7 @@ void CntrlNode1Io::read_pin_inputs() {
    // Using rising edge from spec: https://wavemakerlabs.atlassian.net/wiki/spaces/CHIP/pages/1936228353/CCC+Test+Bench+Electrical+Architecture
     ptr_io_array[D0_RAIL_SW_0].value = ConnectorIO0.State();
     ptr_io_array[D1_RAIL_SW_1].value = ConnectorIO1.State();
+    ptr_io_array[D2_CLP_GRAB_BUTTON].value = ConnectorIO2.State();
     ptr_io_array[D6_CUT_BUTTON].value = ConnectorDI6.InputRisen();
     ptr_io_array[D7_LOAD_CUT_BUTTON].value = ConnectorDI7.InputRisen();
     ptr_io_array[D8_CLP_SQUISH_BTN].value = ConnectorDI8.InputRisen();
@@ -135,8 +137,10 @@ void CntrlNode1Io::write_pin_outputs () {
 
     /*
     Outputs:
+    IO3 - Clamps are busy LED
     IO4 - Solenoid
     */
+    ConnectorIO3.State(ptr_io_array[D3_CLAPS_BUSY_LED].state);
     ConnectorIO4.State(ptr_io_array[D4_CUT_SOLENOID].state);
 } 
 
