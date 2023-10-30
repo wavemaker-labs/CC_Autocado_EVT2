@@ -70,7 +70,7 @@ void cycleTasks()
 	rail.run();
 	cutter.run();
 	clamps.run();
-	ui_cc1.run(rail.get_subsystem_state(), cutter.get_subsystem_state());
+	ui_cc1.run();
 
 	CcIoManager.write_interfaces();
 	CcIoManager.kick_watchdog();

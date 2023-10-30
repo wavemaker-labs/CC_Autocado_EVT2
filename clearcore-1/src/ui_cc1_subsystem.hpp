@@ -14,7 +14,7 @@
 class UiCc1Class{
     public:
         void setup();
-        void run(SubsystemComms::SubsystemStates rail_state, SubsystemComms::SubsystemStates cutter_state);        
+        void run();        
 
         UiCc1Class() {
             has_setup = false;

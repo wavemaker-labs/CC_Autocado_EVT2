@@ -22,6 +22,7 @@ void RailFSMClass::setup()
         has_setup = true;        
 
         state = Rail::RailStates::SETUP;
+        IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::SETUP);
         ptr_5160_rail_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_RAIL);
     }
 }
@@ -53,6 +54,7 @@ void RailFSMClass::run()
     //     state = Rail::RailStates::ESTOP;
     // }
 
+    /*This state machine is for movements*/
     switch (state)
     {
         case Rail::RailStates::SETUP:
@@ -63,7 +65,6 @@ void RailFSMClass::run()
                 Serial.println("Attempting away from home");
                 ptr_5160_rail_stepper->set_target_position(ptr_5160_rail_stepper->get_old_x() + RAIL_STEPS_AWAY_HOME, 10000);
                 state = Rail::RailStates::MOVING_AWAY_FROM_HOME;
-                reported_state = SubsystemComms::SubsystemStates::HOMING;
             }else
             {
                 Serial.println(ptr_5160_rail_stepper->step_5160_motor_cfg.configIndex);
@@ -102,7 +103,6 @@ void RailFSMClass::run()
                 ptr_5160_rail_stepper->set_enable_stallgaurd(false);
                 ptr_5160_rail_stepper->zero_xactual();
                 state = Rail::RailStates::STOPPED;
-                reported_state = SubsystemComms::SubsystemStates::WAITING_INPUT;
             }            
             break;
 
@@ -203,6 +203,43 @@ void RailFSMClass::run()
             break;
     }
 
+    /*Here we map the rail states to states for the higher level controller.*/
+    switch (state)
+    {
+        case Rail::RailStates::SETUP:
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::SETUP);
+            break;
+
+        case Rail::RailStates::MOVING_AWAY_FROM_HOME:
+        case Rail::RailStates::SET_SG:
+        case Rail::RailStates::WAIT_SG_HOME_DONE:           
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::HOMING);
+            break;
+
+        case Rail::RailStates::STOPPED:
+        case Rail::RailStates::AT_RECIEVE:
+        case Rail::RailStates::AT_SQUISH:    
+        case Rail::RailStates::AT_CORE:    
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::WAITING_INPUT);           
+            break;
+
+        case Rail::RailStates::MOVING_TO_RECIEVE:
+        case Rail::RailStates::MOVING_TO_SQUISH:    
+        case Rail::RailStates::MOVING_TO_CORE:    
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::MOVING);   
+            break; 
+
+        case Rail::RailStates::ERROR_MOTOR:
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::ERROR_MOTOR);
+            break;
+        
+        case Rail::RailStates::ESTOP:
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::ESTOP);
+        default:
+            break;
+    }
+
+
     write_interfaces();
 }
 
@@ -211,9 +248,5 @@ void RailFSMClass::write_interfaces()
 
 }
 
-SubsystemComms::SubsystemStates RailFSMClass::get_subsystem_state(void)
-{
-    return reported_state;
-}
 
 RailFSMClass rail;

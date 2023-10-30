@@ -35,7 +35,6 @@ class CutterFSMClass {
     public:
         void setup();
         void run();
-        SubsystemComms::SubsystemStates get_subsystem_state(void);
 
         CutterFSMClass() {
             has_setup = false;
@@ -43,7 +42,6 @@ class CutterFSMClass {
             state = Cutter::CutterStates::SETUP;
             estop_input = ESTOP_RELEASED;
             relay_output = PinStatus::LOW;
-            reported_state = SubsystemComms::SubsystemStates::SETUP;
         }
 
     private:
@@ -53,7 +51,6 @@ class CutterFSMClass {
         bool has_setup;
         uint16_t move_timeout_ms;
         Cutter::CutterStates state;
-        SubsystemComms::SubsystemStates reported_state;
 
         Cc5160Stepper * ptr_5160_cut_stepper;
 

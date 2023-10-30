@@ -56,7 +56,6 @@ void CutterFSMClass::run()
             break;
         case Cutter::CutterStates::STOPPED:
         case Cutter::CutterStates::RELEASED:
-            reported_state = SubsystemComms::SubsystemStates::WAITING_INPUT;
             if(load_switch_input == PinStatus::HIGH){                
                 ptr_5160_cut_stepper->set_enable_right_sw(true);
                 ptr_5160_cut_stepper->set_target_position(CUTTER_LOAD_TICKS, CUTTER_VELOCITY);
@@ -81,9 +80,7 @@ void CutterFSMClass::run()
             { 
                 ptr_5160_cut_stepper->set_target_position(CUTTER_CUT_TICKS, CUTTER_VELOCITY);
                 state = Cutter::CutterStates::RELEASING;
-                reported_state = SubsystemComms::SubsystemStates::MOVING;
             }
-
             break;
 
         case Cutter::CutterStates::RELEASING:
@@ -103,17 +100,39 @@ void CutterFSMClass::run()
             break;
     }
 
+    /*Here we map the states to states for the higher level controller.*/
+    switch (state)
+    {
+        case Cutter::CutterStates::SETUP:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubsystemComms::SubsystemStates::SETUP);
+            break;
+        case Cutter::CutterStates::STOPPED:
+        case Cutter::CutterStates::RELEASED:
+        case Cutter::CutterStates::WOUND:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubsystemComms::SubsystemStates::WAITING_INPUT);
+            break;
+
+        case Cutter::CutterStates::WINDING:
+        case Cutter::CutterStates::RELEASING:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubsystemComms::SubsystemStates::MOVING);
+            break;      
+
+        case Cutter::CutterStates::ERROR_MOTOR:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubsystemComms::SubsystemStates::ERROR_MOTOR);
+            break;
+        
+        case Cutter::CutterStates::ESTOP:
+        default:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubsystemComms::SubsystemStates::ESTOP);
+            break;
+    }
+
     write_interfaces();
 }
 
 void CutterFSMClass::write_interfaces()
 {
     CcIoManager.set_pin_output_state(AutocadoCcPins::D4_CUT_SOLENOID, relay_output);
-}
-
-SubsystemComms::SubsystemStates CutterFSMClass::get_subsystem_state(void)
-{
-    return reported_state;
 }
 
 CutterFSMClass cutter;

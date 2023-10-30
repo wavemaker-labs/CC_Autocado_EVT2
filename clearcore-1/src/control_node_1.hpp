@@ -13,6 +13,19 @@
 #define CC1_FW_VERSION 1
 
 
+typedef enum{
+    RAIL_SUBS = 0,
+    CLAMPS_SUBS,
+    CUTTER_SUBS,
+} SubsystemList;
+
+#define CC1_NUM_SUBSYSTEMS 3
+static SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS] = {
+    {RAIL_SUBS},
+    {CLAMPS_SUBS},
+    {CUTTER_SUBS}
+};
+
 typedef enum
 {
         CC_NUMBER = 0,
