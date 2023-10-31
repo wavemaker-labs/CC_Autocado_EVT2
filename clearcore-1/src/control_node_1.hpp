@@ -20,12 +20,7 @@ typedef enum{
 } SubsystemList;
 
 #define CC1_NUM_SUBSYSTEMS 3
-static SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS] = {
-    {RAIL_SUBS},
-    {CLAMPS_SUBS},
-    {CUTTER_SUBS}
-};
-
+extern SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS];
 typedef enum
 {
         CC_NUMBER = 0,
@@ -231,7 +226,7 @@ static const int32_t tmc5160_CutterInvStepperRegisterResetState[TMC5160_REGISTER
 #define R00i 0x00000014  // GCONF inverted shaft
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
-#define R10 0x0006070A  // IHOLD_IRUN 
+#define R10 0x00061006  // IHOLD_IRUN ihold - 1.4A
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
@@ -302,7 +297,7 @@ static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
 #define R0B 0x0000009E  // GLOBAL SCALER
-#define R10 0x00070A01  // IHOLD_IRUN IRUN = 0.7A ; IHOLD = 0.17A 
+#define R10 0x00070A01  // IHOLD_IRUN IRUN 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS

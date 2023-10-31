@@ -12,6 +12,12 @@
 byte mac[] = {0x24, 0x15, 0x10, 0xb0, 0x14, 0x18};
 IPAddress clear_core_ip(192, 168, 1, 102); 
 
+SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS] = {
+    {RAIL_SUBS},
+    {CLAMPS_SUBS},
+    {CUTTER_SUBS}
+};
+
 #define adcResolution 12
 
 bool b_ignore_weight = false;
@@ -101,6 +107,7 @@ void CntrlNode1Io::assign_motor_parameters() {
 
     SPI.begin(); //daisy chain SPI motors need SPI
 }
+
 
 void CntrlNode1Io::initialize_ethernet(){
     Ethernet.begin(mac, clear_core_ip); // start the Ethernet connection

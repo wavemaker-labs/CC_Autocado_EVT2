@@ -22,7 +22,7 @@ void RailFSMClass::setup()
         has_setup = true;        
 
         state = Rail::RailStates::SETUP;
-        IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::SETUP);
+        IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
         ptr_5160_rail_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_RAIL);
     }
 }
@@ -207,34 +207,34 @@ void RailFSMClass::run()
     switch (state)
     {
         case Rail::RailStates::SETUP:
-            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::SETUP);
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
             break;
 
         case Rail::RailStates::MOVING_AWAY_FROM_HOME:
         case Rail::RailStates::SET_SG:
         case Rail::RailStates::WAIT_SG_HOME_DONE:           
-            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::HOMING);
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::HOMING);
             break;
 
         case Rail::RailStates::STOPPED:
         case Rail::RailStates::AT_RECIEVE:
         case Rail::RailStates::AT_SQUISH:    
         case Rail::RailStates::AT_CORE:    
-            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::WAITING_INPUT);           
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);           
             break;
 
         case Rail::RailStates::MOVING_TO_RECIEVE:
         case Rail::RailStates::MOVING_TO_SQUISH:    
         case Rail::RailStates::MOVING_TO_CORE:    
-            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::MOVING);   
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);   
             break; 
 
         case Rail::RailStates::ERROR_MOTOR:
-            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::ERROR_MOTOR);
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
             break;
         
         case Rail::RailStates::ESTOP:
-            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubsystemComms::SubsystemStates::ESTOP);
+            IntraComms[SubsystemList::RAIL_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ESTOP);
         default:
             break;
     }

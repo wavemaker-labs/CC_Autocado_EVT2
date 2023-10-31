@@ -35,12 +35,12 @@ void UiCc1Class::run()
 {
     read_interfaces();
 
-    if(IntraComms[RAIL_SUBS].get_ss_state() == SubsystemComms::SubsystemStates::WAITING_INPUT && 
-    IntraComms[CUTTER_SUBS].get_ss_state() == SubsystemComms::SubsystemStates::WAITING_INPUT){
+    if(IntraComms[RAIL_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT && 
+    IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT){
         CcIoManager.set_uart_tx(disp_ready, READY_SCREEN_LEN);
     }
 
-    if(IntraComms[CUTTER_SUBS].get_ss_state() == SubsystemComms::SubsystemStates::MOVING && IntraComms[CUTTER_SUBS].get_ss_last_state() == SubsystemComms::SubsystemStates::WAITING_INPUT){
+    if(IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::MOVING && IntraComms[CUTTER_SUBS].get_ss_last_state() == SubCommsClass::WAITING_INPUT){
         CcIoManager.set_uart_tx(play_sound, PLAY_SOUND_LEN);
     }
 
