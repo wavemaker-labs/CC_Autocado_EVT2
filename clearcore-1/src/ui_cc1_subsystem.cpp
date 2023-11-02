@@ -35,7 +35,7 @@ void UiCc1Class::run()
 {
     read_interfaces();
 
-    if(IntraComms[RAIL_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT && 
+    if(IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT && 
     IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT){
         CcIoManager.set_uart_tx(disp_ready, READY_SCREEN_LEN);
     }

@@ -9,7 +9,7 @@
 #include <SPI.h>
 #include "TMC5160.hpp"
 #include "src\control_node_1.hpp"
-#include "src\rail_subsystem.hpp"
+#include "src\rotators_subsystem.hpp"
 #include "src\cutter_subsystem.hpp"
 #include "src\clamps_subsystem.hpp"
 #include "src\ui_cc1_subsystem.hpp"
@@ -44,7 +44,7 @@ void setup()
 	ptr_system_errors = CcIoManager.get_mb_data_pointer(MbRegisterOffsets::SYSTEM_ERROR);
 	*ptr_system_errors = SystemErrors::NO_ERRORS;	
 
-    rail.setup();
+    rotators.setup();
     cutter.setup();
 	clamps.setup();
 	ui_cc1.setup();
@@ -67,7 +67,7 @@ void cycleTasks()
 	CcIoManager.read_interfaces();
 	CcIoManager.update_system_mb();
 	
-	rail.run();
+	rotators.run();
 	cutter.run();
 	clamps.run();
 	ui_cc1.run();

@@ -14,7 +14,7 @@
 
 
 typedef enum{
-    RAIL_SUBS = 0,
+    ROTS_SUBS = 0,
     CLAMPS_SUBS,
     CUTTER_SUBS,
 } SubsystemList;
@@ -138,17 +138,19 @@ typedef enum {
         STEPPER_CLAMP_LB,
         STEPPER_CLAMP_RT,
         STEPPER_CLAMP_RB,
-        STEPPER_RAIL,
+        STEPPER_ROT_L,
+        STEPPER_ROT_R,
 } AutocadoCcSteppers;
 
-#define CC_NUM_DAISY_STEP_MOTORS 6
+#define CC_NUM_DAISY_STEP_MOTORS 7
 static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
     {STEPPER_CUTTER, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_CLAMP_LT, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_CLAMP_LB, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_CLAMP_RT, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_CLAMP_RB, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
-    {STEPPER_RAIL, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_ROT_L, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_ROT_R, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
 };
 
 // Default Cutter Register values
@@ -376,7 +378,8 @@ static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = {
     tmc5160_ClampStepperRegisterResetState,
     tmc5160_ClampStepperRegisterResetState,
     tmc5160_ClampInvertStepperRegisterResetState,
-    tmc5160_StepperInvertedRegisterResetState
+    tmc5160_StepperInvertedRegisterResetState,
+    tmc5160_StepperRegisterResetState
 };
 
 class CntrlNode1Io : public IoManagerClass {
