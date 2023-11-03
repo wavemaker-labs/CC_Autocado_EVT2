@@ -139,9 +139,7 @@ void ClampsFSMClass::run()
                 if(run_ptr_stepper->config_ready())
                 {
                     Serial.println("Clamp Config ready");
-                    // Serial.println("current ticks");
                     Serial.println(run_ptr_stepper->get_old_x());
-                    // Serial.println("Attempting away from home");
                     run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_STEPS_AWAY_HOME, CLAMPS_HOME_VMAX);
                     *run_prt_state = Clamp::ClampStates::MOVING_AWAY_FROM_HOME;
                 }else

@@ -99,7 +99,7 @@ void RotsFSMClass::run()
                     Serial.println("Rot Config ready");
                     Serial.println("Attempting away from home");
                     Serial.println(run_ptr_stepper->get_old_x());
-                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, 10000);
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, ROTS_HOME_VMAX);
                     *run_prt_state = Rots::RotsStates::MOVING_AWAY_FROM_HOME;
                 }else
                 {
@@ -112,7 +112,6 @@ void RotsFSMClass::run()
                 
                 if(run_ptr_stepper->at_position())
                 {
-                    // Serial.println("Rail at position");
                     run_ptr_stepper->set_velocity(ROTS_HOME_VMAX);
                     *run_prt_state = Rots::RotsStates::SET_SG;
                 }
@@ -135,7 +134,7 @@ void RotsFSMClass::run()
                 // Serial.println("waiting for home");
                 if(run_ptr_stepper->at_sg_stall())
                 {
-                    // Serial.println("at stall");
+                    Serial.println("rot at stall");
                     run_ptr_stepper->set_velocity(0);
                     run_ptr_stepper->set_enable_stallgaurd(false);
                     run_ptr_stepper->zero_xactual();

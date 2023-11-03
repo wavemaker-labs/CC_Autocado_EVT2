@@ -293,6 +293,77 @@ static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_
 #undef R6D
 #undef R70
 
+//Rotator Default Register values
+#define R00 0x00000004  // GCONF
+#define R00i 0x00000014  // GCONF inverted shaft
+#define R09 0x00010606  // SHORTCONF
+#define R0A 0x00080400  // DRVCONF
+#define R10 0x00061006  // IHOLD_IRUN ihold - 1.4A
+#define R11 0x0000000A  // TPOWERDOWN
+#define R13 0x000001F4  // TPWMTHRS
+#define R14 0x00001388  // TCOOLTHRS
+#define R20 0x00000000  // RAMPMODE = 0 (Target position move)
+#define R24 0x0000A530  // A1  30000
+#define R25 0x0003D090  // V1 250000
+#define R26 0x00007E20  // AMAX= 20000 Acceleration above V1
+#define R27 0x0007A120  // VMAX= 500 000
+#define R28 0x00007E20  // DMAX= 30000 Deceleration above V1
+#define R2A 0x0000A530   // D1= 30000 Deceleration below V1
+#define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
+#define R3A 0x00010000  // ENC_CONST
+#define R6C 0x000100C3  // CHOPCONF
+// #define R6D 0x00020000  // COOLCONF
+#define R6D 0x00C40000  // COOLCONF
+#define R70 0xC40C001E  // PWMCONF
+
+static const int32_t tmc5160_RotStepperRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+static const int32_t tmc5160_RotStepperInvertedRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00i,0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,   R6C, R6D, 0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+// Undefine the default register values.
+// This prevents warnings in case multiple TMC-API chip headers are included at once
+#undef R00
+#undef R09
+#undef R0A
+#undef R10
+#undef R11
+#undef R13
+#undef R14
+#undef R20
+#undef R24
+#undef R25
+#undef R26
+#undef R27
+#undef R28
+#undef R2A
+#undef R2B
+#undef R3A
+#undef R6C
+#undef R6D
+#undef R70
+
 // Default Clamps Register values
 #define R00i 0x00000014  // GCONF inverted shaft
 #define R00 0x00000004  // GCONF normal shaft
@@ -378,8 +449,8 @@ static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = {
     tmc5160_ClampStepperRegisterResetState,
     tmc5160_ClampStepperRegisterResetState,
     tmc5160_ClampInvertStepperRegisterResetState,
-    tmc5160_StepperInvertedRegisterResetState,
-    tmc5160_StepperRegisterResetState
+    tmc5160_RotStepperRegisterResetState,
+    tmc5160_RotStepperInvertedRegisterResetState,
 };
 
 class CntrlNode1Io : public IoManagerClass {
