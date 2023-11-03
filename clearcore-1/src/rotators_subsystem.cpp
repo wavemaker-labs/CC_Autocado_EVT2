@@ -97,7 +97,6 @@ void RotsFSMClass::run()
                 if(run_ptr_stepper->config_ready())
                 {
                     Serial.println("Rot Config ready");
-                    Serial.println(i);
                     Serial.println("Attempting away from home");
                     Serial.println(run_ptr_stepper->get_old_x());
                     run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, 10000);
@@ -105,8 +104,6 @@ void RotsFSMClass::run()
                 }else
                 {
                     Serial.println("Rot Config setting up");
-                    Serial.println(run_ptr_stepper->get_spi_driver_status(), HEX);
-                    Serial.println(i);
                     Serial.println(run_ptr_stepper->step_5160_motor_cfg.configIndex);
                 }
                 break;
