@@ -25,7 +25,7 @@ void RotsFSMClass::setup()
         r_state = Rots::RotsStates::SETUP;
         IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
         ptr_5160_rot_l_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_L);
-        ptr_5160_rot_l_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_R);
+        ptr_5160_rot_r_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_R);
     }
 }
 
@@ -75,7 +75,7 @@ void RotsFSMClass::run()
     Cc5160Stepper * run_ptr_stepper;
     Rots::RotsStates * run_prt_state;
 
-    for(int i; i < 2; i++)//2 for two axis
+    for(int i = 0; i < 2; i++)//2 for two axis
     {
         switch(i){
             case 0:
@@ -87,151 +87,157 @@ void RotsFSMClass::run()
                 run_prt_state = &r_state;
                 break;
         }
-    }
-
-    /*This state machine is for movements*/
-    switch (*run_prt_state)
-    {
-        case Rots::RotsStates::SETUP:
-            
-            if(run_ptr_stepper->config_ready())
-            {
-                Serial.println("Rot Config ready");
-                Serial.println("Attempting away from home");
-                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, 10000);
-                *run_prt_state = Rots::RotsStates::MOVING_AWAY_FROM_HOME;
-            }else
-            {
-                Serial.println(run_ptr_stepper->step_5160_motor_cfg.configIndex);
-            }
-            break;
-
-        case Rots::RotsStates::MOVING_AWAY_FROM_HOME:
-            
-            if(run_ptr_stepper->at_position())
-            {
-                // Serial.println("Rail at position");
-                run_ptr_stepper->set_velocity(ROTS_HOME_VMAX);
-                *run_prt_state = Rots::RotsStates::SET_SG;
-            }
-            
-            break;
-
-        case Rots::RotsStates::SET_SG:
-
-            if(run_ptr_stepper->at_vmax())
-            {
-                // Serial.println("Rail at vmax, setting sg");
-                run_ptr_stepper->set_enable_stallgaurd(true);
-                *run_prt_state = Rots::RotsStates::WAIT_SG_HOME_DONE;
-            }
-     
-            break;
-
-        case Rots::RotsStates::WAIT_SG_HOME_DONE:
-            
-            // Serial.println("waiting for home");
-            if(run_ptr_stepper->at_sg_stall())
-            {
-                // Serial.println("at stall");
-                run_ptr_stepper->set_velocity(0);
-                run_ptr_stepper->set_enable_stallgaurd(false);
-                run_ptr_stepper->zero_xactual();
-                *run_prt_state = Rots::RotsStates::STOPPED;
-            }            
-            break;
-
-        case Rots::RotsStates::STOPPED:            
-
-            act_on_button(run_ptr_stepper, run_prt_state);
-
-            break;
-
-        case Rots::RotsStates::MOVING_TO_RECIEVE:    
     
-            if(run_ptr_stepper->at_position()){
-                *run_prt_state = Rots::RotsStates::AT_RECIEVE;
-            }else{
-                act_on_button(run_ptr_stepper, run_prt_state);
-            }
-            
-            break; 
 
-        case Rots::RotsStates::AT_RECIEVE:    
-    
-            act_on_button(run_ptr_stepper, run_prt_state); 
-            break; 
+         /*This state machine is for movements*/
+        switch (*run_prt_state)
+        {            
+            case Rots::RotsStates::SETUP:
+                
+                if(run_ptr_stepper->config_ready())
+                {
+                    Serial.println("Rot Config ready");
+                    Serial.println(i);
+                    Serial.println("Attempting away from home");
+                    Serial.println(run_ptr_stepper->get_old_x());
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, 10000);
+                    *run_prt_state = Rots::RotsStates::MOVING_AWAY_FROM_HOME;
+                }else
+                {
+                    Serial.println("Rot Config setting up");
+                    Serial.println(run_ptr_stepper->get_spi_driver_status(), HEX);
+                    Serial.println(i);
+                    Serial.println(run_ptr_stepper->step_5160_motor_cfg.configIndex);
+                }
+                break;
 
-        case Rots::RotsStates::MOVING_TO_SQUISH:    
-            if(run_ptr_stepper->at_position()){
-                *run_prt_state = Rots::RotsStates::AT_SQUISH;
-            }else{
-                act_on_button(run_ptr_stepper, run_prt_state);
-            }
-            break; 
+            case Rots::RotsStates::MOVING_AWAY_FROM_HOME:
+                
+                if(run_ptr_stepper->at_position())
+                {
+                    // Serial.println("Rail at position");
+                    run_ptr_stepper->set_velocity(ROTS_HOME_VMAX);
+                    *run_prt_state = Rots::RotsStates::SET_SG;
+                }
+                
+                break;
 
-        case Rots::RotsStates::AT_SQUISH:    
-    
-            act_on_button(run_ptr_stepper, run_prt_state);
-            break; 
+            case Rots::RotsStates::SET_SG:
 
-        case Rots::RotsStates::MOVING_TO_CORE:    
-    
-            if(run_ptr_stepper->at_position()){
-                *run_prt_state = Rots::RotsStates::AT_CORE;
-            }else{
-                act_on_button(run_ptr_stepper, run_prt_state);
-            }
-            break; 
-
-        case Rots::RotsStates::AT_CORE:    
-    
-            act_on_button(run_ptr_stepper, run_prt_state);
-            break; 
-
-        case Rots::RotsStates::ERROR_MOTOR:
-
-            break;
+                if(run_ptr_stepper->at_vmax())
+                {
+                    // Serial.println("Rail at vmax, setting sg");
+                    run_ptr_stepper->set_enable_stallgaurd(true);
+                    *run_prt_state = Rots::RotsStates::WAIT_SG_HOME_DONE;
+                }
         
-        case Rots::RotsStates::ESTOP:
-        default:
+                break;
 
-            break;
+            case Rots::RotsStates::WAIT_SG_HOME_DONE:
+                
+                // Serial.println("waiting for home");
+                if(run_ptr_stepper->at_sg_stall())
+                {
+                    // Serial.println("at stall");
+                    run_ptr_stepper->set_velocity(0);
+                    run_ptr_stepper->set_enable_stallgaurd(false);
+                    run_ptr_stepper->zero_xactual();
+                    *run_prt_state = Rots::RotsStates::STOPPED;
+                }            
+                break;
+
+            case Rots::RotsStates::STOPPED:            
+
+                act_on_button(run_ptr_stepper, run_prt_state);
+
+                break;
+
+            case Rots::RotsStates::MOVING_TO_RECIEVE:    
+        
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Rots::RotsStates::AT_RECIEVE;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }
+                
+                break; 
+
+            case Rots::RotsStates::AT_RECIEVE:    
+        
+                act_on_button(run_ptr_stepper, run_prt_state); 
+                break; 
+
+            case Rots::RotsStates::MOVING_TO_SQUISH:    
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Rots::RotsStates::AT_SQUISH;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }
+                break; 
+
+            case Rots::RotsStates::AT_SQUISH:    
+        
+                act_on_button(run_ptr_stepper, run_prt_state);
+                break; 
+
+            case Rots::RotsStates::MOVING_TO_CORE:    
+        
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Rots::RotsStates::AT_CORE;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                }
+                break; 
+
+            case Rots::RotsStates::AT_CORE:    
+        
+                act_on_button(run_ptr_stepper, run_prt_state);
+                break; 
+
+            case Rots::RotsStates::ERROR_MOTOR:
+
+                break;
+            
+            case Rots::RotsStates::ESTOP:
+            default:
+
+                break;
+        }
     }
 
     /*Here we map the rail states to states for the higher level controller.*/
     /*need to use a big if else statement, not sure how to do it otherwise with 2 variables
     */
-     if(l_state == Rots::ERROR_MOTOR || l_state == Rots::ERROR_MOTOR){
+     if(l_state == Rots::ERROR_MOTOR || r_state == Rots::ERROR_MOTOR){
 
             IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
 
-     }else if(l_state == Rots::SETUP || l_state == Rots::SETUP){
+     }else if(l_state == Rots::SETUP || r_state == Rots::SETUP){
 
             IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
 
-    }else if ((l_state == Rots::MOVING_AWAY_FROM_HOME || l_state == Rots::MOVING_AWAY_FROM_HOME) || 
-             (l_state == Rots::SET_SG || l_state == Rots::SET_SG) ||
-             (l_state == Rots::WAIT_SG_HOME_DONE || l_state == Rots::WAIT_SG_HOME_DONE)){
+    }else if ((l_state == Rots::MOVING_AWAY_FROM_HOME || r_state == Rots::MOVING_AWAY_FROM_HOME) || 
+             (l_state == Rots::SET_SG || r_state == Rots::SET_SG) ||
+             (l_state == Rots::WAIT_SG_HOME_DONE || r_state == Rots::WAIT_SG_HOME_DONE)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::HOMING);
 
-    }else if((l_state == Rots::STOPPED || l_state == Rots::STOPPED) || 
-             (l_state == Rots::AT_RECIEVE || l_state == Rots::AT_RECIEVE) ||
-             (l_state == Rots::AT_SQUISH || l_state == Rots::AT_SQUISH) ||
-             (l_state == Rots::AT_CORE || l_state == Rots::AT_CORE)){
+    }else if((l_state == Rots::STOPPED || r_state == Rots::STOPPED) || 
+             (l_state == Rots::AT_RECIEVE || r_state == Rots::AT_RECIEVE) ||
+             (l_state == Rots::AT_SQUISH || r_state == Rots::AT_SQUISH) ||
+             (l_state == Rots::AT_CORE || r_state == Rots::AT_CORE)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
 
-    }else if((l_state == Rots::STOPPED || l_state == Rots::MOVING_TO_RECIEVE) || 
-             (l_state == Rots::AT_RECIEVE || l_state == Rots::MOVING_TO_SQUISH) ||
-             (l_state == Rots::AT_CORE || l_state == Rots::MOVING_TO_CORE)){
+    }else if((l_state == Rots::STOPPED || r_state == Rots::MOVING_TO_RECIEVE) || 
+             (l_state == Rots::AT_RECIEVE || r_state == Rots::MOVING_TO_SQUISH) ||
+             (l_state == Rots::AT_CORE || r_state == Rots::MOVING_TO_CORE)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
 
-    }else if((l_state == Rots::STOPPED || l_state == Rots::MOVING_TO_RECIEVE) || 
-             (l_state == Rots::AT_RECIEVE || l_state == Rots::MOVING_TO_SQUISH) ||
-             (l_state == Rots::AT_CORE || l_state == Rots::MOVING_TO_CORE)){
+    }else if((l_state == Rots::STOPPED || r_state == Rots::MOVING_TO_RECIEVE) || 
+             (l_state == Rots::AT_RECIEVE || r_state == Rots::MOVING_TO_SQUISH) ||
+             (l_state == Rots::AT_CORE || r_state == Rots::MOVING_TO_CORE)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
                 
