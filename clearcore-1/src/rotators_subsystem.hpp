@@ -24,10 +24,13 @@ namespace Rots
 {
     typedef enum {
         SETUP,
+        WAIT_FOR_HOME_CMD,
         MOVING_AWAY_FROM_HOME,
         START_HOMING,
         SET_SG,
         WAIT_SG_HOME_DONE,
+        FINISH_HOME_AT_RECIEVE,
+        WAIT_FOR_READY_CMD,
         STOPPED,
         MOVING_TO_RECIEVE,       
         MOVING_TO_SQUISH,       
@@ -90,11 +93,14 @@ class RotsFSMClass {
         int16_t estop_input;
         int16_t switch_0_input;
         int16_t switch_1_input;
+        int16_t home_input;
+        int16_t ready_input;
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;
 
         void act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates * ptr_state);
+        void determine_comm_state();
 
 };
 

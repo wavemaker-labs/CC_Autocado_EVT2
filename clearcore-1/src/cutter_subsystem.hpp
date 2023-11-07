@@ -20,6 +20,7 @@ namespace Cutter
 {
     typedef enum {
         STOPPED,        
+        WAIT_FOR_READY_CMD,        
         SETUP,
         HOMING,
         WINDING,
@@ -57,6 +58,8 @@ class CutterFSMClass {
         int16_t estop_input;
         int16_t cut_switch_input;
         int16_t load_switch_input;
+
+        int16_t ready_input;
 
         PinStatus relay_output;
         

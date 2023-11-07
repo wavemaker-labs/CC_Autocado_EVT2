@@ -41,9 +41,11 @@ void ClampsFSMClass::read_interfaces()
     clamp_switch_input = CcIoManager.get_input(A11_CLP_CLAMP_BTN);
     grab_switch_input = CcIoManager.get_input(D2_CLP_GRAB_BUTTON);
     squish_switch_input = CcIoManager.get_input(D8_CLP_SQUISH_BTN);
+    home_command = (IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_cmd() == SubCommsClass::SubsystemCommands::HOME_COMMAND);
 
 }
 
+/*Can clean this up with some better functions or enum declarations*/
 void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStates * ptr_state)
 {
     if(open_switch_input == PinStatus::HIGH && 
@@ -101,16 +103,10 @@ void ClampsFSMClass::run()
 {
     read_interfaces();
 
-    // if (estop_input == ESTOP_ACTIVE && state != Cutter::CutterStatesESTOP)
-    // {
-    //     state = Cutter::CutterStatesESTOP;
-    // }
-
     Cc5160Stepper * run_ptr_stepper;
     Clamp::ClampStates * run_prt_state;
 
-    // Serial.println("Clamp Encoder counts");
-
+    /*runs through the 4 clamps state machines*/
     for(int i = 0; i < 4; i ++){   
 
         switch(i){
@@ -151,10 +147,17 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::MOVING_AWAY_FROM_HOME:
-                
+
                 if(run_ptr_stepper->at_position())
                 {
-                    // Serial.println("clamp at position");
+                    *run_prt_state = Clamp::ClampStates::WAIT_HOME_CMD;                    
+                }
+                break;
+
+            case Clamp::ClampStates::WAIT_HOME_CMD:
+                
+                /*wait for ok to home from conductor level*/
+                if(home_command){
                     run_ptr_stepper->set_velocity(CLAMPS_HOME_VMAX);
                     *run_prt_state = Clamp::ClampStates::SET_SG;
                 }
@@ -169,7 +172,6 @@ void ClampsFSMClass::run()
                     run_ptr_stepper->set_enable_stallgaurd(true);
                     *run_prt_state = Clamp::ClampStates::WAIT_SG_HOME_DONE;
                 }
-        
                 break;
 
             case Clamp::ClampStates::WAIT_SG_HOME_DONE:
@@ -346,6 +348,38 @@ void ClampsFSMClass::run()
                 break;
         }
 
+    }
+
+    /*Here we map the rail states to states for the higher level controller.*/
+    /*need to use a big if else statement, not sure how to do it otherwise with 2 variables
+    */
+    if(lt_state == Clamp::ERROR_MOTOR || 
+        lb_state == Clamp::ERROR_MOTOR ||
+        rt_state == Clamp::ERROR_MOTOR ||
+        rb_state == Clamp::ERROR_MOTOR){
+
+            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
+
+    }else if(lt_state == Clamp::SETUP || 
+            lb_state == Clamp::SETUP ||
+            rt_state == Clamp::SETUP ||
+            rb_state == Clamp::SETUP){
+
+            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
+
+    }else if(lt_state == Clamp::WAIT_HOME_CMD && 
+            lb_state == Clamp::WAIT_HOME_CMD &&
+            rt_state == Clamp::WAIT_HOME_CMD &&
+            rb_state == Clamp::WAIT_HOME_CMD){
+
+            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_HOME_CMD);
+
+    }else if(lt_state == Clamp::HOME_DONE && 
+            lb_state == Clamp::HOME_DONE &&
+            rt_state == Clamp::HOME_DONE &&
+            rb_state == Clamp::HOME_DONE){
+
+            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
     }
 
     write_interfaces();

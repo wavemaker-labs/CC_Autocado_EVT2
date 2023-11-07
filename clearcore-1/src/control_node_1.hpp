@@ -369,7 +369,7 @@ static const int32_t tmc5160_RotStepperInvertedRegisterResetState[TMC5160_REGIST
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
 #define R0B 0x0000009E  // GLOBAL SCALER
-#define R10 0x00070A01  // IHOLD_IRUN IRUN 
+#define R10 0x00070E01  // IHOLD_IRUN IRUN 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS

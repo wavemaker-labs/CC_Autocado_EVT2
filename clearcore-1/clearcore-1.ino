@@ -6,12 +6,11 @@
 */
 
 
-#include <SPI.h>
-#include "TMC5160.hpp"
 #include "src\control_node_1.hpp"
 #include "src\rotators_subsystem.hpp"
 #include "src\cutter_subsystem.hpp"
 #include "src\clamps_subsystem.hpp"
+#include "src\cado_conductor.hpp"
 #include "src\ui_cc1_subsystem.hpp"
 
 #define cycleTimeMs 100
@@ -44,6 +43,7 @@ void setup()
 	ptr_system_errors = CcIoManager.get_mb_data_pointer(MbRegisterOffsets::SYSTEM_ERROR);
 	*ptr_system_errors = SystemErrors::NO_ERRORS;	
 
+	conductor.setup();
     rotators.setup();
     cutter.setup();
 	clamps.setup();
@@ -66,7 +66,8 @@ void cycleTasks()
 	CcIoManager.service_interfaces();
 	CcIoManager.read_interfaces();
 	CcIoManager.update_system_mb();
-	
+
+	conductor.run();
 	rotators.run();
 	cutter.run();
 	clamps.run();

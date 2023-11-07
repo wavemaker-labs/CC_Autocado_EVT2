@@ -9,9 +9,9 @@
 #define CLAMP_SUBSYSTEM_HPP
 
 #include "control_node_1.hpp"
-// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
-#define CLAMPS_STEPS_AWAY_HOME          10000
+// #define CLAMPS_STEPS_AWAY_HOME          10000
+#define CLAMPS_STEPS_AWAY_HOME          800000 // need to fully close close clamps before any other moves.
 #define CLAMPS_HOME_VMAX                -51200
 #define CLAMPS_MOVE_VMAX                312000  
 #define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
@@ -33,6 +33,7 @@ namespace Clamp
     typedef enum {        
         SETUP,
         MOVING_AWAY_FROM_HOME,
+        WAIT_HOME_CMD,
         START_HOMING,
         SET_SG,
         WAIT_SG_HOME_DONE,
@@ -109,6 +110,7 @@ class ClampsFSMClass {
         int16_t clamp_switch_input;
         int16_t grab_switch_input;
         int16_t squish_switch_input;
+        int16_t home_command;
 
         int32_t open_position;
         int32_t recieve_position_top;

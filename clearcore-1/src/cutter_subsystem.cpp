@@ -28,8 +28,13 @@ void CutterFSMClass::setup()
 
 void CutterFSMClass::read_interfaces()
 {
+    SubCommsClass::SubsystemCommands conductor_cmd;
+
+    conductor_cmd = IntraComms[SubsystemList::CUTTER_SUBS].get_ss_cmd();
+
     cut_switch_input = CcIoManager.get_input(D6_CUT_BUTTON);
     load_switch_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
+    ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
 }
 
 void CutterFSMClass::run()
@@ -47,13 +52,20 @@ void CutterFSMClass::run()
         case Cutter::CutterStates::SETUP:
             if(ptr_5160_cut_stepper->config_ready())
             {
-                state = Cutter::CutterStates::STOPPED;
+                state = Cutter::CutterStates::WAIT_FOR_READY_CMD;
             }else
             {
                 Serial.println(ptr_5160_cut_stepper->step_5160_motor_cfg.configIndex);
             }
 
             break;
+
+        case Cutter::CutterStates::WAIT_FOR_READY_CMD:
+            if(ready_input){
+                state = Cutter::CutterStates::STOPPED;
+            }
+            break;
+
         case Cutter::CutterStates::STOPPED:
         case Cutter::CutterStates::RELEASED:
             if(load_switch_input == PinStatus::HIGH){                
