@@ -11,12 +11,14 @@
 #include "control_node_1.hpp"
 
 #define ROTS_STEPS_AWAY_HOME    10000
-#define ROTS_HOME_VMAX          -51200
-#define ROTS_MOVE_VMAX          6200000
 
-#define ROTS_DEFAULT_RECEIVE_POS 50000
-#define ROTS_DEFAULT_SQUISH_POS  400000
-#define ROTS_DEFAULT_CORE_POS    1000000
+#define ROTS_HOME_VMAX          -51200
+#define ROTS_MOVE_VMAX           512000
+
+#define ROTS_DEFAULT_RECEIVE_POS    92.0  //~-90 degrees
+#define ROTS_DEFAULT_PRESQUISH_POS  75.0  //~-75 degree
+#define ROTS_DEFAULT_SQUISH_POS     0.5   //~-0 degrees
+
 
 namespace Rots
 {
@@ -29,10 +31,10 @@ namespace Rots
         STOPPED,
         MOVING_TO_RECIEVE,       
         MOVING_TO_SQUISH,       
-        MOVING_TO_CORE,       
+        MOVING_TO_PRESQUISH,       
         AT_RECIEVE,       
         AT_SQUISH,       
-        AT_CORE,       
+        AT_PRESQUISH,       
         ESTOP = 80,
         ERROR_MOTOR = 90    
     } RotsStates;
@@ -40,7 +42,7 @@ namespace Rots
     typedef enum {
         RECEIVE_POS,
         SQUISH_POS,
-        CORE_POS  
+        PRESQUISH_POS  
     } RotsPositions;
 }
 
@@ -56,9 +58,15 @@ class RotsFSMClass {
             l_state = Rots::RotsStates::SETUP;
             r_state = Rots::RotsStates::SETUP;
             estop_input = ESTOP_RELEASED;
-            recieve_position = ROTS_DEFAULT_RECEIVE_POS;
-            squish_position = ROTS_DEFAULT_SQUISH_POS;
-            core_position = ROTS_DEFAULT_CORE_POS;
+
+            float catch_atp = (ROTS_DEFAULT_RECEIVE_POS/360.0)*51200.0*46.656;       //converting up angle to pulses
+            catch_position = (int32_t)catch_atp;                                     //converting up pulses to int
+
+            float presquish_atp = (ROTS_DEFAULT_PRESQUISH_POS/360.0)*51200.0*46.656; //converting close angle to pulses
+            presquish_position = (int32_t)presquish_atp;                             //converting close pulses to int
+
+            float squish_atp = (ROTS_DEFAULT_SQUISH_POS/360.0)*51200.0*46.656;       //converting open angle to pulses
+            squish_position = (int32_t)squish_atp;                                   //converting open pulses to int
         }
 
     private:
@@ -75,9 +83,9 @@ class RotsFSMClass {
 
         Rots::RotsPositions cmd_position;
 
-        int32_t recieve_position;
+        int32_t catch_position;
         int32_t squish_position;
-        int32_t core_position;
+        int32_t presquish_position;
 
         int16_t estop_input;
         int16_t switch_0_input;

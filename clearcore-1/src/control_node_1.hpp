@@ -312,8 +312,7 @@ static const int32_t tmc5160_StepperInvertedRegisterResetState[TMC5160_REGISTER_
 #define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
 #define R3A 0x00010000  // ENC_CONST
 #define R6C 0x000100C3  // CHOPCONF
-// #define R6D 0x00020000  // COOLCONF
-#define R6D 0x00C40000  // COOLCONF
+#define R6D 0x00030000  // COOLCONF
 #define R70 0xC40C001E  // PWMCONF
 
 static const int32_t tmc5160_RotStepperRegisterResetState[TMC5160_REGISTER_COUNT] =

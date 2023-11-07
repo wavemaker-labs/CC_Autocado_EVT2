@@ -34,12 +34,12 @@ void RotsFSMClass::read_interfaces()
     switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
     switch_1_input = CcIoManager.get_input(D1_RAIL_SW_1);
 
-    if(switch_0_input == PinStatus::HIGH && switch_1_input == PinStatus::LOW){ 
+    if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::HIGH){ 
         cmd_position = Rots::RotsPositions::RECEIVE_POS;
     }else if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::LOW){ 
+        cmd_position = Rots::RotsPositions::PRESQUISH_POS;
+    }else if(switch_0_input == PinStatus::HIGH && switch_1_input == PinStatus::LOW){
         cmd_position = Rots::RotsPositions::SQUISH_POS;
-    }else if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::HIGH){
-        cmd_position = Rots::RotsPositions::CORE_POS;
     }
 }
 
@@ -49,7 +49,7 @@ void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates *
         *ptr_state != Rots::RotsStates::AT_RECIEVE && 
         *ptr_state != Rots::RotsStates::MOVING_TO_RECIEVE){
 
-            ptr_stepper->set_target_position(recieve_position, ROTS_MOVE_VMAX);
+            ptr_stepper->set_target_position(catch_position, ROTS_MOVE_VMAX);
             *ptr_state = Rots::RotsStates::MOVING_TO_RECIEVE;
 
     }else if (cmd_position == Rots::RotsPositions::SQUISH_POS &&
@@ -59,12 +59,12 @@ void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates *
             ptr_stepper->set_target_position(squish_position, ROTS_MOVE_VMAX);
             *ptr_state = Rots::RotsStates::MOVING_TO_SQUISH;
 
-    }else if (cmd_position == Rots::RotsPositions::CORE_POS &&
-        *ptr_state != Rots::RotsStates::AT_CORE && 
-        *ptr_state != Rots::RotsStates::MOVING_TO_CORE){
+    }else if (cmd_position == Rots::RotsPositions::PRESQUISH_POS &&
+        *ptr_state != Rots::RotsStates::AT_PRESQUISH && 
+        *ptr_state != Rots::RotsStates::MOVING_TO_PRESQUISH){
 
-            ptr_stepper->set_target_position(core_position, ROTS_MOVE_VMAX);
-            *ptr_state = Rots::RotsStates::MOVING_TO_CORE;
+            ptr_stepper->set_target_position(presquish_position, ROTS_MOVE_VMAX);
+            *ptr_state = Rots::RotsStates::MOVING_TO_PRESQUISH;
     }
 }
 
@@ -176,16 +176,16 @@ void RotsFSMClass::run()
                 act_on_button(run_ptr_stepper, run_prt_state);
                 break; 
 
-            case Rots::RotsStates::MOVING_TO_CORE:    
+            case Rots::RotsStates::MOVING_TO_PRESQUISH:    
         
                 if(run_ptr_stepper->at_position()){
-                    *run_prt_state = Rots::RotsStates::AT_CORE;
+                    *run_prt_state = Rots::RotsStates::AT_PRESQUISH;
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 }
                 break; 
 
-            case Rots::RotsStates::AT_CORE:    
+            case Rots::RotsStates::AT_PRESQUISH:    
         
                 act_on_button(run_ptr_stepper, run_prt_state);
                 break; 
@@ -221,19 +221,19 @@ void RotsFSMClass::run()
     }else if((l_state == Rots::STOPPED || r_state == Rots::STOPPED) || 
              (l_state == Rots::AT_RECIEVE || r_state == Rots::AT_RECIEVE) ||
              (l_state == Rots::AT_SQUISH || r_state == Rots::AT_SQUISH) ||
-             (l_state == Rots::AT_CORE || r_state == Rots::AT_CORE)){
+             (l_state == Rots::AT_PRESQUISH || r_state == Rots::AT_PRESQUISH)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
 
     }else if((l_state == Rots::STOPPED || r_state == Rots::MOVING_TO_RECIEVE) || 
              (l_state == Rots::AT_RECIEVE || r_state == Rots::MOVING_TO_SQUISH) ||
-             (l_state == Rots::AT_CORE || r_state == Rots::MOVING_TO_CORE)){
+             (l_state == Rots::AT_PRESQUISH || r_state == Rots::MOVING_TO_PRESQUISH)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
 
     }else if((l_state == Rots::STOPPED || r_state == Rots::MOVING_TO_RECIEVE) || 
              (l_state == Rots::AT_RECIEVE || r_state == Rots::MOVING_TO_SQUISH) ||
-             (l_state == Rots::AT_CORE || r_state == Rots::MOVING_TO_CORE)){
+             (l_state == Rots::AT_PRESQUISH || r_state == Rots::MOVING_TO_PRESQUISH)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
                 
