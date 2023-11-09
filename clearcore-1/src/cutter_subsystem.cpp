@@ -37,15 +37,38 @@ void CutterFSMClass::read_interfaces()
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
 }
 
+void CutterFSMClass::determine_comm_state(){
+    /*Here we map the subsystem specific states to generalized states for the higher level controller.*/
+    switch (state)
+    {
+        case Cutter::CutterStates::SETUP:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
+            break;
+        case Cutter::CutterStates::STOPPED:
+        case Cutter::CutterStates::RELEASED:
+        case Cutter::CutterStates::WOUND:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
+            break;
+
+        case Cutter::CutterStates::WINDING:
+        case Cutter::CutterStates::RELEASING:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
+            break;      
+
+        case Cutter::CutterStates::ERROR_MOTOR:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
+            break;
+        
+        case Cutter::CutterStates::ESTOP:
+        default:
+            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ESTOP);
+            break;
+    }
+}
+
 void CutterFSMClass::run()
 {
     read_interfaces();
-
-    // if (estop_input == ESTOP_ACTIVE && state != Cutter::CutterStatesESTOP)
-    // {
-    //     state = Cutter::CutterStatesESTOP;
-    // }
-
 
     switch (state)
     {
@@ -112,32 +135,7 @@ void CutterFSMClass::run()
             break;
     }
 
-    /*Here we map the states to states for the higher level controller.*/
-    switch (state)
-    {
-        case Cutter::CutterStates::SETUP:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
-            break;
-        case Cutter::CutterStates::STOPPED:
-        case Cutter::CutterStates::RELEASED:
-        case Cutter::CutterStates::WOUND:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
-            break;
-
-        case Cutter::CutterStates::WINDING:
-        case Cutter::CutterStates::RELEASING:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
-            break;      
-
-        case Cutter::CutterStates::ERROR_MOTOR:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
-            break;
-        
-        case Cutter::CutterStates::ESTOP:
-        default:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ESTOP);
-            break;
-    }
+    
 
     write_interfaces();
 }

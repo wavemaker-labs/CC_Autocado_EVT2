@@ -49,6 +49,8 @@ class CutterFSMClass {
         void read_interfaces();
         void write_interfaces();  
 
+        void determine_comm_state();
+
         bool has_setup;
         uint16_t move_timeout_ms;
         Cutter::CutterStates state;

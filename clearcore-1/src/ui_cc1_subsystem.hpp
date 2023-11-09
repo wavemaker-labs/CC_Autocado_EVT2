@@ -18,9 +18,8 @@ class UiCc1Class{
 
         UiCc1Class() {
             has_setup = false;
-
-            avo_size = 0;
-            
+            new_screen = 0;
+            current_screen = 0;            
         }
 
     private:
@@ -29,7 +28,8 @@ class UiCc1Class{
 
         bool has_setup;
 
-        uint16_t avo_size;
+        uint16_t new_screen;
+        uint16_t current_screen;
 
         int16_t estop_input;
         

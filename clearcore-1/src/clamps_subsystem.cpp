@@ -137,21 +137,43 @@ void ClampsFSMClass::run()
                     Serial.println("Clamp Config ready");
                     Serial.println(run_ptr_stepper->get_old_x());
                     run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_STEPS_AWAY_HOME, CLAMPS_HOME_VMAX);
-                    *run_prt_state = Clamp::ClampStates::MOVING_AWAY_FROM_HOME;
+                    *run_prt_state = Clamp::ClampStates::MOVING_AWAY_FROM_CLOSE;
                 }else
                 {
                     Serial.println("Clamp Config being set up");
                     Serial.println(run_ptr_stepper->step_5160_motor_cfg.configIndex);
                 }
-
                 break;
 
-            case Clamp::ClampStates::MOVING_AWAY_FROM_HOME:
+            case Clamp::ClampStates::MOVING_AWAY_FROM_CLOSE:
 
                 if(run_ptr_stepper->at_position())
                 {
-                    *run_prt_state = Clamp::ClampStates::WAIT_HOME_CMD;                    
+                    run_ptr_stepper->set_velocity(CLAMPS_INITIAL_CLOSE_VMAX);
+                    *run_prt_state = Clamp::ClampStates::SET_SG_CLOSING_CLAMP;                    
                 }
+                break;
+
+             case Clamp::ClampStates::SET_SG_CLOSING_CLAMP:
+
+                if(run_ptr_stepper->at_vmax())
+                {
+                    // Serial.println("clamp at vmax, setting sg");
+                    run_ptr_stepper->set_enable_stallgaurd(true);
+                    *run_prt_state = Clamp::ClampStates::SG_CLOSING_CLAMP;
+                }
+
+                break;
+
+            case Clamp::ClampStates::SG_CLOSING_CLAMP:
+
+                if(run_ptr_stepper->at_sg_stall())
+                {
+                    Serial.println("at stall");
+                    run_ptr_stepper->set_velocity(0);
+                    run_ptr_stepper->set_enable_stallgaurd(false);
+                    *run_prt_state = Clamp::ClampStates::WAIT_HOME_CMD;
+                }  
                 break;
 
             case Clamp::ClampStates::WAIT_HOME_CMD:

@@ -88,7 +88,7 @@ void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates *
 }
 
 void RotsFSMClass::determine_comm_state(){
-    /*Here we map the rail states to states for the higher level controller.*/
+    /*Here we map the subsystem specific states to generalized states for the higher level controller.*/
     /*need to use a big if else statement, not sure how to do it otherwise with 2 variables
     */
      if(l_state == Rots::ERROR_MOTOR || r_state == Rots::ERROR_MOTOR){

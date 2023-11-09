@@ -10,7 +10,7 @@
 
 bool new_buzzer_mb_cmd = false;
 uint32_t timer;
-uint8_t screen_num = 0;
+uint8_t change_screen_buf [CHANGE_SCREEN_LEN] = {0x5A, 0xA5, 0x07, 0x82, 0x00, 0x84, 0x5A, 0x01, 0x00, 0x00};
 
 
 uint16_t buzzer_hreg_write(TRegister* reg, uint16_t val) {
@@ -28,7 +28,7 @@ void UiCc1Class::setup()
 
 void UiCc1Class::read_interfaces()
 {
-    // avo_size = CcIoManager.get_input(AutocadoCcPins::AVO_SIZE_AIN);
+    
 }
 
 void UiCc1Class::run()
@@ -37,11 +37,13 @@ void UiCc1Class::run()
 
     if(IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT && 
     IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT){
-        CcIoManager.set_uart_tx(disp_ready, READY_SCREEN_LEN);
+        new_screen = READY_SCREEN_ADDRESS;
     }
 
-    if(IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::MOVING && IntraComms[CUTTER_SUBS].get_ss_last_state() == SubCommsClass::WAITING_INPUT){
-        CcIoManager.set_uart_tx(play_sound, PLAY_SOUND_LEN);
+    if(IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::MOVING ||
+      IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::MOVING ||
+      IntraComms[CLAMPS_SUBS].get_ss_state() == SubCommsClass::MOVING ){
+        new_screen = PROCESSING_SCREEN_ADDRESS;
     }
 
     write_interfaces();
@@ -49,11 +51,11 @@ void UiCc1Class::run()
 
 void UiCc1Class::write_interfaces()
 {
-    // CcIoManager.set_pin_output_state(AutocadoCcPins::BUZZER, buzzer_out);
-    // CcIoManager.set_pin_output_state(AutocadoCcPins::ALERT_LED_OUT, alert_out);
-    // CcIoManager.set_pin_output_state(AutocadoCcPins::DONE_LED_OUT, done_out);
-
-    // CcIoManager.set_mb_data(MbRegisterOffsets::UI_AVO_SIZE, avo_size);
+    if(current_screen != new_screen){
+        change_screen_buf[SCREEN_ADDR_BYTE] = new_screen;
+        CcIoManager.set_uart_tx(change_screen_buf, CHANGE_SCREEN_LEN);
+        current_screen = new_screen;
+    }
 }
 
 UiCc1Class ui_cc1;

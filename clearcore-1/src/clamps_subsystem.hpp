@@ -10,9 +10,9 @@
 
 #include "control_node_1.hpp"
 
-// #define CLAMPS_STEPS_AWAY_HOME          10000
-#define CLAMPS_STEPS_AWAY_HOME          800000 // need to fully close close clamps before any other moves.
+#define CLAMPS_STEPS_AWAY_HOME          -10000
 #define CLAMPS_HOME_VMAX                -51200
+#define CLAMPS_INITIAL_CLOSE_VMAX       51200
 #define CLAMPS_MOVE_VMAX                312000  
 #define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
 
@@ -32,7 +32,9 @@ namespace Clamp
 {
     typedef enum {        
         SETUP,
-        MOVING_AWAY_FROM_HOME,
+        MOVING_AWAY_FROM_CLOSE,
+        SET_SG_CLOSING_CLAMP,
+        SG_CLOSING_CLAMP,
         WAIT_HOME_CMD,
         START_HOMING,
         SET_SG,
@@ -73,10 +75,12 @@ class ClampsFSMClass {
             ptr_5160_clamp_lb_stepper = nullptr;
             ptr_5160_clamp_rt_stepper = nullptr;
             ptr_5160_clamp_rb_stepper = nullptr;
+
             lt_state = Clamp::ClampStates::SETUP;
             lb_state = Clamp::ClampStates::SETUP;
             rt_state = Clamp::ClampStates::SETUP;
             rb_state = Clamp::ClampStates::SETUP;
+            
             open_position = CLAMPS_DEFAULT_OPEN_POS;
             recieve_position_top = CLAMPS_DEFAULT_RECEIVE_TOP_POS;
             recieve_position_bot = CLAMPS_DEFAULT_RECEIVE_BOT_POS;
