@@ -11,7 +11,7 @@
 #include "control_node_1.hpp"
 
 #define CLAMPS_STEPS_AWAY_HOME          -10000
-#define CLAMPS_HOME_VMAX                -51200
+#define CLAMPS_HOME_VMAX                -102400
 #define CLAMPS_INITIAL_CLOSE_VMAX       51200
 #define CLAMPS_MOVE_VMAX                312000  
 #define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
@@ -25,6 +25,10 @@
 #define CLAMPS_DEFAULT_CLAMP_POS                  800000    //was 600000, Limit if encoders don't stop the clamps
 #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    45000     //moving to close more after clamping stops, this plus the clamp pos should not be more than squish
 #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   40000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+
+#define CLAMPS_PRE_RUB_OPEN_STEPS   -40000
+#define CLAMPS_RUB_STEPS             100000
+#define CLAMPS_RUB_VMAX             912000
 
 #define PRE_SQUISH_DELAY                          5000  //timer until pre core offset action   
 
@@ -58,7 +62,15 @@ namespace Clamp
         MOVING_TO_SQUISH,
         WAITING_PRE_CORE,
         AT_PRE_CORE,
+        SYNC_SQUISH,
         AT_SQUISH,
+        PRE_RUB_OPEN,
+        RUB_OUT_1,
+        RUB_IN_1,
+        RUB_OUT_2,
+        RUB_IN_2,
+        RUB_DONE,
+        RUB_OUT_3,
         ESTOP = 80,
         ERROR_MOTOR = 90
     } ClampStates;

@@ -45,6 +45,32 @@ void ClampsFSMClass::read_interfaces()
 
 }
 
+/*during rub the steps + direction differ due to position
+case 0: ptr_5160_clamp_lt_stepper
+case 1: ptr_5160_clamp_lb_stepper
+case 2: ptr_5160_clamp_rt_stepper
+case 3: ptr_5160_clamp_rb_stepper
+*/
+int32_t clamp_rub_calc(int32_t steps, int motor_pos)
+{
+    switch (motor_pos)
+    {
+    case 0:
+    case 2:
+        return steps;
+        break;
+
+    case 1:
+    case 3:
+        return (-1 * steps);
+        break;
+
+    default:
+        return 0;
+        break;
+    }
+}
+
 /*Can clean this up with some better functions or enum declarations*/
 void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStates * ptr_state)
 {
@@ -106,10 +132,12 @@ void ClampsFSMClass::run()
     Cc5160Stepper * run_ptr_stepper;
     Clamp::ClampStates * run_prt_state;
 
-    /*runs through the 4 clamps state machines*/
-    for(int i = 0; i < 4; i ++){   
+    int stepper_number;
 
-        switch(i){
+    /*runs through the 4 clamps state machines*/
+    for(stepper_number = 0; stepper_number < 4; stepper_number ++){   
+
+        switch(stepper_number){
             case 0:
                 run_ptr_stepper = ptr_5160_clamp_lt_stepper;
                 run_prt_state = &lt_state;
@@ -310,7 +338,6 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::MOVING_TO_POST_CLAMP:
                 /*all at same state*/
-                Serial.println("Post clamp move");
                 Serial.println(run_ptr_stepper->get_old_x());
                 run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::WAITING_POST_CLAMP;
@@ -318,7 +345,6 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::WAITING_POST_CLAMP:
-                Serial.println("WAITING_POST_CLAMP");
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_POST_CLAMP;
                 }else{
@@ -327,19 +353,16 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::AT_POST_CLAMP:
-                Serial.println("AT_POST_CLAMP");
                 act_on_button(run_ptr_stepper, run_prt_state); 
                 break;
 
             case Clamp::ClampStates::MOVING_TO_PRE_CORE:
-                Serial.println("Pre core move");
                 Serial.println(run_ptr_stepper->get_old_x());
                 run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::WAITING_PRE_CORE;
                 break;
 
             case Clamp::ClampStates::WAITING_PRE_CORE:
-                Serial.println("WAITING_PRE_CORE");
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_PRE_CORE;
                 }else{
@@ -348,21 +371,95 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::AT_PRE_CORE:
-                Serial.println("AT_PRE_CORE");
                 act_on_button(run_ptr_stepper, run_prt_state);                
                 break;
 
             case Clamp::ClampStates::MOVING_TO_SQUISH:           
                 if(run_ptr_stepper->at_position()){
-                    *run_prt_state = Clamp::ClampStates::AT_SQUISH;
+                    *run_prt_state = Clamp::ClampStates::SYNC_SQUISH;
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 }
                 break;
 
+            case Clamp::ClampStates::SYNC_SQUISH:
+                /*all at same state*/
+                if(lt_state == Clamp::ClampStates::SYNC_SQUISH &&
+                    lb_state == Clamp::ClampStates::SYNC_SQUISH &&
+                    rt_state == Clamp::ClampStates::SYNC_SQUISH &&
+                    rb_state == Clamp::ClampStates::SYNC_SQUISH &&
+                    stepper_number == 3){ //only do this on the last pass through
+                        lt_state = Clamp::ClampStates::AT_SQUISH;
+                        lb_state = Clamp::ClampStates::AT_SQUISH;
+                        rt_state = Clamp::ClampStates::AT_SQUISH;
+                        rb_state = Clamp::ClampStates::AT_SQUISH;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);
+                } 
+                break;            
+
             case Clamp::ClampStates::AT_SQUISH:   
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_PRE_RUB_OPEN_STEPS, CLAMPS_CONTACT_VMAX);
+                *run_prt_state = Clamp::ClampStates::PRE_RUB_OPEN; 
+                break;
+
+            case Clamp::ClampStates::PRE_RUB_OPEN:
+                if(run_ptr_stepper->at_position()){
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + clamp_rub_calc(CLAMPS_RUB_STEPS, stepper_number), CLAMPS_RUB_VMAX);
+                    *run_prt_state = Clamp::ClampStates::RUB_OUT_1;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);      
+                }
+                break;
+
+            case Clamp::ClampStates::RUB_OUT_1:
+                if(run_ptr_stepper->at_position()){
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + clamp_rub_calc((-2 * CLAMPS_RUB_STEPS), stepper_number), CLAMPS_RUB_VMAX);
+                    *run_prt_state = Clamp::ClampStates::RUB_IN_1;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);      
+                }
+                break;
+
+            case Clamp::ClampStates::RUB_IN_1:
+                if(run_ptr_stepper->at_position()){
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + clamp_rub_calc((2 * CLAMPS_RUB_STEPS), stepper_number), CLAMPS_RUB_VMAX);
+                    *run_prt_state = Clamp::ClampStates::RUB_OUT_2;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);      
+                }      
+                break;
+                
+            case Clamp::ClampStates::RUB_OUT_2:   
+                if(run_ptr_stepper->at_position()){
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + clamp_rub_calc((-2 * CLAMPS_RUB_STEPS), stepper_number), CLAMPS_RUB_VMAX);
+                    *run_prt_state = Clamp::ClampStates::RUB_IN_2;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);      
+                }         
+                break;
+
+            case Clamp::ClampStates::RUB_IN_2:   
+                if(run_ptr_stepper->at_position()){
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + clamp_rub_calc(CLAMPS_RUB_STEPS, stepper_number), CLAMPS_RUB_VMAX);
+                    *run_prt_state = Clamp::ClampStates::RUB_OUT_3;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);      
+                }       
+                break;
+
+            case Clamp::ClampStates::RUB_OUT_3:   
+                if(run_ptr_stepper->at_position()){
+                    *run_prt_state = Clamp::ClampStates::RUB_DONE;
+                }else{
+                    act_on_button(run_ptr_stepper, run_prt_state);      
+                }       
+                break;
+
+            case Clamp::ClampStates::RUB_DONE:   
                 act_on_button(run_ptr_stepper, run_prt_state);      
                 break;
+           
             
             case Clamp::ClampStates::ESTOP:
             default:

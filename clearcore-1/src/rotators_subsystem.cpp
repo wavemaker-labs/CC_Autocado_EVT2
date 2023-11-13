@@ -174,7 +174,6 @@ void RotsFSMClass::run()
 
             case Rots::RotsStates::WAIT_FOR_HOME_CMD:
 
-                Serial.println("rots waiting home command");
                 if(home_input){
                     Serial.println(run_ptr_stepper->get_old_x());
                     run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, ROTS_HOME_VMAX);
