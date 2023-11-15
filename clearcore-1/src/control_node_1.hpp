@@ -23,21 +23,21 @@ typedef enum{
 extern SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS];
 typedef enum
 {
-        CC_NUMBER = 0,
-        WD_COUNTER,
-        SYSTEM_ERROR,
-        FW_VERSION,
-        E_STOP,
-        MOTOR_1_SPEED_1,
-        MOTOR_1_SPEED_2,
-        MOTOR_1_STATE,
-        MOTOR_1_POS_1,
-        MOTOR_1_POS_2,
-        MOTOR_2_POS_1,
-        MOTOR_2_POS_2,
-        MOTOR_3_POS_1,
-        MOTOR_3_POS_2,        
-        RESET_CC_RQ = 50        
+    CC_NUMBER = 0,
+    WD_COUNTER,
+    SYSTEM_ERROR,
+    FW_VERSION,
+    E_STOP,
+    MOTOR_1_SPEED_1,
+    MOTOR_1_SPEED_2,
+    MOTOR_1_STATE,
+    MOTOR_1_POS_1,
+    MOTOR_1_POS_2,
+    MOTOR_2_POS_1,
+    MOTOR_2_POS_2,
+    MOTOR_3_POS_1,
+    MOTOR_3_POS_2,        
+    RESET_CC_RQ = 50        
 
 } MbRegisterOffsets;
 
@@ -368,19 +368,18 @@ static const int32_t tmc5160_RotStepperInvertedRegisterResetState[TMC5160_REGIST
 #define R00 0x00000004  // GCONF normal shaft
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
-// #define R0B 0x0000009E  // GLOBAL SCALER
 #define R0B 0x00000000  // GLOBAL SCALER
-#define R10 0x00070E01  // IHOLD_IRUN IRUN 
+#define R10 0x000A0E01  // IHOLD_IRUN IRUN 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
 #define R20 0x00000000  // RAMPMODE = 0 (Target position move)
-#define R24 0x00002710  // A1 10000
+#define R24 0x00004710  // A1 10000
 #define R25 0x0003D090  // V1 250000
-#define R26 0x00001388  // AMAX= 5000 Acceleration above V1
+#define R26 0x00002388  // AMAX= 5000 Acceleration above V1
 #define R27 0x0007A120  // VMAX= 500,000ppt
-#define R28 0x00002388  // DMAX= 5000 Deceleration above V1
-#define R2A 0x00004710  // D1= 10000 Deceleration below V1
+#define R28 0x00004388  // DMAX= 5000 Deceleration above V1
+#define R2A 0x00008710  // D1= 10000 Deceleration below V1
 #define R2B 0x0000005A  // VSTOP= 100 Stop velocity (Near to zero)
 #define R38 0x00000200  // ENCMODE, bit 10 to set enc prescale to decimal
 #define R3A 0x024707D0  // ENC_CONST 583.2
