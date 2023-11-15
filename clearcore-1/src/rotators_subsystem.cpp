@@ -113,25 +113,19 @@ void RotsFSMClass::determine_comm_state(){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_RDY_CMD);
 
-    }else if((l_state == Rots::STOPPED || r_state == Rots::STOPPED) || 
-             (l_state == Rots::AT_RECIEVE || r_state == Rots::AT_RECIEVE) ||
-             (l_state == Rots::AT_SQUISH || r_state == Rots::AT_SQUISH) ||
-             (l_state == Rots::AT_PRESQUISH || r_state == Rots::AT_PRESQUISH)){
+    }else if((l_state == Rots::STOPPED && r_state == Rots::STOPPED) || 
+             (l_state == Rots::AT_RECIEVE && r_state == Rots::AT_RECIEVE) ||
+             (l_state == Rots::AT_SQUISH && r_state == Rots::AT_SQUISH) ||
+             (l_state == Rots::AT_PRESQUISH && r_state == Rots::AT_PRESQUISH)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
 
-    }else if((l_state == Rots::STOPPED || r_state == Rots::MOVING_TO_RECIEVE) || 
-             (l_state == Rots::AT_RECIEVE || r_state == Rots::MOVING_TO_SQUISH) ||
-             (l_state == Rots::AT_PRESQUISH || r_state == Rots::MOVING_TO_PRESQUISH)){
+    }else if((l_state == Rots::MOVING_TO_RECIEVE || r_state == Rots::MOVING_TO_RECIEVE) || 
+             (l_state == Rots::MOVING_TO_SQUISH || r_state == Rots::MOVING_TO_SQUISH) ||
+             (l_state == Rots::MOVING_TO_PRESQUISH || r_state == Rots::MOVING_TO_PRESQUISH)){
 
                 IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
 
-    }else if((l_state == Rots::STOPPED || r_state == Rots::MOVING_TO_RECIEVE) || 
-             (l_state == Rots::AT_RECIEVE || r_state == Rots::MOVING_TO_SQUISH) ||
-             (l_state == Rots::AT_PRESQUISH || r_state == Rots::MOVING_TO_PRESQUISH)){
-
-                IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
-                
     }
 }
 
@@ -286,8 +280,6 @@ void RotsFSMClass::run()
                 break;
         }
     }
-
-    
 
     determine_comm_state();
     write_interfaces();
