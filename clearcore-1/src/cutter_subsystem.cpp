@@ -135,7 +135,7 @@ void CutterFSMClass::run()
             break;
     }
 
-    
+    determine_comm_state();
 
     write_interfaces();
 }

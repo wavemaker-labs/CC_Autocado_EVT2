@@ -12,7 +12,7 @@
 #include "control_node_1.hpp"
 
 
-#define CUTTER_VELOCITY     200000
+#define CUTTER_VELOCITY     100000
 #define CUTTER_LOAD_TICKS   2000000
 #define CUTTER_CUT_TICKS    1000000
 

@@ -17,7 +17,8 @@
 #define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
 
 #define CLAMPS_DEFAULT_RECEIVE_TOP_POS  30000
-#define CLAMPS_DEFAULT_RECEIVE_BOT_POS  440000
+#define CLAMPS_DEFAULT_RECEIVE_BOT_POS  340000
+#define CLAMPS_DEFAULT_RECEIVE_BOT_DEG  50.0
 #define CLAMPS_DEFAULT_SQUISH_POS       800000
 #define CLAMPS_DEFAULT_OPEN_POS         30000
 
@@ -95,7 +96,7 @@ class ClampsFSMClass {
             
             open_position = CLAMPS_DEFAULT_OPEN_POS;
             recieve_position_top = CLAMPS_DEFAULT_RECEIVE_TOP_POS;
-            recieve_position_bot = CLAMPS_DEFAULT_RECEIVE_BOT_POS;
+            recieve_position_bot = (int32_t)((CLAMPS_DEFAULT_RECEIVE_BOT_DEG/360.0)*51200.0*46.656); 
             clamp_position = CLAMPS_DEFAULT_CLAMP_POS;
             pre_clamp_position = CLAMPS_DEFAULT_PRE_CLAMP_POS;
             squish_position = CLAMPS_DEFAULT_SQUISH_POS;
