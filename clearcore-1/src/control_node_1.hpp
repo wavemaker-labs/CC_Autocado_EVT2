@@ -162,6 +162,7 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
+#define R15 0x000186A0  // THIGH
 #define R20 0x00000000  // RAMPMODE = 0 (Target position move)
 #define R24 0x000007D0  // A1
 #define R25 0x000061A8  // V1
@@ -171,7 +172,7 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R2A 0x000007D0  // D1= 2000 Deceleration below V1
 #define R2B 0x0000001A  // VSTOP= 10 Stop velocity (Near to zero)
 #define R3A 0x00010000  // ENC_CONST
-#define R6C 0x000100C3  // CHOPCONF
+#define R6C 0x000500C3  // CHOPCONF 18 bit high for full steps
 #define R6D 0x00020000  // COOLCONF
 #define R70 0xC40C001E  // PWMCONF
 
@@ -179,7 +180,7 @@ static const int32_t tmc5160_CutterStepperRegisterResetState[TMC5160_REGISTER_CO
 {
 //	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
 	R00, 0,   0,   0,   0,   0,   0,   0,   0,   R09, R0A, 0,   0,   0,   0,   0, // 0x00 - 0x0F
-	R10, R11, 0,   R13, R14, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R10, R11, 0,   R13, R14, R15,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
 	R20, 0,   0,   0,   R24, R25, R26, R27, R28, 0,   R2A, R2B, 0,   0,   0,   0, // 0x20 - 0x2F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   R3A, 0,   0,   0,   0,   0, // 0x30 - 0x3F
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F

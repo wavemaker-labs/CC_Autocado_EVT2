@@ -41,6 +41,7 @@ void ConductorClass::run()
 
         case Cond::CLOSING_CLAMPS:
             /* Clamps close on start up to get out of the way */
+
             if(IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD && 
             IntraComms[SubsystemList::ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD){
                 Serial.println("Conductor: Clamps closed");
