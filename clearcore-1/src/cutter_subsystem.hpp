@@ -8,16 +8,12 @@
 #ifndef CUTTER_SUBSYSTEM_HPP
 #define CUTTER_SUBSYSTEM_HPP
 
-// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 #include "control_node_1.hpp"
 
 
-
-#define CUTTER_VELOCITY     100000 //was 1M  
-//#define CUTTER_LOAD_TICKS   30600000 // 2000000 * 15.3
-//#define CUTTER_CUT_TICKS    15300000 // 1000000 * 15.3
-#define CUTTER_LOAD_TICKS   2000000 // 2000000 * 15.3
-#define CUTTER_CUT_TICKS    1000000 // 1000000 * 15.3
+#define CUTTER_VELOCITY     100000  
+#define CUTTER_LOAD_TICKS   2000000
+#define CUTTER_CUT_TICKS    1000000
 
 namespace Cutter
 {
