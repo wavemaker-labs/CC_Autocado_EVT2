@@ -300,14 +300,18 @@ void ClampsFSMClass::run()
                 *run_prt_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
                 break;
 
-            case Clamp::ClampStates::MOVING_TO_CLAMPING:           
+            case Clamp::ClampStates::MOVING_TO_CLAMPING:
+
+                Serial.println(stepper_number);
+                Serial.println(run_ptr_stepper->get_old_x());
+                Serial.println(run_ptr_stepper->get_encoder_count());              
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_CLAMPING;
+                    Serial.println("Clamp: at clamp position");
                 }else if(run_ptr_stepper->detect_enc_dev()){
-                    // if(i == 0){Serial.println("detected dev");
-                    // Serial.println(run_ptr_stepper->get_ticks());}
                     run_ptr_stepper->set_velocity(0);
                     *run_prt_state = Clamp::ClampStates::DETECTED_CLAMP;
+                    Serial.println("Clamp: enc dev detected");
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
