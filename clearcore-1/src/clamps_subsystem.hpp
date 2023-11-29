@@ -46,7 +46,6 @@ namespace Clamp
         SET_SG,
         WAIT_SG_HOME_DONE,
         HOME_DONE,
-        STOPPED,
         MOVING_TO_OPEN,
         AT_OPEN,
         MOVING_TO_RECIEVE,

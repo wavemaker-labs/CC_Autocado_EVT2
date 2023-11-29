@@ -26,9 +26,21 @@ void ConductorClass::read_interfaces()
     #ifdef SINGLE_BUTTON_AUTO_RUN
     run_input = CcIoManager.get_input(D6_CUT_BUTTON);
     unload_cutter_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
+
     cutter_state = CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].get_ss_state();
     last_cutter_state = CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].get_ss_last_transition();
+
+    clamps_state = CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_state();
+    last_clamps_state = CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_last_transition();
+
+    rotators_state = CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state();
+    last_rotators_state = CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_last_transition();
     #endif
+}
+
+bool finished_move(SubCommsClass::SubsystemStates current, SubCommsClass::SubsystemStates last){
+    return (current == SubCommsClass::SubsystemStates::WAITING_INPUT && last == SubCommsClass::SubsystemStates::MOVING);
+
 }
 
 void ConductorClass::run()
@@ -73,23 +85,154 @@ void ConductorClass::run()
                 Serial.println("Conductor: clamps homed, system ready to run");
                 CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(SubCommsClass::RDY_COMMAND);
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(SubCommsClass::RDY_COMMAND);
-                state = Cond::RUNNING;
+                state = Cond::MOVE_TO_READY;
             }
             break;
 
+        case Cond::MOVE_TO_READY:
+            /* move to recieve with loaded blade */
+            Serial.println("Conductor: Moving to ready");
+            CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_LOAD_CMD);
+            CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_RECIEVE_CMD);
+            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_RECIEVE_CMD);
+            state = Cond::WAIT_READY;
+            break;
+
+        case Cond::WAIT_READY:
+            /* wait for cutter and clamps to finish moving */
+            if( cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
+                last_cutter_state == SubCommsClass::SubsystemStates::MOVING &&
+                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
+                last_clamps_state == SubCommsClass::SubsystemStates::MOVING &&
+                rotators_state == SubCommsClass::SubsystemStates::WAITING_INPUT
+            ){
+                Serial.println("Conductor: clearing claws");
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_SQUISH_CMD);
+                state = Cond::CLEAR_CLAWS;
+            }
+            break;
+
+        case Cond::CLEAR_CLAWS:
+            /* wait for claws to be moving */
+            if( rotators_state == SubCommsClass::SubsystemStates::MOVING && (CcIoManager.getSystemTime() -
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_last_transition_time_ms() >= CLAW_CLEAR_TIME_MS)){
+                Serial.println("Conductor: Moving back");
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_RECIEVE_CMD);
+                state = Cond::BACK_TO_RECIEVE;
+            }
+            break;
+
+        case Cond::BACK_TO_RECIEVE:
+            /* wait for cutter and clamps to finish moving */
+            if( finished_move(cutter_state, last_cutter_state) &&
+                finished_move(clamps_state, last_clamps_state) &&
+                finished_move(rotators_state, last_rotators_state)
+            ){
+                Serial.println("Conductor: back to recieve, ready");
+                state = Cond::AT_READY;
+            }
+            break;
+
+        case Cond::AT_READY:
         case Cond::RUNNING:
             /* rest of machine ready to run */
             if(unload_cutter_input){
                 Serial.println("Conductor: unloading blade");
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_LOAD_CMD);
                 state = Cond::UNLOAD_CUTTER_TO_FLAG;
+            }else if(run_input){
+                Serial.println("Conductor: running cycle");
+                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_CLAMP_CMD);
+                state = Cond::CLAMPING;
+            }
+            break;
+        
+        case Cond::CLAMPING:
+            /* wait for clamping to finish moving */
+            if(
+                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
+                last_clamps_state == SubCommsClass::SubsystemStates::MOVING &&
+                cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT
+            ){
+                Serial.println("Conductor: Clamped, now cut");
+                CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_CUT_CMD);
+                state = Cond::CUTTING;
+            }
+            break;
+
+        case Cond::CUTTING:
+            /* wait for cutter to finish moving */
+            if(finished_move(cutter_state, last_cutter_state) && 
+                rotators_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: Cut, now move to presquish and load cutter");
+                CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_LOAD_CMD);
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_PRESQUISH_CMD);                
+                state = Cond::MOVE_ROT_PRESQUISH_LOAD_CUT;
+            }
+            break;
+
+        case Cond::MOVE_ROT_PRESQUISH_LOAD_CUT:
+            /* wait for rotator to finish moving */
+            if(finished_move(rotators_state, last_rotators_state) && 
+                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: grab");
+                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_GRAB_CMD);             
+                state = Cond::GRAB;
+            }
+            break;
+
+         case Cond::GRAB:
+            /* wait for clamp to finish grab */
+            if(finished_move(clamps_state, last_clamps_state) && 
+                rotators_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: rots to squish");
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_SQUISH_CMD);             
+                state = Cond::MOVE_ROT_SQUISH;
+            }
+            break;
+
+         case Cond::MOVE_ROT_SQUISH:
+            /* wait for rotators to be at squish */
+            if(finished_move(rotators_state, last_rotators_state) && 
+                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: clamps to squish");
+                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_SQUISH_CMD);             
+                state = Cond::CLAMPS_SQUISH;
+            }
+            break;
+
+         case Cond::CLAMPS_SQUISH:
+            /* wait for clamps to finishing squish */
+            if(finished_move(clamps_state, last_clamps_state) && 
+                rotators_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: rotate to recieve");
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_RECIEVE_CMD);             
+                state = Cond::MOVE_ROT_RECEIVE;
+            }
+            break;
+
+        case Cond::MOVE_ROT_RECEIVE:
+            /* wait for rotators to finishing to recive */
+            if(finished_move(rotators_state, last_rotators_state) && 
+                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: open clamps");
+                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_OPEN_CMD);             
+                state = Cond::OPEN_CLAMP;
+            }
+            break;
+
+        case Cond::OPEN_CLAMP:
+            /* wait for clamps to finishing opening */
+            if(finished_move(clamps_state, last_clamps_state) && 
+                rotators_state == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: move back to ready");           
+                state = Cond::MOVE_TO_READY;
             }
             break;
 
         case Cond::UNLOAD_CUTTER_TO_FLAG:
 
-            if(cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
-            last_cutter_state == SubCommsClass::SubsystemStates::MOVING){
+            if(finished_move(cutter_state, last_cutter_state)){
                 Serial.println("Conductor: blade at flag, releasing.");
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_CUT_CMD);
                 state = Cond::UNLOAD_CUTTER_TO_RELEASE;
@@ -98,8 +241,7 @@ void ConductorClass::run()
 
         case Cond::UNLOAD_CUTTER_TO_RELEASE:
 
-            if(cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
-            last_cutter_state == SubCommsClass::SubsystemStates::MOVING){            
+            if(finished_move(cutter_state, last_cutter_state)){            
                 Serial.println("Conductor: blade released, back to ready");    
                 state = Cond::RUNNING;
             }

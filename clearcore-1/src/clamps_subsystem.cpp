@@ -315,16 +315,16 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::MOVING_TO_CLAMPING:
 
-                Serial.println(stepper_number);
-                Serial.println(run_ptr_stepper->get_old_x());
-                Serial.println(run_ptr_stepper->get_encoder_count());              
+                // Serial.println(stepper_number);
+                // Serial.println(run_ptr_stepper->get_old_x());
+                // Serial.println(run_ptr_stepper->get_encoder_count());              
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_CLAMPING;
-                    Serial.println("Clamp: at clamp position");
+                    // Serial.println("Clamp: at clamp position");
                 }else if(run_ptr_stepper->detect_enc_dev()){
                     run_ptr_stepper->set_velocity(0);
                     *run_prt_state = Clamp::ClampStates::DETECTED_CLAMP;
-                    Serial.println("Clamp: enc dev detected");
+                    // Serial.println("Clamp: enc dev detected");
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
@@ -510,12 +510,19 @@ void ClampsFSMClass::run()
 
             CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_HOME_CMD);
 
-    }else if(lt_state == Clamp::HOME_DONE && 
-            lb_state == Clamp::HOME_DONE &&
-            rt_state == Clamp::HOME_DONE &&
-            rb_state == Clamp::HOME_DONE){
+    }else if((lt_state == Clamp::HOME_DONE ||
+                lt_state == Clamp::AT_OPEN ||
+                lt_state == Clamp::AT_RECIEVE ||
+                lt_state == Clamp::AT_POST_CLAMP ||
+                lt_state == Clamp::AT_PRE_CORE ||
+                lt_state == Clamp::RUB_DONE) &&
+                (lt_state == lb_state && 
+                lb_state == rt_state &&
+                rt_state == rb_state )) {
 
             CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
+    }else {
+        CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
     }
 
     write_interfaces();
