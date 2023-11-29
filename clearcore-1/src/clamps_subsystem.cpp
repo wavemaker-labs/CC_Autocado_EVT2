@@ -40,7 +40,7 @@ void ClampsFSMClass::read_interfaces()
 
     conductor_cmd = CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_cmd();
     
-    home_command = (CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_cmd() == SubCommsClass::SubsystemCommands::HOME_COMMAND);
+    home_command = (conductor_cmd == SubCommsClass::SubsystemCommands::HOME_COMMAND);
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     open_switch_input = CcIoManager.get_input(A9_CLP_OPEN_BUTTON);

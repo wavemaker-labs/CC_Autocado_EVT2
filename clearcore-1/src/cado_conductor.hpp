@@ -47,7 +47,7 @@ class ConductorClass{
 
         SubCommsClass::SubsystemStates cutter_state;
         SubCommsClass::SubsystemStates last_cutter_state;
-        
+
         bool has_setup;
         Cond::ConductorStates state;
         

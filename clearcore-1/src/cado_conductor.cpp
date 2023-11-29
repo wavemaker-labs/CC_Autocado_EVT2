@@ -80,6 +80,7 @@ void ConductorClass::run()
         case Cond::RUNNING:
             /* rest of machine ready to run */
             if(unload_cutter_input){
+                Serial.println("Conductor: unloading blade");
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_LOAD_CMD);
                 state = Cond::UNLOAD_CUTTER_TO_FLAG;
             }
@@ -89,7 +90,7 @@ void ConductorClass::run()
 
             if(cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
             last_cutter_state == SubCommsClass::SubsystemStates::MOVING){
-
+                Serial.println("Conductor: blade at flag, releasing.");
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_CUT_CMD);
                 state = Cond::UNLOAD_CUTTER_TO_RELEASE;
             }
@@ -98,8 +99,8 @@ void ConductorClass::run()
         case Cond::UNLOAD_CUTTER_TO_RELEASE:
 
             if(cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
-            last_cutter_state == SubCommsClass::SubsystemStates::MOVING){
-                
+            last_cutter_state == SubCommsClass::SubsystemStates::MOVING){            
+                Serial.println("Conductor: blade released, back to ready");    
                 state = Cond::RUNNING;
             }
             break;
