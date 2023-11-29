@@ -30,11 +30,17 @@ void CutterFSMClass::read_interfaces()
 {
     SubCommsClass::SubsystemCommands conductor_cmd;
 
-    conductor_cmd = IntraComms[SubsystemList::CUTTER_SUBS].get_ss_cmd();
+    conductor_cmd = CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].get_ss_cmd();
 
+    ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
+
+    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     cut_switch_input = CcIoManager.get_input(D6_CUT_BUTTON);
     load_switch_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
-    ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
+    #else
+    cut_switch_input = (conductor_cmd == CUTTER_CUT_CMD);
+    load_switch_input = (conductor_cmd == CUTTER_LOAD_CMD);
+    #endif
 }
 
 void CutterFSMClass::determine_comm_state(){
@@ -42,26 +48,26 @@ void CutterFSMClass::determine_comm_state(){
     switch (state)
     {
         case Cutter::CutterStates::SETUP:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
+            CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
             break;
         case Cutter::CutterStates::STOPPED:
         case Cutter::CutterStates::RELEASED:
         case Cutter::CutterStates::WOUND:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
+            CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
             break;
 
         case Cutter::CutterStates::WINDING:
         case Cutter::CutterStates::RELEASING:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
+            CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
             break;      
 
         case Cutter::CutterStates::ERROR_MOTOR:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
+            CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
             break;
         
         case Cutter::CutterStates::ESTOP:
         default:
-            IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ESTOP);
+            CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ESTOP);
             break;
     }
 }

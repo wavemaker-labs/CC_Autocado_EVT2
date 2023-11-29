@@ -35,14 +35,14 @@ void UiCc1Class::run()
 {
     read_interfaces();
 
-    if(IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT && 
-    IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT){
+    if(CcIoManager.IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT && 
+    CcIoManager.IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::WAITING_INPUT){
         new_screen = READY_SCREEN_ADDRESS;
     }
 
-    if(IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::MOVING ||
-      IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::MOVING ||
-      IntraComms[CLAMPS_SUBS].get_ss_state() == SubCommsClass::MOVING ){
+    if(CcIoManager.IntraComms[CUTTER_SUBS].get_ss_state() == SubCommsClass::MOVING ||
+      CcIoManager.IntraComms[ROTS_SUBS].get_ss_state() == SubCommsClass::MOVING ||
+      CcIoManager.IntraComms[CLAMPS_SUBS].get_ss_state() == SubCommsClass::MOVING ){
         new_screen = PROCESSING_SCREEN_ADDRESS;
     }
 

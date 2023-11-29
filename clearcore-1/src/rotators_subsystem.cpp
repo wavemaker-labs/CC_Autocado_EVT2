@@ -23,7 +23,7 @@ void RotsFSMClass::setup()
 
         l_state = Rots::RotsStates::SETUP;
         r_state = Rots::RotsStates::SETUP;
-        IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
+        CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
         ptr_5160_rot_l_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_L);
         ptr_5160_rot_r_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_R);
     }
@@ -33,12 +33,15 @@ void RotsFSMClass::read_interfaces()
 {
     SubCommsClass::SubsystemCommands conductor_cmd;
 
-    conductor_cmd = IntraComms[SubsystemList::ROTS_SUBS].get_ss_cmd();
+    conductor_cmd = CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_cmd();
 
-    switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
-    switch_1_input = CcIoManager.get_input(D1_RAIL_SW_1);
     home_input = (conductor_cmd == SubCommsClass::SubsystemCommands::HOME_COMMAND);
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
+
+
+    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons, else use commands from intracomms
+    switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
+    switch_1_input = CcIoManager.get_input(D1_RAIL_SW_1);
 
     if(conductor_cmd == SubCommsClass::SubsystemCommands::NO_COMMAND){
         if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::HIGH){ 
@@ -59,6 +62,25 @@ void RotsFSMClass::read_interfaces()
             break;
         }
     }
+    #else
+    switch (conductor_cmd)
+    {
+        case ROT_RECIEVE_CMD:
+            cmd_position = Rots::RotsPositions::RECEIVE_POS;
+            break;
+
+        case ROT_PRESQUISH_CMD:
+            cmd_position = Rots::RotsPositions::PRESQUISH_POS;
+            break;
+
+        case ROT_SQUISH_CMD:
+            cmd_position = Rots::RotsPositions::SQUISH_POS;
+            break;
+        
+        default:
+            break;
+    }
+    #endif
 
 }
 
@@ -93,38 +115,38 @@ void RotsFSMClass::determine_comm_state(){
     */
      if(l_state == Rots::ERROR_MOTOR || r_state == Rots::ERROR_MOTOR){
 
-            IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
+            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
 
      }else if(l_state == Rots::SETUP || r_state == Rots::SETUP){
 
-            IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
+            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
 
     }else if(l_state == Rots::WAIT_FOR_HOME_CMD && r_state == Rots::WAIT_FOR_HOME_CMD){
 
-            IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_HOME_CMD);
+            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_HOME_CMD);
 
     }else if ((l_state == Rots::MOVING_AWAY_FROM_HOME || r_state == Rots::MOVING_AWAY_FROM_HOME) || 
              (l_state == Rots::SET_SG || r_state == Rots::SET_SG) ||
              (l_state == Rots::WAIT_SG_HOME_DONE || r_state == Rots::WAIT_SG_HOME_DONE)){
 
-                IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::HOMING);
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::HOMING);
 
     }else if ((l_state == Rots::WAIT_FOR_READY_CMD && r_state == Rots::WAIT_FOR_READY_CMD)){
 
-                IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_RDY_CMD);
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_RDY_CMD);
 
     }else if((l_state == Rots::STOPPED && r_state == Rots::STOPPED) || 
              (l_state == Rots::AT_RECIEVE && r_state == Rots::AT_RECIEVE) ||
              (l_state == Rots::AT_SQUISH && r_state == Rots::AT_SQUISH) ||
              (l_state == Rots::AT_PRESQUISH && r_state == Rots::AT_PRESQUISH)){
 
-                IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
 
     }else if((l_state == Rots::MOVING_TO_RECIEVE || r_state == Rots::MOVING_TO_RECIEVE) || 
              (l_state == Rots::MOVING_TO_SQUISH || r_state == Rots::MOVING_TO_SQUISH) ||
              (l_state == Rots::MOVING_TO_PRESQUISH || r_state == Rots::MOVING_TO_PRESQUISH)){
 
-                IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
 
     }
 }

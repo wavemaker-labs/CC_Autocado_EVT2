@@ -12,11 +12,6 @@
 byte mac[] = {0x24, 0x15, 0x10, 0xb0, 0x14, 0x18};
 IPAddress clear_core_ip(192, 168, 1, 102); 
 
-SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS] = {
-    {ROTS_SUBS},
-    {CLAMPS_SUBS},
-    {CUTTER_SUBS}
-};
 
 #define adcResolution 12
 

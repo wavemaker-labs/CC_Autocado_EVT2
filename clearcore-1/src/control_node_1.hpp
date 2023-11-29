@@ -12,15 +12,29 @@
 
 #define CC1_FW_VERSION 1
 
+#define SINGLE_BUTTON_AUTO_RUN //undefine this to go back to manual control.
 
+#define CC1_NUM_SUBSYSTEMS 3
 typedef enum{
     ROTS_SUBS = 0,
     CLAMPS_SUBS,
     CUTTER_SUBS,
 } SubsystemList;
 
-#define CC1_NUM_SUBSYSTEMS 3
-extern SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS];
+/*defines to map intracomm commands*/
+#define CLAMPS_OPEN_CMD SubCommsClass::SubsystemCommands::COMMAND_1
+#define CLAMPS_RECIEVE_CMD SubCommsClass::SubsystemCommands::COMMAND_2
+#define CLAMPS_CLAMP_CMD SubCommsClass::SubsystemCommands::COMMAND_3
+#define CLAMPS_GRAB_CMD SubCommsClass::SubsystemCommands::COMMAND_4
+#define CLAMPS_SQUISH_CMD SubCommsClass::SubsystemCommands::COMMAND_5
+
+#define CUTTER_CUT_CMD SubCommsClass::SubsystemCommands::COMMAND_1
+#define CUTTER_LOAD_CMD SubCommsClass::SubsystemCommands::COMMAND_2
+
+#define ROT_RECIEVE_CMD SubCommsClass::SubsystemCommands::COMMAND_1
+#define ROT_PRESQUISH_CMD SubCommsClass::SubsystemCommands::COMMAND_2
+#define ROT_SQUISH_CMD SubCommsClass::SubsystemCommands::COMMAND_3
+
 typedef enum
 {
     CC_NUMBER = 0,
@@ -109,8 +123,8 @@ static PinIO cc1_io_pins[NUM_CC_IO_PIN] = {
     PinIO(DIGITAL_OUT, D3_CLAPS_BUSY_LED, nullptr),
     PinIO(DIGITAL_OUT, D4_CUT_SOLENOID, nullptr),
     PinIO(SWITCH_SENSOR_IN, D5_NOT_USED, nullptr),
-    PinIO(SWITCH_SENSOR_IN, D6_CUT_BUTTON, nullptr),
-    PinIO(SWITCH_SENSOR_IN, D7_LOAD_CUT_BUTTON, nullptr),
+    PinIO(SWITCH_SENSOR_IN, D6_CUT_BUTTON, nullptr),  //using this button as start
+    PinIO(SWITCH_SENSOR_IN, D7_LOAD_CUT_BUTTON, nullptr), //using this button as run cutter
     PinIO(SWITCH_SENSOR_IN, D8_CLP_SQUISH_BTN, nullptr),
     PinIO(SWITCH_SENSOR_IN, A9_CLP_OPEN_BUTTON, nullptr),
     PinIO(SWITCH_SENSOR_IN, A10_CLP_RECIEVE_BTN, nullptr),
@@ -459,8 +473,13 @@ class CntrlNode1Io : public IoManagerClass {
     public:
         void update_system_mb() override;
         void cc_mb_hooks();
-        
         bool ignore_weight();
+        
+        SubCommsClass IntraComms[CC1_NUM_SUBSYSTEMS] = {
+            {ROTS_SUBS},
+            {CLAMPS_SUBS},
+            {CUTTER_SUBS}
+        };
 
     protected:
         void assign_modbus_registers() override;

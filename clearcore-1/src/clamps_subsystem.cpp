@@ -36,12 +36,25 @@ void ClampsFSMClass::setup()
 
 void ClampsFSMClass::read_interfaces()
 {
+    SubCommsClass::SubsystemCommands conductor_cmd;
+
+    conductor_cmd = CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_cmd();
+    
+    home_command = (CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_cmd() == SubCommsClass::SubsystemCommands::HOME_COMMAND);
+
+    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     open_switch_input = CcIoManager.get_input(A9_CLP_OPEN_BUTTON);
     recieve_switch_input = CcIoManager.get_input(A10_CLP_RECIEVE_BTN);
     clamp_switch_input = CcIoManager.get_input(A11_CLP_CLAMP_BTN);
     grab_switch_input = CcIoManager.get_input(D2_CLP_GRAB_BUTTON);
     squish_switch_input = CcIoManager.get_input(D8_CLP_SQUISH_BTN);
-    home_command = (IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_cmd() == SubCommsClass::SubsystemCommands::HOME_COMMAND);
+    #else
+    open_switch_input = (conductor_cmd == CLAMPS_OPEN_CMD);
+    recieve_switch_input = (conductor_cmd == CLAMPS_RECIEVE_CMD);
+    clamp_switch_input = (conductor_cmd == CLAMPS_CLAMP_CMD);
+    grab_switch_input = (conductor_cmd == CLAMPS_GRAB_CMD);
+    squish_switch_input = (conductor_cmd == CLAMPS_SQUISH_CMD);
+    #endif
 
 }
 
@@ -477,28 +490,28 @@ void ClampsFSMClass::run()
         rt_state == Clamp::ERROR_MOTOR ||
         rb_state == Clamp::ERROR_MOTOR){
 
-            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
+            CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ERROR_MOTOR);
 
     }else if(lt_state == Clamp::SETUP || 
             lb_state == Clamp::SETUP ||
             rt_state == Clamp::SETUP ||
             rb_state == Clamp::SETUP){
 
-            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
+            CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
 
     }else if(lt_state == Clamp::WAIT_HOME_CMD && 
             lb_state == Clamp::WAIT_HOME_CMD &&
             rt_state == Clamp::WAIT_HOME_CMD &&
             rb_state == Clamp::WAIT_HOME_CMD){
 
-            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_HOME_CMD);
+            CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_HOME_CMD);
 
     }else if(lt_state == Clamp::HOME_DONE && 
             lb_state == Clamp::HOME_DONE &&
             rt_state == Clamp::HOME_DONE &&
             rb_state == Clamp::HOME_DONE){
 
-            IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
+            CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
     }
 
     write_interfaces();
