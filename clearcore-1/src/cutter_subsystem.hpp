@@ -12,12 +12,15 @@
 #include "control_node_1.hpp"
 
 
-
-#define CUTTER_VELOCITY     100000 //was 1M  
+//geared motor parameters
+//#define CUTTER_VELOCITY     500000 //was 1M  
 //#define CUTTER_LOAD_TICKS   30600000 // 2000000 * 15.3
 //#define CUTTER_CUT_TICKS    15300000 // 1000000 * 15.3
-#define CUTTER_LOAD_TICKS   2000000 // 2000000 * 15.3
-#define CUTTER_CUT_TICKS    1000000 // 1000000 * 15.3
+
+//4.2A not geared motor parameters
+#define CUTTER_VELOCITY     150000 
+#define CUTTER_LOAD_TICKS   4900000 
+#define CUTTER_CUT_TICKS    100000 
 
 namespace Cutter
 {
