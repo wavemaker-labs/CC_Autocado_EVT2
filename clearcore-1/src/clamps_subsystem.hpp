@@ -27,7 +27,7 @@
 #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    20000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
 #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
 
-#define CLAMPS_PRE_RUB_OPEN_STEPS   -40000
+#define CLAMPS_PRE_RUB_OPEN_STEPS   -68000
 #define CLAMPS_RUB_STEPS             100000
 #define CLAMPS_RUB_VMAX             912000
 
