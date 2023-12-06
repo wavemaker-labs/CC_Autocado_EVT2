@@ -38,6 +38,11 @@ void RotsFSMClass::read_interfaces()
     home_input = (conductor_cmd == SubCommsClass::SubsystemCommands::HOME_COMMAND);
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
 
+    rots_home_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_HOMING_VEL);
+    rots_move_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_MOVE_VEL);
+    receive_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_RECEIVE_POS);
+    presquish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_PRESQUISH_POS);
+    squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_SQUISH_POS);
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons, else use commands from intracomms
     switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
@@ -90,7 +95,7 @@ void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates *
         *ptr_state != Rots::RotsStates::AT_RECIEVE && 
         *ptr_state != Rots::RotsStates::MOVING_TO_RECIEVE){
 
-            ptr_stepper->set_target_position(catch_position, ROTS_MOVE_VMAX);
+            ptr_stepper->set_target_position(receive_position, ROTS_MOVE_VMAX);
             *ptr_state = Rots::RotsStates::MOVING_TO_RECIEVE;
 
     }else if (cmd_position == Rots::RotsPositions::SQUISH_POS &&
@@ -232,7 +237,7 @@ void RotsFSMClass::run()
                 break;
 
             case Rots::RotsStates::FINISH_HOME_AT_RECIEVE:            
-                run_ptr_stepper->set_target_position(catch_position, ROTS_MOVE_VMAX);
+                run_ptr_stepper->set_target_position(receive_position, ROTS_MOVE_VMAX);
                 if(run_ptr_stepper->at_position())
                 {
                     *run_prt_state = Rots::RotsStates::WAIT_FOR_READY_CMD;
@@ -309,7 +314,8 @@ void RotsFSMClass::run()
 
 void RotsFSMClass::write_interfaces()
 {
-
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_ROTATOR_STATE, l_state);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_ROTATOR_STATE, r_state);
 }
 
 

@@ -11,12 +11,12 @@
 #include "control_node_1.hpp"
 
 
-#define CUTTER_VELOCITY     100000  
-#define CUTTER_LOAD_TICKS   2000000
-#define CUTTER_CUT_TICKS    1000000
-#define CUTTER_VELOCITY     150000 
-#define CUTTER_LOAD_TICKS   4900000 
-#define CUTTER_CUT_TICKS    100000 
+// #define CUTTER_VELOCITY     100000  
+// #define CUTTER_LOAD_TICKS   2000000
+// #define CUTTER_CUT_TICKS    1000000
+// #define CUTTER_VELOCITY     150000 
+// #define CUTTER_LOAD_TICKS   4900000 
+// #define CUTTER_CUT_TICKS    100000 
 
 namespace Cutter
 {
@@ -45,6 +45,10 @@ class CutterFSMClass {
             state = Cutter::CutterStates::SETUP;
             estop_input = ESTOP_RELEASED;
             relay_output = PinStatus::LOW;
+            
+            cutter_velocity = 100000;  
+            cutter_load_ticks = 2000000;
+            cutter_cut_ticks = 1000000;
         }
 
     private:
@@ -70,6 +74,9 @@ class CutterFSMClass {
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;
 
+        uint16_t cutter_velocity;  
+        uint16_t cutter_load_ticks;
+        uint16_t cutter_cut_ticks;
 };
 
 extern CutterFSMClass cutter;

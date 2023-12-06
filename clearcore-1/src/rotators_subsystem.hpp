@@ -62,8 +62,11 @@ class RotsFSMClass {
             r_state = Rots::RotsStates::SETUP;
             estop_input = ESTOP_RELEASED;
 
+            rots_home_vmax = -51200;
+            rots_move_vmax = 512000;
+
             float catch_atp = (ROTS_DEFAULT_RECEIVE_POS/360.0)*51200.0*46.656;       //converting up angle to pulses
-            catch_position = (int32_t)catch_atp;                                     //converting up pulses to int
+            receive_position = (int32_t)catch_atp;                                     //converting up pulses to int
 
             float presquish_atp = (ROTS_DEFAULT_PRESQUISH_POS/360.0)*51200.0*46.656; //converting close angle to pulses
             presquish_position = (int32_t)presquish_atp;                             //converting close pulses to int
@@ -86,7 +89,10 @@ class RotsFSMClass {
 
         Rots::RotsPositions cmd_position;
 
-        int32_t catch_position;
+        int32_t rots_home_vmax;
+        int32_t rots_move_vmax;
+
+        int32_t receive_position;
         int32_t squish_position;
         int32_t presquish_position;
 

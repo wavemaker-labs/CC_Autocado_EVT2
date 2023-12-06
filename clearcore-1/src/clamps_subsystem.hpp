@@ -93,13 +93,36 @@ class ClampsFSMClass {
             lb_state = Clamp::ClampStates::SETUP;
             rt_state = Clamp::ClampStates::SETUP;
             rb_state = Clamp::ClampStates::SETUP;
+
+            lt_ticks = 0;
+            lt_encoder = 0;
+            lb_ticks = 0;
+            lb_encoder = 0;
+            rt_ticks = 0;
+            rt_encoder = 0;
+            rb_ticks = 0;
+            rb_encoder = 0;
+
+
+            initial_close_vmax;
+            move_velocity;
+            contact_velocity;
+            pre_clamp_position = CLAMPS_DEFAULT_PRE_CLAMP_POS;
+            home_velocity;
             
-            open_position = CLAMPS_DEFAULT_OPEN_POS;
             recieve_position_top = CLAMPS_DEFAULT_RECEIVE_TOP_POS;
             recieve_position_bot = (int32_t)((CLAMPS_DEFAULT_RECEIVE_BOT_DEG/360.0)*51200.0*46.656); 
             clamp_position = CLAMPS_DEFAULT_CLAMP_POS;
-            pre_clamp_position = CLAMPS_DEFAULT_PRE_CLAMP_POS;
+            
             squish_position = CLAMPS_DEFAULT_SQUISH_POS;
+            pre_cut_clamp_offset;
+            pre_core_clamp_offset;
+            pre_rub_open_offset;
+            rub_offset;
+            rub_velocity;
+            pre_squish_delay;
+            
+            open_position = CLAMPS_DEFAULT_OPEN_POS;
             estop_input = ESTOP_RELEASED;
         }
 
@@ -129,12 +152,37 @@ class ClampsFSMClass {
         int16_t squish_switch_input;
         int16_t home_command;
 
-        int32_t open_position;
+        uint32_t lt_ticks;
+        uint32_t lt_encoder;
+        uint32_t lb_ticks;
+        uint32_t lb_encoder;
+        uint32_t rt_ticks;
+        uint32_t rt_encoder;
+        uint32_t rb_ticks;
+        uint32_t rb_encoder;
+        
+        
+        int32_t home_velocity;
+        int32_t initial_close_vmax;
+        int32_t move_velocity;
+        int32_t contact_velocity;
         int32_t recieve_position_top;
         int32_t recieve_position_bot;
-        int32_t clamp_position;
-        int32_t pre_clamp_position;
         int32_t squish_position;
+        int32_t pre_clamp_position;
+        int32_t clamp_position;
+        int32_t pre_cut_clamp_offset;
+        int32_t pre_core_clamp_offset;
+        int32_t pre_rub_open_offset;
+        int32_t rub_offset;
+        int32_t rub_velocity;
+        int32_t pre_squish_delay;
+
+        int32_t open_position;
+        
+        
+        
+        
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;

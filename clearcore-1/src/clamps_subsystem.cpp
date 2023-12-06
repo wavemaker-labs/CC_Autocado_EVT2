@@ -42,6 +42,23 @@ void ClampsFSMClass::read_interfaces()
     
     home_command = (conductor_cmd == SubCommsClass::SubsystemCommands::HOME_COMMAND);
 
+    home_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_HOME_VEL);
+    initial_close_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_INITIAL_CLOSE_VEL);
+    move_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_MOVE_VEL);
+    contact_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_CONTACT_VEL);
+    recieve_position_top = CcIoManager.get_mb_data(MbRegisterOffsets::TOP_RECEIVE_POS);
+    recieve_position_bot = CcIoManager.get_mb_data(MbRegisterOffsets::BOTTOM_RECEIVE_POS);
+    squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_SQUISH_POS);
+    pre_clamp_position = CcIoManager.get_mb_data(MbRegisterOffsets::PRECLAMP_POS);
+    clamp_position = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_POS);
+    pre_cut_clamp_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRECUT_CLAMP_OFFSET);
+    pre_core_clamp_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRECORE_CLAMP_OFFSET);
+    pre_rub_open_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRERUB_OPEN_OFFSET);
+    rub_offset = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_OFFSET);
+    rub_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_VEL);
+    pre_squish_delay = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY);
+    open_position = CcIoManager.get_mb_data(MbRegisterOffsets::OPEN_POS);
+
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     open_switch_input = CcIoManager.get_input(A9_CLP_OPEN_BUTTON);
     recieve_switch_input = CcIoManager.get_input(A10_CLP_RECIEVE_BTN);
@@ -154,18 +171,30 @@ void ClampsFSMClass::run()
             case 0:
                 run_ptr_stepper = ptr_5160_clamp_lt_stepper;
                 run_prt_state = &lt_state;
+
+                lt_ticks = run_ptr_stepper->get_old_x();
+                lt_encoder = run_ptr_stepper->get_encoder_count();
                 break;
             case 1:
                 run_ptr_stepper = ptr_5160_clamp_lb_stepper;
                 run_prt_state = &lb_state;
+
+                lb_ticks = run_ptr_stepper->get_old_x();
+                lb_encoder = run_ptr_stepper->get_encoder_count();
                 break;
             case 2:
                 run_ptr_stepper = ptr_5160_clamp_rt_stepper;
                 run_prt_state = &rt_state;
+
+                rt_ticks = run_ptr_stepper->get_old_x();
+                rt_encoder = run_ptr_stepper->get_encoder_count();
                 break;
             case 3:
                 run_ptr_stepper = ptr_5160_clamp_rb_stepper;
                 run_prt_state = &rb_state;
+
+                rb_ticks = run_ptr_stepper->get_old_x();
+                rb_encoder = run_ptr_stepper->get_encoder_count();
                 break;
         }
         
@@ -356,7 +385,7 @@ void ClampsFSMClass::run()
             case Clamp::ClampStates::MOVING_TO_POST_CLAMP:
                 /*all at same state*/
                 Serial.println(run_ptr_stepper->get_old_x());
-                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + pre_cut_clamp_offset, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::WAITING_POST_CLAMP;
                 
                 break;
@@ -375,7 +404,7 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::MOVING_TO_PRE_CORE:
                 Serial.println(run_ptr_stepper->get_old_x());
-                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET, CLAMPS_CONTACT_VMAX);
+                run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + pre_core_clamp_offset, CLAMPS_CONTACT_VMAX);
                 *run_prt_state = Clamp::ClampStates::WAITING_PRE_CORE;
                 break;
 
@@ -531,6 +560,24 @@ void ClampsFSMClass::run()
 void ClampsFSMClass::write_interfaces()
 {
     CcIoManager.set_pin_output_state (AutocadoCcPins::D3_CLAPS_BUSY_LED, led_output);
+
+    //input registers
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_CLAMP_STATE, lt_state);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_CLAMP_STATE, lb_state);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_CLAMP_STATE, rt_state);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_CLAMP_STATE, rb_state);
+
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lt_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, lt_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lb_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, lb_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, rt_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, rt_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, rb_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, rb_encoder);
+
+    //parameters
+
 }
 
 ClampsFSMClass clamps;
