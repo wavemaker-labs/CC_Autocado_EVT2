@@ -23,7 +23,7 @@
 #define CLAMPS_DEFAULT_OPEN_POS         30000
 
 #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
-#define CLAMPS_DEFAULT_CLAMP_POS                  800000    //was 600000, Limit if encoders don't stop the clamps
+#define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
 #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
 #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
 

@@ -34,6 +34,10 @@ void CutterFSMClass::read_interfaces()
 
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
 
+    cutter_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CUTTER_VEL);
+    cutter_load_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::LOADING_TICKS);
+    cutter_cut_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::CUT_TICKS);
+
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     cut_switch_input = CcIoManager.get_input(D6_CUT_BUTTON);
     load_switch_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
@@ -75,6 +79,9 @@ void CutterFSMClass::determine_comm_state(){
 void CutterFSMClass::run()
 {
     read_interfaces();
+    Serial.println(cutter_velocity);
+    Serial.println(cutter_cut_ticks);
+    Serial.println(state);
 
     switch (state)
     {
@@ -151,8 +158,6 @@ void CutterFSMClass::write_interfaces()
     CcIoManager.set_pin_output_state(AutocadoCcPins::D4_CUT_SOLENOID, relay_output);
     
     CcIoManager.set_mb_data(MbRegisterOffsets::CUTTER_STATE, state); 
-    CcIoManager.set_mb_data(MbRegisterOffsets::CUTTER_VEL, cutter_velocity);
-    CcIoManager.set_mb_data(MbRegisterOffsets::CUT_TICKS, cutter_cut_ticks);  
 }
 
 CutterFSMClass cutter;

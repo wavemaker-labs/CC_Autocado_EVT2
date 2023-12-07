@@ -95,21 +95,21 @@ void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates *
         *ptr_state != Rots::RotsStates::AT_RECIEVE && 
         *ptr_state != Rots::RotsStates::MOVING_TO_RECIEVE){
 
-            ptr_stepper->set_target_position(receive_position, ROTS_MOVE_VMAX);
+            ptr_stepper->set_target_position(receive_position, rots_home_vmax);
             *ptr_state = Rots::RotsStates::MOVING_TO_RECIEVE;
 
     }else if (cmd_position == Rots::RotsPositions::SQUISH_POS &&
         *ptr_state != Rots::RotsStates::AT_SQUISH && 
         *ptr_state != Rots::RotsStates::MOVING_TO_SQUISH){
 
-            ptr_stepper->set_target_position(squish_position, ROTS_MOVE_VMAX);
+            ptr_stepper->set_target_position(squish_position, rots_home_vmax);
             *ptr_state = Rots::RotsStates::MOVING_TO_SQUISH;
 
     }else if (cmd_position == Rots::RotsPositions::PRESQUISH_POS &&
         *ptr_state != Rots::RotsStates::AT_PRESQUISH && 
         *ptr_state != Rots::RotsStates::MOVING_TO_PRESQUISH){
 
-            ptr_stepper->set_target_position(presquish_position, ROTS_MOVE_VMAX);
+            ptr_stepper->set_target_position(presquish_position, rots_home_vmax);
             *ptr_state = Rots::RotsStates::MOVING_TO_PRESQUISH;
     }
 }
@@ -197,7 +197,7 @@ void RotsFSMClass::run()
 
                 if(home_input){
                     Serial.println(run_ptr_stepper->get_old_x());
-                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, ROTS_HOME_VMAX);
+                    run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + ROTS_STEPS_AWAY_HOME, rots_home_vmax);
                     *run_prt_state = Rots::RotsStates::MOVING_AWAY_FROM_HOME;
                 }
                 break;
@@ -206,7 +206,7 @@ void RotsFSMClass::run()
                 
                 if(run_ptr_stepper->at_position())
                 {
-                    run_ptr_stepper->set_velocity(ROTS_HOME_VMAX);
+                    run_ptr_stepper->set_velocity(rots_home_vmax);
                     *run_prt_state = Rots::RotsStates::SET_SG;
                 }
                 
@@ -237,7 +237,7 @@ void RotsFSMClass::run()
                 break;
 
             case Rots::RotsStates::FINISH_HOME_AT_RECIEVE:            
-                run_ptr_stepper->set_target_position(receive_position, ROTS_MOVE_VMAX);
+                run_ptr_stepper->set_target_position(receive_position, rots_move_vmax);
                 if(run_ptr_stepper->at_position())
                 {
                     *run_prt_state = Rots::RotsStates::WAIT_FOR_READY_CMD;

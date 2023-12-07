@@ -93,9 +93,9 @@ class RotsFSMClass {
         int32_t rots_move_vmax;
 
         int32_t receive_position;
-        int32_t squish_position;
         int32_t presquish_position;
-
+        int32_t squish_position;
+        
         int16_t estop_input;
         int16_t switch_0_input;
         int16_t switch_1_input;

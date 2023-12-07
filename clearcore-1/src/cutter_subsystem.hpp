@@ -10,7 +10,7 @@
 
 #include "control_node_1.hpp"
 
-
+//Old values, might delete later
 // #define CUTTER_VELOCITY     100000  
 // #define CUTTER_LOAD_TICKS   2000000
 // #define CUTTER_CUT_TICKS    1000000
@@ -46,9 +46,9 @@ class CutterFSMClass {
             estop_input = ESTOP_RELEASED;
             relay_output = PinStatus::LOW;
             
-            cutter_velocity = 100000;  
-            cutter_load_ticks = 2000000;
-            cutter_cut_ticks = 1000000;
+            cutter_velocity = 150000;  
+            cutter_load_ticks = 4900000;
+            cutter_cut_ticks = 100000;
         }
 
     private:
