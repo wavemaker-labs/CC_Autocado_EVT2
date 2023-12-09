@@ -103,24 +103,26 @@ class ClampsFSMClass {
             rb_ticks = 0;
             rb_encoder = 0;
 
+            //velocities, uint32
+            initial_close_vmax = 51200;
+            move_velocity = 312000;
+            contact_velocity = 51200;
+            pre_clamp_position = 400000;
+            home_velocity = -102400;
+            rub_velocity = 912000;
 
-            initial_close_vmax;
-            move_velocity;
-            contact_velocity;
-            pre_clamp_position = CLAMPS_DEFAULT_PRE_CLAMP_POS;
-            home_velocity;
+            //positions, int32
+            receive_position_top = 30000;
+            receive_position_bot = 331776; 
+            clamp_position = 600000;
             
-            recieve_position_top = CLAMPS_DEFAULT_RECEIVE_TOP_POS;
-            recieve_position_bot = (int32_t)((CLAMPS_DEFAULT_RECEIVE_BOT_DEG/360.0)*51200.0*46.656); 
-            clamp_position = CLAMPS_DEFAULT_CLAMP_POS;
+            squish_position = 800000;
+            pre_cut_clamp_offset = 28000;
+            pre_core_clamp_offset = 30000;
+            pre_rub_open_offset = -68000;
+            rub_offset = 100000;
             
-            squish_position = CLAMPS_DEFAULT_SQUISH_POS;
-            pre_cut_clamp_offset;
-            pre_core_clamp_offset;
-            pre_rub_open_offset;
-            rub_offset;
-            rub_velocity;
-            pre_squish_delay;
+            pre_squish_delay = 5000;
             
             open_position = CLAMPS_DEFAULT_OPEN_POS;
             estop_input = ESTOP_RELEASED;
@@ -162,12 +164,14 @@ class ClampsFSMClass {
         uint32_t rb_encoder;
         
         
-        int32_t home_velocity;
-        int32_t initial_close_vmax;
-        int32_t move_velocity;
-        int32_t contact_velocity;
-        int32_t recieve_position_top;
-        int32_t recieve_position_bot;
+        uint32_t home_velocity;
+        uint32_t initial_close_vmax;
+        uint32_t move_velocity;
+        uint32_t contact_velocity;
+        int32_t rub_velocity;
+
+        int32_t receive_position_top;
+        int32_t receive_position_bot;
         int32_t squish_position;
         int32_t pre_clamp_position;
         int32_t clamp_position;
@@ -175,14 +179,9 @@ class ClampsFSMClass {
         int32_t pre_core_clamp_offset;
         int32_t pre_rub_open_offset;
         int32_t rub_offset;
-        int32_t rub_velocity;
         int32_t pre_squish_delay;
 
         int32_t open_position;
-        
-        
-        
-        
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;

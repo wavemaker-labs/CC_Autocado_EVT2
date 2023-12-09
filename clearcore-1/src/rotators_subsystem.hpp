@@ -12,12 +12,15 @@
 
 #define ROTS_STEPS_AWAY_HOME    10000
 
+#define RIGHT_ROT_HOME_OFFSET   7300
+#define LEFT_ROT_HOME_OFFSET    0
+
 #define ROTS_HOME_VMAX          -51200
 #define ROTS_MOVE_VMAX           512000
 
-#define ROTS_DEFAULT_RECEIVE_POS    92.0  //~-90 degrees
-#define ROTS_DEFAULT_PRESQUISH_POS  75.0  //~-75 degree
-#define ROTS_DEFAULT_SQUISH_POS     0.5   //~-0 degrees
+#define ROTS_DEFAULT_RECEIVE_POS    132.7  //was 92 degrees
+#define ROTS_DEFAULT_PRESQUISH_POS  117.7  //was 75 degree
+#define ROTS_DEFAULT_SQUISH_POS     0.5
 
 
 namespace Rots
@@ -29,6 +32,8 @@ namespace Rots
         START_HOMING,
         SET_SG,
         WAIT_SG_HOME_DONE,
+        OFFSET_FROM_HOME,
+        AT_HOME,
         FINISH_HOME_AT_RECIEVE,
         WAIT_FOR_READY_CMD,
         STOPPED,
@@ -89,8 +94,8 @@ class RotsFSMClass {
 
         Rots::RotsPositions cmd_position;
 
-        int32_t rots_home_vmax;
-        int32_t rots_move_vmax;
+        uint32_t rots_home_vmax;
+        uint32_t rots_move_vmax;
 
         int32_t receive_position;
         int32_t presquish_position;

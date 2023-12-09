@@ -31,6 +31,23 @@ void ClampsFSMClass::setup()
         ptr_5160_clamp_rb_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CLAMP_RB);
         ptr_5160_clamp_rb_stepper->special_flag = true; //use this flag to denote bottom clamps, bc they move differently
         ptr_5160_clamp_lb_stepper->special_flag = true;
+
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_HOME_VEL, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_INITIAL_CLOSE_VEL, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_MOVE_VEL, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_CONTACT_VEL, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::TOP_RECEIVE_POS, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::BOTTOM_RECEIVE_POS, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_SQUISH_POS, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::PRECLAMP_POS, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_POS, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::PRECUT_CLAMP_OFFSET, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::PRECORE_CLAMP_OFFSET, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::PRERUB_OPEN_OFFSET, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_RUB_OFFSET, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_RUB_VEL, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY, &clamps_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::OPEN_POS, &clamps_motor_hreg_write);
     }
 }
 
@@ -42,22 +59,24 @@ void ClampsFSMClass::read_interfaces()
     
     home_command = (conductor_cmd == SubCommsClass::SubsystemCommands::HOME_COMMAND);
 
-    home_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_HOME_VEL);
-    initial_close_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_INITIAL_CLOSE_VEL);
-    move_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_MOVE_VEL);
-    contact_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_CONTACT_VEL);
-    recieve_position_top = CcIoManager.get_mb_data(MbRegisterOffsets::TOP_RECEIVE_POS);
-    recieve_position_bot = CcIoManager.get_mb_data(MbRegisterOffsets::BOTTOM_RECEIVE_POS);
-    squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_SQUISH_POS);
-    pre_clamp_position = CcIoManager.get_mb_data(MbRegisterOffsets::PRECLAMP_POS);
-    clamp_position = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_POS);
-    pre_cut_clamp_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRECUT_CLAMP_OFFSET);
-    pre_core_clamp_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRECORE_CLAMP_OFFSET);
-    pre_rub_open_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRERUB_OPEN_OFFSET);
-    rub_offset = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_OFFSET);
-    rub_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_VEL);
-    pre_squish_delay = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY);
-    open_position = CcIoManager.get_mb_data(MbRegisterOffsets::OPEN_POS);
+    if (new_clamps_motor_mb_cmd){
+        home_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_HOME_VEL);
+        initial_close_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_INITIAL_CLOSE_VEL);
+        move_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_MOVE_VEL);
+        contact_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_CONTACT_VEL);
+        receive_position_top = CcIoManager.get_mb_data(MbRegisterOffsets::TOP_RECEIVE_POS);
+        receive_position_bot = CcIoManager.get_mb_data(MbRegisterOffsets::BOTTOM_RECEIVE_POS);
+        squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_SQUISH_POS);
+        pre_clamp_position = CcIoManager.get_mb_data(MbRegisterOffsets::PRECLAMP_POS);
+        clamp_position = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_POS);
+        pre_cut_clamp_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRECUT_CLAMP_OFFSET);
+        pre_core_clamp_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRECORE_CLAMP_OFFSET);
+        pre_rub_open_offset = CcIoManager.get_mb_data(MbRegisterOffsets::PRERUB_OPEN_OFFSET);
+        rub_offset = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_OFFSET);
+        rub_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_VEL);
+        pre_squish_delay = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY);
+        open_position = CcIoManager.get_mb_data(MbRegisterOffsets::OPEN_POS);
+    }
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     open_switch_input = CcIoManager.get_input(A9_CLP_OPEN_BUTTON);
@@ -114,9 +133,9 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
      *ptr_state != Clamp::ClampStates::MOVING_TO_RECIEVE)){
         /*check if it's a top or bottom clamp*/
         if(ptr_stepper->special_flag){
-            ptr_stepper->set_target_position(recieve_position_bot, move_velocity);
+            ptr_stepper->set_target_position(receive_position_bot, move_velocity);
         }else{
-            ptr_stepper->set_target_position(recieve_position_top, move_velocity);
+            ptr_stepper->set_target_position(receive_position_top, move_velocity);
         }        
         *ptr_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
     }else if (clamp_switch_input == PinStatus::HIGH && 

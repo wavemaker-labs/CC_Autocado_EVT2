@@ -26,6 +26,12 @@ void RotsFSMClass::setup()
         CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::SETUP);
         ptr_5160_rot_l_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_L);
         ptr_5160_rot_r_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_ROT_R);
+
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_HOMING_VEL, &rots_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_MOVE_VEL, &rots_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_RECEIVE_POS, &rots_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_PRESQUISH_POS, &rots_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_SQUISH_POS, &rots_motor_hreg_write);
     }
 }
 
@@ -38,11 +44,13 @@ void RotsFSMClass::read_interfaces()
     home_input = (conductor_cmd == SubCommsClass::SubsystemCommands::HOME_COMMAND);
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
 
-    rots_home_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_HOMING_VEL);
-    rots_move_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_MOVE_VEL);
-    receive_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_RECEIVE_POS);
-    presquish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_PRESQUISH_POS);
-    squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_SQUISH_POS);
+    if (new_rots_motor_mb_cmd){
+        rots_home_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_HOMING_VEL);
+        rots_move_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_MOVE_VEL);
+        receive_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_RECEIVE_POS);
+        presquish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_PRESQUISH_POS);
+        squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_SQUISH_POS);
+    }
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons, else use commands from intracomms
     switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
@@ -95,21 +103,21 @@ void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates *
         *ptr_state != Rots::RotsStates::AT_RECIEVE && 
         *ptr_state != Rots::RotsStates::MOVING_TO_RECIEVE){
 
-            ptr_stepper->set_target_position(receive_position, rots_home_vmax);
+            ptr_stepper->set_target_position(receive_position, rots_move_vmax);
             *ptr_state = Rots::RotsStates::MOVING_TO_RECIEVE;
 
     }else if (cmd_position == Rots::RotsPositions::SQUISH_POS &&
         *ptr_state != Rots::RotsStates::AT_SQUISH && 
         *ptr_state != Rots::RotsStates::MOVING_TO_SQUISH){
 
-            ptr_stepper->set_target_position(squish_position, rots_home_vmax);
+            ptr_stepper->set_target_position(squish_position, rots_move_vmax);
             *ptr_state = Rots::RotsStates::MOVING_TO_SQUISH;
 
     }else if (cmd_position == Rots::RotsPositions::PRESQUISH_POS &&
         *ptr_state != Rots::RotsStates::AT_PRESQUISH && 
         *ptr_state != Rots::RotsStates::MOVING_TO_PRESQUISH){
 
-            ptr_stepper->set_target_position(presquish_position, rots_home_vmax);
+            ptr_stepper->set_target_position(presquish_position, rots_move_vmax);
             *ptr_state = Rots::RotsStates::MOVING_TO_PRESQUISH;
     }
 }
@@ -232,8 +240,26 @@ void RotsFSMClass::run()
                     run_ptr_stepper->set_velocity(0);
                     run_ptr_stepper->set_enable_stallgaurd(false);
                     run_ptr_stepper->zero_xactual();
-                    *run_prt_state = Rots::RotsStates::FINISH_HOME_AT_RECIEVE;
+                    *run_prt_state = Rots::RotsStates::OFFSET_FROM_HOME;
+
                 }            
+                break;
+
+            case Rots::RotsStates::OFFSET_FROM_HOME:
+                    if (i == 0){
+                        run_ptr_stepper->set_target_position(LEFT_ROT_HOME_OFFSET, rots_home_vmax);
+                    }else if (i == 1) {
+                        run_ptr_stepper->set_target_position(RIGHT_ROT_HOME_OFFSET, rots_home_vmax);
+                    }
+
+                    if(run_ptr_stepper->at_position()){
+                        *run_prt_state = Rots::RotsStates::AT_HOME;
+                    }
+                break;
+            
+            case Rots::RotsStates::AT_HOME:
+                run_ptr_stepper->zero_xactual();
+                *run_prt_state = Rots::RotsStates::FINISH_HOME_AT_RECIEVE;
                 break;
 
             case Rots::RotsStates::FINISH_HOME_AT_RECIEVE:            

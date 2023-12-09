@@ -74,9 +74,9 @@ class CutterFSMClass {
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;
 
-        uint16_t cutter_velocity;  
-        uint16_t cutter_load_ticks;
-        uint16_t cutter_cut_ticks;
+        uint32_t cutter_velocity;  
+        int32_t cutter_load_ticks;
+        int32_t cutter_cut_ticks;
 };
 
 extern CutterFSMClass cutter;

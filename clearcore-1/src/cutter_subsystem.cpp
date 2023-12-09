@@ -23,6 +23,10 @@ void CutterFSMClass::setup()
 
         state = Cutter::CutterStates::SETUP;
         ptr_5160_cut_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CUTTER);
+
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUT_TICKS, &cutter_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::LOADING_TICKS, &cutter_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUT_TICKS, &cutter_motor_hreg_write);
     }
 }
 
@@ -33,10 +37,12 @@ void CutterFSMClass::read_interfaces()
     conductor_cmd = CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].get_ss_cmd();
 
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
-
-    cutter_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CUTTER_VEL);
-    cutter_load_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::LOADING_TICKS);
-    cutter_cut_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::CUT_TICKS);
+    
+    if (new_cutter_motor_mb_cmd){
+        cutter_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CUTTER_VEL);
+        cutter_load_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::LOADING_TICKS);
+        cutter_cut_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::CUT_TICKS);
+    }
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
     cut_switch_input = CcIoManager.get_input(D6_CUT_BUTTON);
@@ -79,9 +85,6 @@ void CutterFSMClass::determine_comm_state(){
 void CutterFSMClass::run()
 {
     read_interfaces();
-    Serial.println(cutter_velocity);
-    Serial.println(cutter_cut_ticks);
-    Serial.println(state);
 
     switch (state)
     {
