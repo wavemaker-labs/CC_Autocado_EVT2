@@ -60,7 +60,8 @@ void ConductorClass::run()
             /* Clamps close on start up to get out of the way */
 
             if(CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD && 
-            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD){
+            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD)
+            {
                 Serial.println("Conductor: Clamps closed");
                 Serial.println("Conductor: Homing Rotators");
                 CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(SubCommsClass::HOME_COMMAND);
@@ -71,7 +72,6 @@ void ConductorClass::run()
         case Cond::HOMING_ROTATORS:
             /* OK to homing rotators now */
             if(CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state() == SubCommsClass::SubsystemStates::WAITING_RDY_CMD){
-                Serial.println("Conductor: Rotators homed, moved to catch posittion");
                 Serial.println("Conductor: Rotators homed, home clamps");
                 CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(SubCommsClass::HOME_COMMAND);
                 state = Cond::HOMING_CLAMPS;
@@ -82,7 +82,7 @@ void ConductorClass::run()
         case Cond::HOMING_CLAMPS:
             /* OK to home clamps now */
             if(CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_state() == SubCommsClass::SubsystemStates::WAITING_INPUT){
-                Serial.println("Conductor: clamps homed, system ready to run");
+                Serial.println("Conductor: clamps homed, system getting to ready position");
                 CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(SubCommsClass::RDY_COMMAND);
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(SubCommsClass::RDY_COMMAND);
                 state = Cond::MOVE_TO_READY;
@@ -100,10 +100,8 @@ void ConductorClass::run()
 
         case Cond::WAIT_READY:
             /* wait for cutter and clamps to finish moving */
-            if( cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
-                last_cutter_state == SubCommsClass::SubsystemStates::MOVING &&
-                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
-                last_clamps_state == SubCommsClass::SubsystemStates::MOVING &&
+            if( finished_move(cutter_state, last_cutter_state) &&
+                finished_move(clamps_state, last_clamps_state)&&
                 rotators_state == SubCommsClass::SubsystemStates::WAITING_INPUT
             ){
                 Serial.println("Conductor: clearing claws");
@@ -150,8 +148,7 @@ void ConductorClass::run()
         case Cond::CLAMPING:
             /* wait for clamping to finish moving */
             if(
-                clamps_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
-                last_clamps_state == SubCommsClass::SubsystemStates::MOVING &&
+                finished_move(clamps_state, last_clamps_state) &&
                 cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT
             ){
                 Serial.println("Conductor: Clamped, now cut");

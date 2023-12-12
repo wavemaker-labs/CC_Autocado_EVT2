@@ -416,10 +416,24 @@ void ClampsFSMClass::run()
                     lb_state == Clamp::ClampStates::AT_CLAMPING &&
                     rt_state == Clamp::ClampStates::AT_CLAMPING &&
                     rb_state == Clamp::ClampStates::AT_CLAMPING){
-                        lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+
+                        /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
+                        if((run_ptr_stepper->get_encoder_count() - run_ptr_stepper->get_old_x()) < CLAMPS_NO_AVO_IN_CLAMP)
+                        {
+                            if(run_ptr_stepper->special_flag){
+                                run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
+                            }else{
+                                run_ptr_stepper->set_target_position(receive_position_top, move_velocity);
+                            }        
+                            *run_prt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
+                        }
+                        else
+                        {
+                            lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        }
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
