@@ -296,13 +296,37 @@ void ClampsFSMClass::run()
                     run_ptr_stepper->zero_xactual();
                     run_ptr_stepper->zero_encoder();
                     run_ptr_stepper->clear_enc_dev();
-                    *run_prt_state = Clamp::ClampStates::HOME_DONE;
+                    *run_prt_state = Clamp::ClampStates::MOVE_TO_ZERO_REF;
                 }            
                 break;
 
-            case Clamp::ClampStates::HOME_DONE:           
+            case Clamp::ClampStates::MOVE_TO_ZERO_REF:
+                Serial.println("moving to zero");
+                if(stepper_number == 0 || stepper_number == 2){
+                    run_ptr_stepper->set_target_position(-1*receive_position_top, move_velocity);
+                }else{
+                    run_ptr_stepper->set_target_position(0, move_velocity);
+                }     
+                *run_prt_state = Clamp::ClampStates::AT_ZERO_REF;
+                break;
+
+            case Clamp::ClampStates::AT_ZERO_REF:           
             
+                if(run_ptr_stepper->at_position())
+                {
+                    Serial.println("at zero");
+                    run_ptr_stepper->zero_xactual();
+                    run_ptr_stepper->zero_encoder();
+                    run_ptr_stepper->clear_enc_dev();
+                    *run_prt_state = Clamp::ClampStates::HOME_DONE;
+                }
+ 
+                break;
+
+            case Clamp::ClampStates::HOME_DONE:           
+
                 act_on_button(run_ptr_stepper, run_prt_state);
+                                
                 break;
 
             case Clamp::ClampStates::MOVING_TO_OPEN:

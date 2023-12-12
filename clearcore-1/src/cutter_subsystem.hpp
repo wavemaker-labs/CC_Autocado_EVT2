@@ -46,7 +46,7 @@ class CutterFSMClass {
             estop_input = ESTOP_RELEASED;
             relay_output = PinStatus::LOW;
             
-            cutter_velocity = 150000;  
+            cutter_velocity = 100000;  
             cutter_load_ticks = 4900000;
             cutter_cut_ticks = 100000;
         }

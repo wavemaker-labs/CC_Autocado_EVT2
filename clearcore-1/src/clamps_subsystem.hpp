@@ -45,6 +45,8 @@ namespace Clamp
         START_HOMING,
         SET_SG,
         WAIT_SG_HOME_DONE,
+        MOVE_TO_ZERO_REF,
+        AT_ZERO_REF,
         HOME_DONE,
         MOVING_TO_OPEN,
         AT_OPEN,
@@ -107,13 +109,13 @@ class ClampsFSMClass {
             initial_close_vmax = 51200;
             move_velocity = 312000;
             contact_velocity = 51200;
-            pre_clamp_position = 400000;
             home_velocity = -102400;
             rub_velocity = 912000;
 
             //positions, int32
-            receive_position_top = 30000;
+            receive_position_top = -375000;
             receive_position_bot = 331776; 
+            pre_clamp_position = 400000;
             clamp_position = 600000;
             
             squish_position = 800000;
@@ -124,7 +126,7 @@ class ClampsFSMClass {
             
             pre_squish_delay = 5000;
             
-            open_position = CLAMPS_DEFAULT_OPEN_POS;
+            open_position = 0;
             estop_input = ESTOP_RELEASED;
         }
 
