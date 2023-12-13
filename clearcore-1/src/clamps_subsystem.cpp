@@ -422,7 +422,7 @@ void ClampsFSMClass::run()
                     rb_state == Clamp::ClampStates::AT_CLAMPING){
 
                         /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
-                        if((run_ptr_stepper->get_encoder_count() - run_ptr_stepper->get_old_x()) < CLAMPS_NO_AVO_IN_CLAMP)
+                        if(abs(run_ptr_stepper->get_encoder_count() - run_ptr_stepper->get_old_x()) < CLAMPS_NO_AVO_IN_CLAMP)
                         {
                             if(run_ptr_stepper->special_flag){
                                 run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
