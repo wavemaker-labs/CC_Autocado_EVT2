@@ -46,9 +46,12 @@ class CutterFSMClass {
             estop_input = ESTOP_RELEASED;
             relay_output = PinStatus::LOW;
             
-            cutter_velocity = 100000;  
-            cutter_load_ticks = 4900000;
-            cutter_cut_ticks = 100000;
+            //cutter_velocity = 100000;       //4.2A motor, not geared
+            //cutter_load_ticks = 4900000;    //4.2A motor, not geared
+            //cutter_cut_ticks = 100000;      //4.2A motor, not geared
+            cutter_velocity = 400000;         //2.8A motor, 1:4.25 gear
+            cutter_load_ticks = 20825000;     //2.8A motor, 1:4.25 gear
+            cutter_cut_ticks = 460000;        //2.8A motor, 1:4.25 gear
         }
 
     private:

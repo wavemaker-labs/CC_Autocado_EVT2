@@ -12,26 +12,25 @@
 
 #define CLAMPS_STEPS_AWAY_HOME          -10000
 #define CLAMPS_HOME_VMAX                -102400
-#define CLAMPS_INITIAL_CLOSE_VMAX       51200
-#define CLAMPS_MOVE_VMAX                312000  
-#define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
-
-#define CLAMPS_DEFAULT_RECEIVE_TOP_POS  30000
-#define CLAMPS_DEFAULT_RECEIVE_BOT_POS  340000
-#define CLAMPS_DEFAULT_RECEIVE_BOT_DEG  50.0
-#define CLAMPS_DEFAULT_SQUISH_POS       800000
-#define CLAMPS_DEFAULT_OPEN_POS         30000
-
 #define CLAMPS_NO_AVO_IN_CLAMP          20000 //less than 1/4 of full spring travel
 
-#define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
-#define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
-#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
-#define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+// #define CLAMPS_INITIAL_CLOSE_VMAX       51200
+// #define CLAMPS_MOVE_VMAX                312000  
+// #define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
 
-#define CLAMPS_PRE_RUB_OPEN_STEPS   -68000
-#define CLAMPS_RUB_STEPS             100000
-#define CLAMPS_RUB_VMAX             912000
+// #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
+// #define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
+// #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
+// #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+
+// #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
+// #define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
+// #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
+// #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+
+// #define CLAMPS_PRE_RUB_OPEN_STEPS   -68000
+// #define CLAMPS_RUB_STEPS             100000
+// #define CLAMPS_RUB_VMAX             912000
 
 #define PRE_SQUISH_DELAY                          5000  //timer until pre core offset action   
 
@@ -115,10 +114,10 @@ class ClampsFSMClass {
             rub_velocity = 912000;
 
             //positions, int32
-            receive_position_top = -375000;
-            receive_position_bot = 331776; 
+            receive_position_top = -350000;
+            receive_position_bot = 340000;  //331776; 
             pre_clamp_position = 400000;
-            clamp_position = 600000;
+            clamp_position = 800000;    //600000;
             
             squish_position = 800000;
             pre_cut_clamp_offset = 28000;

@@ -149,6 +149,7 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
      *ptr_state != Clamp::ClampStates::WAITING_POST_CLAMP||
      *ptr_state != Clamp::ClampStates::AT_POST_CLAMP)){
         ptr_stepper->set_target_position(pre_clamp_position, move_velocity);
+        //Serial.println("Clamp: moving to pre clamp position");   
         *ptr_state = Clamp::ClampStates::MOVING_TO_PRE_CLAMPING;
     }else if (squish_switch_input == PinStatus::HIGH && 
     (*ptr_state != Clamp::ClampStates::AT_SQUISH ||  *ptr_state != Clamp::ClampStates::MOVING_TO_SQUISH)){
@@ -223,13 +224,13 @@ void ClampsFSMClass::run()
             case Clamp::ClampStates::SETUP:
                 if(run_ptr_stepper->config_ready())
                 {
-                    Serial.println("Clamp Config ready");
+                    Serial.println("Clamp: Config ready");
                     Serial.println(run_ptr_stepper->get_old_x());
                     run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + CLAMPS_STEPS_AWAY_HOME, home_velocity);
                     *run_prt_state = Clamp::ClampStates::MOVING_AWAY_FROM_CLOSE;
                 }else
                 {
-                    Serial.println("Clamp Config being set up");
+                    Serial.println("Clamp: Config being set up");
                     Serial.println(run_ptr_stepper->step_5160_motor_cfg.configIndex);
                 }
                 break;
@@ -258,7 +259,7 @@ void ClampsFSMClass::run()
 
                 if(run_ptr_stepper->at_sg_stall())
                 {
-                    Serial.println("at stall");
+                    Serial.println("Clamp: closed");
                     run_ptr_stepper->set_velocity(0);
                     run_ptr_stepper->set_enable_stallgaurd(false);
                     *run_prt_state = Clamp::ClampStates::WAIT_HOME_CMD;
@@ -290,7 +291,7 @@ void ClampsFSMClass::run()
                 // Serial.println(" waiting for home");
                 if(run_ptr_stepper->at_sg_stall())
                 {
-                    Serial.println("at stall");
+                    Serial.println("Clamp: at stall");
                     run_ptr_stepper->set_velocity(0);
                     run_ptr_stepper->set_enable_stallgaurd(false);
                     run_ptr_stepper->zero_xactual();
@@ -301,11 +302,11 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::MOVE_TO_ZERO_REF:
-                Serial.println("moving to zero");
+                Serial.println("Clamp: moving to zero");
                 if(stepper_number == 0 || stepper_number == 2){
-                    run_ptr_stepper->set_target_position(-1*receive_position_top, move_velocity);
+                    run_ptr_stepper->set_target_position((-1*receive_position_top)+1000, move_velocity);
                 }else{
-                    run_ptr_stepper->set_target_position(0, move_velocity);
+                    run_ptr_stepper->set_target_position(1000, move_velocity);
                 }     
                 *run_prt_state = Clamp::ClampStates::AT_ZERO_REF;
                 break;
@@ -314,7 +315,8 @@ void ClampsFSMClass::run()
             
                 if(run_ptr_stepper->at_position())
                 {
-                    Serial.println("at zero");
+                    Serial.println("Clamp: at zero");
+                    run_ptr_stepper->set_velocity(0);
                     run_ptr_stepper->zero_xactual();
                     run_ptr_stepper->zero_encoder();
                     run_ptr_stepper->clear_enc_dev();
@@ -358,6 +360,7 @@ void ClampsFSMClass::run()
             case Clamp::ClampStates::MOVING_TO_PRE_CLAMPING:
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING;
+                    //Serial.println("Clamp: at pre clamp position");   
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 }
@@ -379,7 +382,8 @@ void ClampsFSMClass::run()
                 break;
             
              case Clamp::ClampStates::AT_PRE_CLAMPING:
-                /*all at same state*/                
+                /*all at same state*/
+                //Serial.println("Clamp: all at pre clamp position");                
                 run_ptr_stepper->clear_enc_dev();
                 run_ptr_stepper->set_target_position(clamp_position, contact_velocity);
                 *run_prt_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
@@ -387,16 +391,16 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::MOVING_TO_CLAMPING:
 
-                // Serial.println(stepper_number);
+                //Serial.println(stepper_number);
                 // Serial.println(run_ptr_stepper->get_old_x());
-                // Serial.println(run_ptr_stepper->get_encoder_count());              
+                //Serial.println(run_ptr_stepper->get_encoder_count());              
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_CLAMPING;
-                    // Serial.println("Clamp: at clamp position");
+                    Serial.println("Clamp: at clamp position");
                 }else if(run_ptr_stepper->detect_enc_dev()){
                     run_ptr_stepper->set_velocity(0);
                     *run_prt_state = Clamp::ClampStates::DETECTED_CLAMP;
-                    // Serial.println("Clamp: enc dev detected");
+                    Serial.println("Clamp: enc dev detected");
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
@@ -441,7 +445,7 @@ void ClampsFSMClass::run()
 
             case Clamp::ClampStates::MOVING_TO_POST_CLAMP:
                 /*all at same state*/
-                Serial.println(run_ptr_stepper->get_old_x());
+                //Serial.println(run_ptr_stepper->get_old_x());
                 run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + pre_cut_clamp_offset, contact_velocity);
                 *run_prt_state = Clamp::ClampStates::WAITING_POST_CLAMP;
                 
@@ -460,7 +464,7 @@ void ClampsFSMClass::run()
                 break;
 
             case Clamp::ClampStates::MOVING_TO_PRE_CORE:
-                Serial.println(run_ptr_stepper->get_old_x());
+                //Serial.println(run_ptr_stepper->get_old_x());
                 run_ptr_stepper->set_target_position(run_ptr_stepper->get_old_x() + pre_core_clamp_offset, contact_velocity);
                 *run_prt_state = Clamp::ClampStates::WAITING_PRE_CORE;
                 break;
@@ -626,12 +630,12 @@ void ClampsFSMClass::write_interfaces()
 
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lt_ticks);
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, lt_encoder);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lb_ticks);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, lb_encoder);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, rt_ticks);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, rt_encoder);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, rb_ticks);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, rb_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_TICK, lb_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_ENCODER, lb_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_TICK, rt_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_ENCODER, rt_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_TICK, rb_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_ENCODER, rb_encoder);
 
     //parameters
 

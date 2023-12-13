@@ -237,7 +237,8 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R09 0x00010606  // SHORTCONF
 #define R0A 0x00080400  // DRVCONF
 //#define R10 0x00070F02  // IHOLD_IRUN, 15.3:1 geared motor parameter
-#define R10 0x00071F02  // IHOLD_IRUN, 4.2A not geared motor parameters 
+//#define R10 0x00071F02  // IHOLD_IRUN, 4.2A not geared motor parameters 
+#define R10 0x00055555  // IHOLD_IRUN, 2.8A not geared motor parameters 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS
@@ -465,7 +466,7 @@ static const int32_t tmc5160_RotStepperInvertedRegisterResetState[TMC5160_REGIST
 #define R38 0x00000200  // ENCMODE, bit 10 to set enc prescale to decimal
 #define R3A 0x024707D0  // ENC_CONST 583.2
 #define R3Ai 0x0FDB81F40  // ENC_CONST -583.2 for inverted
-#define R3D 0x000124F8  // ENC_DEVIATION 75,000 (was 85,000) max number of steps deviation
+#define R3D 0x0000AFC8  // ENC_DEVIATION 45,000 (was 75,000 aka 0x000124F8) max number of steps deviation
 #define R6C 0x000100C3  // CHOPCONF
 #define R6D 0x00010000  // COOLCONF
 #define R70 0xC40C001E  // PWMCONF
