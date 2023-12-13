@@ -12,8 +12,8 @@
 
 #define ROTS_STEPS_AWAY_HOME    10000
 
-#define RIGHT_ROT_HOME_OFFSET   7300
-#define LEFT_ROT_HOME_OFFSET    0
+#define RIGHT_ROT_HOME_OFFSET   0       //7300
+#define LEFT_ROT_HOME_OFFSET    25000   //0
 
 #define ROTS_HOME_VMAX          -51200
 #define ROTS_MOVE_VMAX           512000
@@ -67,8 +67,8 @@ class RotsFSMClass {
             r_state = Rots::RotsStates::SETUP;
             estop_input = ESTOP_RELEASED;
 
-            rots_home_vmax = -51200;
-            rots_move_vmax = 512000;
+            rots_home_vmax = ROTS_HOME_VMAX;
+            rots_move_vmax = ROTS_MOVE_VMAX;
 
             float catch_atp = (ROTS_DEFAULT_RECEIVE_POS/360.0)*51200.0*46.656;       //converting up angle to pulses
             receive_position = (int32_t)catch_atp;                                     //converting up pulses to int

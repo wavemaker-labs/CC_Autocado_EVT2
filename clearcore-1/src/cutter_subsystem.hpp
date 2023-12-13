@@ -10,13 +10,15 @@
 
 #include "control_node_1.hpp"
 
-//Old values, might delete later
-// #define CUTTER_VELOCITY     100000  
-// #define CUTTER_LOAD_TICKS   2000000
-// #define CUTTER_CUT_TICKS    1000000
-// #define CUTTER_VELOCITY     150000 
+//4.2A motor, not geared
+// #define CUTTER_VELOCITY     100000 
 // #define CUTTER_LOAD_TICKS   4900000 
 // #define CUTTER_CUT_TICKS    100000 
+
+//2.8A motor, 1:4.25 gear
+#define CUTTER_VELOCITY     400000  
+#define CUTTER_LOAD_TICKS   20825000
+#define CUTTER_CUT_TICKS    460000
 
 namespace Cutter
 {
@@ -45,13 +47,10 @@ class CutterFSMClass {
             state = Cutter::CutterStates::SETUP;
             estop_input = ESTOP_RELEASED;
             relay_output = PinStatus::LOW;
-            
-            //cutter_velocity = 100000;       //4.2A motor, not geared
-            //cutter_load_ticks = 4900000;    //4.2A motor, not geared
-            //cutter_cut_ticks = 100000;      //4.2A motor, not geared
-            cutter_velocity = 400000;         //2.8A motor, 1:4.25 gear
-            cutter_load_ticks = 20825000;     //2.8A motor, 1:4.25 gear
-            cutter_cut_ticks = 460000;        //2.8A motor, 1:4.25 gear
+
+            cutter_velocity = CUTTER_VELOCITY; 
+            cutter_load_ticks = CUTTER_LOAD_TICKS; 
+            cutter_cut_ticks = CUTTER_CUT_TICKS;        
         }
 
     private:

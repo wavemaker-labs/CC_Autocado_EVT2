@@ -14,25 +14,26 @@
 #define CLAMPS_HOME_VMAX                -102400
 #define CLAMPS_NO_AVO_IN_CLAMP          20000 //less than 1/4 of full spring travel
 
-// #define CLAMPS_INITIAL_CLOSE_VMAX       51200
-// #define CLAMPS_MOVE_VMAX                312000  
-// #define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
+#define CLAMPS_INITIAL_CLOSE_VMAX       51200
+#define CLAMPS_MOVE_VMAX                312000  
+#define CLAMPS_CONTACT_VMAX             51200   //velocity after contact is made with avocado
 
-// #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
-// #define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
-// #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
-// #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+#define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
+#define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
+#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
+#define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+#define CLAMPS_DEFAULT_SQUISH_POSITION            800000
+#define CLAMPS_DEFAULT_OPEN_POSITION              0
 
-// #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
-// #define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
-// #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
-// #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+#define TOP_CLAMPS_OFFSET           350000      //Stepps from current 0 position to the vertical (matching bottom clamps)
+#define TOP_RECEIVING_POSITION      0
+#define BOTTOM_RECEIVING_POSITION   340000
 
-// #define CLAMPS_PRE_RUB_OPEN_STEPS   -68000
-// #define CLAMPS_RUB_STEPS             100000
-// #define CLAMPS_RUB_VMAX             912000
+#define CLAMPS_PRE_RUB_OPEN_STEPS   -68000
+#define CLAMPS_RUB_STEPS             100000
+#define CLAMPS_RUB_VMAX             912000
 
-#define PRE_SQUISH_DELAY                          5000  //timer until pre core offset action   
+#define PRE_SQUISH_DELAY            5000  //timer until pre core offset action   
 
 
 namespace Clamp
@@ -46,8 +47,6 @@ namespace Clamp
         START_HOMING,
         SET_SG,
         WAIT_SG_HOME_DONE,
-        MOVE_TO_ZERO_REF,
-        AT_ZERO_REF,
         HOME_DONE,
         MOVING_TO_OPEN,
         AT_OPEN,
@@ -106,28 +105,28 @@ class ClampsFSMClass {
             rb_ticks = 0;
             rb_encoder = 0;
 
-            //velocities, uint32
-            initial_close_vmax = 51200;
-            move_velocity = 312000;
-            contact_velocity = 51200;
-            home_velocity = -102400;
-            rub_velocity = 912000;
+            //velocities
+            initial_close_vmax = CLAMPS_INITIAL_CLOSE_VMAX;
+            move_velocity = CLAMPS_MOVE_VMAX;
+            contact_velocity = CLAMPS_CONTACT_VMAX;
+            home_velocity = CLAMPS_HOME_VMAX;
+            rub_velocity = CLAMPS_RUB_VMAX;
 
-            //positions, int32
-            receive_position_top = -350000;
-            receive_position_bot = 340000;  //331776; 
-            pre_clamp_position = 400000;
-            clamp_position = 800000;    //600000;
+            //positions
+            top_position_offset = TOP_CLAMPS_OFFSET;
+            receive_position_top = TOP_RECEIVING_POSITION;       
+            receive_position_bot = BOTTOM_RECEIVING_POSITION;   
+            pre_clamp_position = CLAMPS_DEFAULT_PRE_CLAMP_POS;
+            clamp_position = CLAMPS_DEFAULT_CLAMP_POS;    
+            pre_cut_clamp_offset = CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET;
+            pre_core_clamp_offset = CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET;
+            squish_position = CLAMPS_DEFAULT_SQUISH_POSITION;
+            pre_rub_open_offset = CLAMPS_PRE_RUB_OPEN_STEPS;
+            rub_offset = CLAMPS_RUB_STEPS;
+            open_position = CLAMPS_DEFAULT_OPEN_POSITION;
+
+            pre_squish_delay = PRE_SQUISH_DELAY;
             
-            squish_position = 800000;
-            pre_cut_clamp_offset = 28000;
-            pre_core_clamp_offset = 30000;
-            pre_rub_open_offset = -68000;
-            rub_offset = 100000;
-            
-            pre_squish_delay = 5000;
-            
-            open_position = 0;
             estop_input = ESTOP_RELEASED;
         }
 
@@ -157,22 +156,23 @@ class ClampsFSMClass {
         int16_t squish_switch_input;
         int16_t home_command;
 
-        uint32_t lt_ticks;
-        uint32_t lt_encoder;
-        uint32_t lb_ticks;
-        uint32_t lb_encoder;
-        uint32_t rt_ticks;
-        uint32_t rt_encoder;
-        uint32_t rb_ticks;
-        uint32_t rb_encoder;
+        int32_t lt_ticks;
+        int32_t lt_encoder;
+        int32_t lb_ticks;
+        int32_t lb_encoder;
+        int32_t rt_ticks;
+        int32_t rt_encoder;
+        int32_t rb_ticks;
+        int32_t rb_encoder;
         
         
-        uint32_t home_velocity;
-        uint32_t initial_close_vmax;
-        uint32_t move_velocity;
-        uint32_t contact_velocity;
+        int32_t home_velocity;
+        int32_t initial_close_vmax;
+        int32_t move_velocity;
+        int32_t contact_velocity;
         int32_t rub_velocity;
 
+        int32_t top_position_offset;
         int32_t receive_position_top;
         int32_t receive_position_bot;
         int32_t squish_position;

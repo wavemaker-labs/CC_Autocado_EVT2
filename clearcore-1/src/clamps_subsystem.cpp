@@ -148,12 +148,20 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
      *ptr_state != Clamp::ClampStates::MOVING_TO_POST_CLAMP||
      *ptr_state != Clamp::ClampStates::WAITING_POST_CLAMP||
      *ptr_state != Clamp::ClampStates::AT_POST_CLAMP)){
-        ptr_stepper->set_target_position(pre_clamp_position, move_velocity);
         //Serial.println("Clamp: moving to pre clamp position");   
+        if(ptr_stepper->special_flag){
+            ptr_stepper->set_target_position(pre_clamp_position, move_velocity);
+        }else{
+            ptr_stepper->set_target_position(pre_clamp_position+top_position_offset, move_velocity);
+        } 
         *ptr_state = Clamp::ClampStates::MOVING_TO_PRE_CLAMPING;
     }else if (squish_switch_input == PinStatus::HIGH && 
     (*ptr_state != Clamp::ClampStates::AT_SQUISH ||  *ptr_state != Clamp::ClampStates::MOVING_TO_SQUISH)){
-        ptr_stepper->set_target_position(squish_position, move_velocity);
+        if(ptr_stepper->special_flag){
+            ptr_stepper->set_target_position(squish_position, move_velocity);
+        }else{
+            ptr_stepper->set_target_position(squish_position+top_position_offset, move_velocity);
+        } 
         *ptr_state = Clamp::ClampStates::MOVING_TO_SQUISH;
     }else if (grab_switch_input == PinStatus::HIGH && 
     (*ptr_state != Clamp::ClampStates::MOVING_TO_PRE_CORE)){
@@ -297,32 +305,8 @@ void ClampsFSMClass::run()
                     run_ptr_stepper->zero_xactual();
                     run_ptr_stepper->zero_encoder();
                     run_ptr_stepper->clear_enc_dev();
-                    *run_prt_state = Clamp::ClampStates::MOVE_TO_ZERO_REF;
-                }            
-                break;
-
-            case Clamp::ClampStates::MOVE_TO_ZERO_REF:
-                Serial.println("Clamp: moving to zero");
-                if(stepper_number == 0 || stepper_number == 2){
-                    run_ptr_stepper->set_target_position((-1*receive_position_top)+1000, move_velocity);
-                }else{
-                    run_ptr_stepper->set_target_position(1000, move_velocity);
-                }     
-                *run_prt_state = Clamp::ClampStates::AT_ZERO_REF;
-                break;
-
-            case Clamp::ClampStates::AT_ZERO_REF:           
-            
-                if(run_ptr_stepper->at_position())
-                {
-                    Serial.println("Clamp: at zero");
-                    run_ptr_stepper->set_velocity(0);
-                    run_ptr_stepper->zero_xactual();
-                    run_ptr_stepper->zero_encoder();
-                    run_ptr_stepper->clear_enc_dev();
                     *run_prt_state = Clamp::ClampStates::HOME_DONE;
-                }
- 
+                }            
                 break;
 
             case Clamp::ClampStates::HOME_DONE:           
@@ -360,7 +344,7 @@ void ClampsFSMClass::run()
             case Clamp::ClampStates::MOVING_TO_PRE_CLAMPING:
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::WAIT_ALL_PRE_CLAMPING;
-                    //Serial.println("Clamp: at pre clamp position");   
+                    Serial.println("Clamp: at pre clamp position");   
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 }
@@ -385,15 +369,19 @@ void ClampsFSMClass::run()
                 /*all at same state*/
                 //Serial.println("Clamp: all at pre clamp position");                
                 run_ptr_stepper->clear_enc_dev();
-                run_ptr_stepper->set_target_position(clamp_position, contact_velocity);
+                if(stepper_number == 0 || stepper_number == 2){
+                    run_ptr_stepper->set_target_position(clamp_position+top_position_offset, contact_velocity);
+                }else{
+                    run_ptr_stepper->set_target_position(clamp_position, contact_velocity);
+                }
                 *run_prt_state = Clamp::ClampStates::MOVING_TO_CLAMPING;
                 break;
 
             case Clamp::ClampStates::MOVING_TO_CLAMPING:
-
-                //Serial.println(stepper_number);
+                // Serial.println("");
+                // Serial.println(stepper_number);
                 // Serial.println(run_ptr_stepper->get_old_x());
-                //Serial.println(run_ptr_stepper->get_encoder_count());              
+                // Serial.println(run_ptr_stepper->get_encoder_count());              
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_CLAMPING;
                     Serial.println("Clamp: at clamp position");
@@ -422,22 +410,26 @@ void ClampsFSMClass::run()
                     rb_state == Clamp::ClampStates::AT_CLAMPING){
 
                         /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
-                        if(abs(run_ptr_stepper->get_encoder_count() - run_ptr_stepper->get_old_x()) < CLAMPS_NO_AVO_IN_CLAMP)
-                        {
-                            if(run_ptr_stepper->special_flag){
-                                run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
-                            }else{
-                                run_ptr_stepper->set_target_position(receive_position_top, move_velocity);
-                            }        
-                            *run_prt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
-                        }
-                        else
-                        {
-                            lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                            lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                            rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                            rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        }
+                        // if((run_ptr_stepper->get_encoder_count() - run_ptr_stepper->get_old_x()) < CLAMPS_NO_AVO_IN_CLAMP)
+                        // {
+                        //     if(run_ptr_stepper->special_flag){
+                        //         run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
+                        //     }else{
+                        //         run_ptr_stepper->set_target_position(receive_position_top, move_velocity);
+                        //     }        
+                        //     *run_prt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
+                        // }
+                        // else
+                        // {
+                        //     lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        //     lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        //     rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        //     rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        // }
+                        lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
