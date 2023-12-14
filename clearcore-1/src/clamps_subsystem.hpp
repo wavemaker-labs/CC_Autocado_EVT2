@@ -12,7 +12,7 @@
 
 #define CLAMPS_STEPS_AWAY_HOME          -10000
 #define CLAMPS_HOME_VMAX                -102400
-#define CLAMPS_NO_AVO_IN_CLAMP          20000 //less than 1/4 of full spring travel
+#define CLAMPS_NO_AVO_IN_CLAMP          30000 //less than 1/4 of full spring travel
 
 #define CLAMPS_INITIAL_CLOSE_VMAX       51200
 #define CLAMPS_MOVE_VMAX                312000  
@@ -20,7 +20,7 @@
 
 #define CLAMPS_DEFAULT_PRE_CLAMP_POS              400000    //Position before checking encoder
 #define CLAMPS_DEFAULT_CLAMP_POS                  600000    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
-#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    28000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
+#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    35000     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
 #define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   30000     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
 #define CLAMPS_DEFAULT_SQUISH_POSITION            800000
 #define CLAMPS_DEFAULT_OPEN_POSITION              0
@@ -60,6 +60,7 @@ namespace Clamp
         MOVING_TO_CLAMPING,
         DETECTED_CLAMP,
         AT_CLAMPING,
+        NO_AVO_IN_CLAMP,
         MOVING_TO_POST_CLAMP,
         WAITING_POST_CLAMP,
         AT_POST_CLAMP,
@@ -130,6 +131,8 @@ class ClampsFSMClass {
             pre_squish_delay = PRE_SQUISH_DELAY;
             
             estop_input = ESTOP_RELEASED;
+            checked_clamp_for_avo = false; 
+            avo_in_clamp = false;
         }
 
     private:
@@ -187,6 +190,9 @@ class ClampsFSMClass {
         int32_t pre_squish_delay;
 
         int32_t open_position;
+
+        bool checked_clamp_for_avo;
+        bool avo_in_clamp;
         
         uint32_t move_start_time_ms;
         uint32_t move_allowance_ms;

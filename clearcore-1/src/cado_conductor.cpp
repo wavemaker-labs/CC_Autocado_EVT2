@@ -145,7 +145,7 @@ void ConductorClass::run()
             break;
         
         case Cond::CLAMPING:
-            /* wait for clamping to finish moving */
+            /* wait for clamping to finish moving and checking for avo*/
             if(
                 finished_move(clamps_state, last_clamps_state) &&
                 cutter_state == SubCommsClass::SubsystemStates::WAITING_INPUT
@@ -153,6 +153,13 @@ void ConductorClass::run()
                 Serial.println("Conductor: Clamped, now cut");
                 CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_CUT_CMD);
                 state = Cond::CUTTING;
+            }else if (clamps_state == SubCommsClass::SubsystemStates::ABORTED_COMMAND_WAITING_INPUT)
+            {
+                Serial.println("Conductor: Clamped, no avo detected, moving to ready");
+                CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].set_ss_command(CUTTER_LOAD_CMD);
+                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_RECIEVE_CMD);
+                CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(ROT_RECIEVE_CMD);
+                state = Cond::WAIT_READY;
             }
             break;
 

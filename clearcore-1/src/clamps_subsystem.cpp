@@ -193,7 +193,7 @@ void ClampsFSMClass::run()
     int stepper_number;
 
     /*runs through the 4 clamps state machines*/
-    for(stepper_number = 0; stepper_number < 4; stepper_number ++){   
+    for(stepper_number = 0; stepper_number < 4; stepper_number++){   
 
         switch(stepper_number){
             case 0:
@@ -329,7 +329,7 @@ void ClampsFSMClass::run()
                     act_on_button(run_ptr_stepper, run_prt_state);
                 break;
 
-            case Clamp::ClampStates::MOVING_TO_RECIEVE:           
+            case Clamp::ClampStates::MOVING_TO_RECIEVE:      
                 if(run_ptr_stepper->at_position()){
                     *run_prt_state = Clamp::ClampStates::AT_RECIEVE;
                 }else{
@@ -397,55 +397,65 @@ void ClampsFSMClass::run()
             case Clamp::ClampStates::DETECTED_CLAMP:           
                 if(run_ptr_stepper->at_position() || run_ptr_stepper->get_velocity() == 0){
                     *run_prt_state = Clamp::ClampStates::AT_CLAMPING;
+                    checked_clamp_for_avo = false;
+                    avo_in_clamp = false;
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 
                 break;
 
             case Clamp::ClampStates::AT_CLAMPING:
-                /*all at same state*/
-                if(lt_state == Clamp::ClampStates::AT_CLAMPING &&
+                /*all at same state at start of cyclcing through motors*/
+                if(stepper_number == 0 && 
+                    lt_state == Clamp::ClampStates::AT_CLAMPING &&
                     lb_state == Clamp::ClampStates::AT_CLAMPING &&
                     rt_state == Clamp::ClampStates::AT_CLAMPING &&
-                    rb_state == Clamp::ClampStates::AT_CLAMPING){
+                    rb_state == Clamp::ClampStates::AT_CLAMPING)
+                {
 
-                        /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
-                        if( (abs(lt_ticks - lt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
-                            (abs(lb_ticks - lb_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
-                            (abs(rt_ticks - rt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
-                            (abs(rb_ticks - rb_encoder) < CLAMPS_NO_AVO_IN_CLAMP))
-                        {
-                            if(run_ptr_stepper->special_flag){
-                                run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
-                            }else{
-                                run_ptr_stepper->set_target_position(receive_position_top + top_position_offset, move_velocity);
-                            }        
-                            
-                            /*change all states at the last clamp to process*/
-                            if(stepper_number == CLAMPS_STEPPER_COUNT - 1)
-                            {
-                                lt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
-                                lb_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
-                                rt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
-                                rb_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
-                            }
-                        }
-                        else
-                        {
-                            /*change all states at the last clamp to process*/
-                            if(stepper_number == CLAMPS_STEPPER_COUNT - 1)
-                            {
-                                lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                                lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                                rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                                rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                            }
-                        }
+                    /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
+                    checked_clamp_for_avo = true;
 
-                }else{
-                    act_on_button(run_ptr_stepper, run_prt_state);
+                    if( (abs(lt_ticks - lt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                        (abs(lb_ticks - lb_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                        (abs(rt_ticks - rt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                        (abs(rb_ticks - rb_encoder) < CLAMPS_NO_AVO_IN_CLAMP))
+                    {
+                        avo_in_clamp = false;
+                    }else
+                    {
+                        avo_in_clamp = true;
+                    }
                 } 
+
+                /*change all states at the last clamp to process*/
+                if(checked_clamp_for_avo && (stepper_number == CLAMPS_STEPPER_COUNT - 1))
+                {
+                    if(avo_in_clamp)
+                    {
+                            lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                    }else
+                    {
+                        Serial.println(stepper_number);
+                        Serial.println("Clamps: No avo clamped.");     
+
+                        lt_state = Clamp::ClampStates::NO_AVO_IN_CLAMP;
+                        lb_state = Clamp::ClampStates::NO_AVO_IN_CLAMP;
+                        rt_state = Clamp::ClampStates::NO_AVO_IN_CLAMP;
+                        rb_state = Clamp::ClampStates::NO_AVO_IN_CLAMP;
+                    }      
+                    checked_clamp_for_avo = false;
+                }
+
                 break;
+
+            case Clamp::ClampStates::NO_AVO_IN_CLAMP:
+                act_on_button(run_ptr_stepper, run_prt_state);
+                break;
+            
 
             case Clamp::ClampStates::MOVING_TO_POST_CLAMP:
                 /*all at same state*/
@@ -615,7 +625,15 @@ void ClampsFSMClass::run()
                 rt_state == rb_state )) {
 
             CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::WAITING_INPUT);
-    }else {
+    }else if (lt_state == Clamp::NO_AVO_IN_CLAMP &&
+                (lt_state == lb_state && 
+                lb_state == rt_state &&
+                rt_state == rb_state )) {
+        
+        CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::ABORTED_COMMAND_WAITING_INPUT);
+        
+    }
+    else{
         CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_state(SubCommsClass::SubsystemStates::MOVING);
     }
 
