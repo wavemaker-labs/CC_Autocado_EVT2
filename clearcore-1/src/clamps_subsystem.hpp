@@ -35,6 +35,8 @@
 
 #define PRE_SQUISH_DELAY            5000  //timer until pre core offset action   
 
+#define CLAMPS_STEPPER_COUNT  4
+
 
 namespace Clamp
 {

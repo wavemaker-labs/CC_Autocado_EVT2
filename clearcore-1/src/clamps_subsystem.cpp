@@ -410,26 +410,38 @@ void ClampsFSMClass::run()
                     rb_state == Clamp::ClampStates::AT_CLAMPING){
 
                         /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
-                        // if((run_ptr_stepper->get_encoder_count() - run_ptr_stepper->get_old_x()) < CLAMPS_NO_AVO_IN_CLAMP)
-                        // {
-                        //     if(run_ptr_stepper->special_flag){
-                        //         run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
-                        //     }else{
-                        //         run_ptr_stepper->set_target_position(receive_position_top, move_velocity);
-                        //     }        
-                        //     *run_prt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
-                        // }
-                        // else
-                        // {
-                        //     lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        //     lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        //     rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        //     rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        // }
-                        lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
-                        rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                        if( (abs(lt_ticks - lt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                            (abs(lb_ticks - lb_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                            (abs(rt_ticks - rt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                            (abs(rb_ticks - rb_encoder) < CLAMPS_NO_AVO_IN_CLAMP))
+                        {
+                            if(run_ptr_stepper->special_flag){
+                                run_ptr_stepper->set_target_position(receive_position_bot, move_velocity);
+                            }else{
+                                run_ptr_stepper->set_target_position(receive_position_top + top_position_offset, move_velocity);
+                            }        
+                            
+                            /*change all states at the last clamp to process*/
+                            if(stepper_number == CLAMPS_STEPPER_COUNT - 1)
+                            {
+                                lt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
+                                lb_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
+                                rt_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
+                                rb_state = Clamp::ClampStates::MOVING_TO_RECIEVE;
+                            }
+                        }
+                        else
+                        {
+                            /*change all states at the last clamp to process*/
+                            if(stepper_number == CLAMPS_STEPPER_COUNT - 1)
+                            {
+                                lt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                                lb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                                rt_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                                rb_state = Clamp::ClampStates::MOVING_TO_POST_CLAMP;
+                            }
+                        }
+
                 }else{
                     act_on_button(run_ptr_stepper, run_prt_state);
                 } 

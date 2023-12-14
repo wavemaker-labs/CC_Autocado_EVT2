@@ -60,8 +60,7 @@ void ConductorClass::run()
             /* Clamps close on start up to get out of the way */
 
             if(CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD && 
-            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD)
-            {
+            CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state() == SubCommsClass::WAITING_HOME_CMD){
                 Serial.println("Conductor: Clamps closed");
                 Serial.println("Conductor: Homing Rotators");
                 CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].set_ss_command(SubCommsClass::HOME_COMMAND);
