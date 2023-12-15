@@ -48,6 +48,59 @@ void ClampsFSMClass::setup()
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_RUB_VEL, &clamps_motor_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY, &clamps_motor_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::OPEN_POS, &clamps_motor_hreg_write);
+
+        float flo_val;
+
+        //velocities
+        flo_val = (46.656*51200.0*CLAMPS_HOME_VMAX/(0.7152557373046875*100))/60;
+        home_velocity = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*CLAMPS_MOVE_VMAX/(0.7152557373046875*100))/60;
+        move_velocity = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*CLAMPS_INITIAL_CLOSE_VMAX/(0.7152557373046875*100))/60;
+        initial_close_vmax = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*CLAMPS_CONTACT_VMAX/(0.7152557373046875*100))/60;
+        contact_velocity = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*CLAMPS_RUB_VMAX/(0.7152557373046875*100))/60;
+        rub_velocity = (int32_t)flo_val; 
+
+        //positions
+        flo_val = (TOP_CLAMPS_OFFSET/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        top_position_offset = (int32_t)flo_val;                                     //converting up pulses to int
+
+        flo_val = (TOP_RECEIVING_POSITION/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        receive_position_top = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (BOTTOM_RECEIVING_POSITION/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        receive_position_bot = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_DEFAULT_PRE_CLAMP_POS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_clamp_position = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_DEFAULT_CLAMP_POS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        clamp_position = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_cut_clamp_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_core_clamp_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_DEFAULT_SQUISH_POSITION/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        squish_position = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_PRE_RUB_OPEN_STEPS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_rub_open_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_RUB_STEPS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        rub_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (CLAMPS_DEFAULT_OPEN_POSITION/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        open_position = (int32_t)flo_val;                                     //converting up pulses to int
+
     }
 }
 
@@ -76,6 +129,59 @@ void ClampsFSMClass::read_interfaces()
         rub_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_RUB_VEL);
         pre_squish_delay = CcIoManager.get_mb_data(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY);
         open_position = CcIoManager.get_mb_data(MbRegisterOffsets::OPEN_POS);
+
+        float flo_val;
+
+        //velocities
+        flo_val = (46.656*51200.0*home_velocity/(0.7152557373046875*100))/60;
+        home_velocity = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*move_velocity/(0.7152557373046875*100))/60;
+        move_velocity = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*initial_close_vmax/(0.7152557373046875*100))/60;
+        initial_close_vmax = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*contact_velocity/(0.7152557373046875*100))/60;
+        contact_velocity = (int32_t)flo_val; 
+
+        flo_val = (46.656*51200.0*rub_velocity/(0.7152557373046875*100))/60;
+        rub_velocity = (int32_t)flo_val; 
+
+        //positions
+        flo_val = (top_position_offset/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        top_position_offset = (int32_t)flo_val;                                     //converting up pulses to int
+
+        flo_val = (receive_position_top/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        receive_position_top = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (receive_position_bot/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        receive_position_bot = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (pre_clamp_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_clamp_position = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (clamp_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        clamp_position = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (pre_cut_clamp_offset/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_cut_clamp_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (pre_core_clamp_offset/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_core_clamp_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (squish_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        squish_position = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (pre_rub_open_offset/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        pre_rub_open_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (rub_offset/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        rub_offset = (int32_t)flo_val;                                     //converting up pulses to int
+        
+        flo_val = (open_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
+        open_position = (int32_t)flo_val;                                     //converting up pulses to int
+
     }
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms

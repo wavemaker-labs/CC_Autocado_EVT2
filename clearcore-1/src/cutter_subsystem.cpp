@@ -24,9 +24,22 @@ void CutterFSMClass::setup()
         state = Cutter::CutterStates::SETUP;
         ptr_5160_cut_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_CUTTER);
 
-        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUT_TICKS, &cutter_motor_hreg_write);
-        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::LOADING_TICKS, &cutter_motor_hreg_write);
-        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUT_TICKS, &cutter_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUTTER_VEL, &cutter_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::LOADING_REV, &cutter_motor_hreg_write);
+        CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUT_REV, &cutter_motor_hreg_write);
+
+        float flo_val;
+
+        flo_val = (4.25*30*51200.0*CUTTER_VELOCITY/(0.7152557373046875*100))/60;
+        cutter_velocity = (int32_t)flo_val; 
+        
+        flo_val = (CUTTER_LOAD_REV*4.25*30*51200.0)/100;
+        cutter_load_rev = (int32_t)flo_val;  
+        
+        flo_val = (CUTTER_CUT_REV*4.25*30*51200.0)/100;
+        cutter_cut_rev = (int32_t)flo_val; 
+
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CUTTER_VEL, CUTTER_VELOCITY);  //test, not working
     }
 }
 
@@ -39,9 +52,21 @@ void CutterFSMClass::read_interfaces()
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
     
     if (new_cutter_motor_mb_cmd){
+        //Serial.println(cutter_velocity);
         cutter_velocity = CcIoManager.get_mb_data(MbRegisterOffsets::CUTTER_VEL);
-        cutter_load_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::LOADING_TICKS);
-        cutter_cut_ticks = CcIoManager.get_mb_data(MbRegisterOffsets::CUT_TICKS);
+        cutter_load_rev = CcIoManager.get_mb_data(MbRegisterOffsets::LOADING_REV);
+        cutter_cut_rev = CcIoManager.get_mb_data(MbRegisterOffsets::CUT_REV);
+
+        float flo_val;
+
+        flo_val = (4.25*30*51200.0*cutter_velocity/(0.7152557373046875*100))/60;
+        cutter_velocity = (int32_t)flo_val; 
+        
+        flo_val = (cutter_load_rev*4.25*30*51200.0)/100;
+        cutter_load_rev = (int32_t)flo_val;  
+        
+        flo_val = (cutter_cut_rev*4.25*30*51200.0)/100;
+        cutter_cut_rev = (int32_t)flo_val; 
     }
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
@@ -109,7 +134,7 @@ void CutterFSMClass::run()
         case Cutter::CutterStates::RELEASED:
             if(load_switch_input == PinStatus::HIGH){                
                 ptr_5160_cut_stepper->set_enable_right_sw(true);
-                ptr_5160_cut_stepper->set_target_position(cutter_load_ticks, cutter_velocity);
+                ptr_5160_cut_stepper->set_target_position(cutter_load_rev, cutter_velocity);
                 state = Cutter::CutterStates::WINDING;
             }            
             break;
@@ -129,7 +154,7 @@ void CutterFSMClass::run()
         case Cutter::CutterStates::WOUND:
             if(cut_switch_input == PinStatus::HIGH)
             { 
-                ptr_5160_cut_stepper->set_target_position(cutter_cut_ticks, cutter_velocity);
+                ptr_5160_cut_stepper->set_target_position(cutter_cut_rev, cutter_velocity);
                 state = Cutter::CutterStates::RELEASING;
             }
             break;

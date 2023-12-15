@@ -8,17 +8,18 @@
 #ifndef CUTTER_SUBSYSTEM_HPP
 #define CUTTER_SUBSYSTEM_HPP
 
+// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 #include "control_node_1.hpp"
 
 //4.2A motor, not geared
 // #define CUTTER_VELOCITY     100000 
-// #define CUTTER_LOAD_TICKS   4900000 
-// #define CUTTER_CUT_TICKS    100000 
+// #define CUTTER_LOAD_REV     319 
+// #define CUTTER_CUT_REV      7 
 
 //2.8A motor, 1:4.25 gear
-#define CUTTER_VELOCITY     400000  
-#define CUTTER_LOAD_TICKS   20825000
-#define CUTTER_CUT_TICKS    460000
+#define CUTTER_VELOCITY        263  
+#define CUTTER_LOAD_REV        319
+#define CUTTER_CUT_REV         7
 
 namespace Cutter
 {
@@ -49,8 +50,8 @@ class CutterFSMClass {
             relay_output = PinStatus::LOW;
 
             cutter_velocity = CUTTER_VELOCITY; 
-            cutter_load_ticks = CUTTER_LOAD_TICKS; 
-            cutter_cut_ticks = CUTTER_CUT_TICKS;        
+            cutter_load_rev = CUTTER_LOAD_REV; 
+            cutter_cut_rev = CUTTER_CUT_REV;                      
         }
 
     private:
@@ -77,8 +78,8 @@ class CutterFSMClass {
         uint32_t move_allowance_ms;
 
         uint32_t cutter_velocity;  
-        int32_t cutter_load_ticks;
-        int32_t cutter_cut_ticks;
+        int32_t cutter_load_rev;
+        int32_t cutter_cut_rev;
 };
 
 extern CutterFSMClass cutter;

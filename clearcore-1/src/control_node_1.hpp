@@ -44,8 +44,8 @@ typedef enum
     E_STOP,
     CUTTER_STATE,
     CUTTER_VEL,
-    LOADING_TICKS,
-    CUT_TICKS,
+    LOADING_REV,
+    CUT_REV,
     LEFT_ROTATOR_STATE,
     RIGHT_ROTATOR_STATE,
     ROTATOR_HOMING_VEL,
@@ -98,8 +98,8 @@ static ModbusRegister cc1_modbus[CC1_NUM_MODBUS_REGISTERS] =
     //Cutter
     {INPUT_REG, CUTTER_STATE, 0, nullptr},
     {HOLDING_REG, CUTTER_VEL, 0, nullptr},
-    {HOLDING_REG, LOADING_TICKS, 0, nullptr},
-    {HOLDING_REG, CUT_TICKS, 0, nullptr},
+    {HOLDING_REG, LOADING_REV, 0, nullptr},
+    {HOLDING_REG, CUT_REV, 0, nullptr},
 
     //Rotators
     {INPUT_REG, LEFT_ROTATOR_STATE, 0, nullptr},
