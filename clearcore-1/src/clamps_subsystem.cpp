@@ -52,19 +52,19 @@ void ClampsFSMClass::setup()
         float flo_val;
 
         //velocities
-        flo_val = (46.656*51200.0*CLAMPS_HOME_VMAX/(0.7152557373046875*100))/60;
+        flo_val = (CLAMPS_HOME_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
         home_velocity = (int32_t)flo_val; 
 
-        flo_val = (46.656*51200.0*CLAMPS_MOVE_VMAX/(0.7152557373046875*100))/60;
+        flo_val = (CLAMPS_MOVE_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
         move_velocity = (int32_t)flo_val; 
 
-        flo_val = (46.656*51200.0*CLAMPS_INITIAL_CLOSE_VMAX/(0.7152557373046875*100))/60;
+        flo_val = (CLAMPS_INITIAL_CLOSE_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
         initial_close_vmax = (int32_t)flo_val; 
 
-        flo_val = (46.656*51200.0*CLAMPS_CONTACT_VMAX/(0.7152557373046875*100))/60;
+        flo_val = (CLAMPS_CONTACT_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
         contact_velocity = (int32_t)flo_val; 
 
-        flo_val = (46.656*51200.0*CLAMPS_RUB_VMAX/(0.7152557373046875*100))/60;
+        flo_val = (CLAMPS_RUB_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
         rub_velocity = (int32_t)flo_val; 
 
         //positions
@@ -100,7 +100,23 @@ void ClampsFSMClass::setup()
         
         flo_val = (CLAMPS_DEFAULT_OPEN_POSITION/(360.0*100))*51200.0*46.656;       //converting angle to pulses
         open_position = (int32_t)flo_val;                                     //converting up pulses to int
-
+        
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_HOME_VEL, CLAMPS_HOME_VMAX);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_INITIAL_CLOSE_VEL, CLAMPS_INITIAL_CLOSE_VMAX);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_MOVE_VEL, CLAMPS_MOVE_VMAX);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_CONTACT_VEL, CLAMPS_CONTACT_VMAX);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::TOP_RECEIVE_POS, TOP_RECEIVING_POSITION);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::BOTTOM_RECEIVE_POS, BOTTOM_RECEIVING_POSITION);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_SQUISH_POS, CLAMPS_DEFAULT_SQUISH_POSITION);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::PRECLAMP_POS, CLAMPS_DEFAULT_PRE_CLAMP_POS);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_POS, CLAMPS_DEFAULT_CLAMP_POS);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::PRECUT_CLAMP_OFFSET, CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::PRECORE_CLAMP_OFFSET, CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::PRERUB_OPEN_OFFSET, CLAMPS_PRE_RUB_OPEN_STEPS);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_RUB_OFFSET, CLAMPS_RUB_STEPS);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_RUB_VEL, CLAMPS_RUB_VMAX);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CLAMP_PRESQUISH_DELAY, PRE_SQUISH_DELAY);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::OPEN_POS, CLAMPS_DEFAULT_OPEN_POSITION);
     }
 }
 
@@ -133,7 +149,10 @@ void ClampsFSMClass::read_interfaces()
         float flo_val;
 
         //velocities
-        flo_val = (46.656*51200.0*home_velocity/(0.7152557373046875*100))/60;
+        flo_val = (home_velocity*46.656*51200.0)/(0.7152557373046875*100*60);
+//     Serial.println("");
+// Serial.println(CLAMPS_HOME_VMAX);
+// Serial.println(home_velocity);
         home_velocity = (int32_t)flo_val; 
 
         flo_val = (46.656*51200.0*move_velocity/(0.7152557373046875*100))/60;
@@ -292,7 +311,7 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
 void ClampsFSMClass::run()
 {
     read_interfaces();
-
+    
     Cc5160Stepper * run_ptr_stepper;
     Clamp::ClampStates * run_prt_state;
 
@@ -306,29 +325,29 @@ void ClampsFSMClass::run()
                 run_ptr_stepper = ptr_5160_clamp_lt_stepper;
                 run_prt_state = &lt_state;
 
-                lt_ticks = run_ptr_stepper->get_old_x();
-                lt_encoder = run_ptr_stepper->get_encoder_count();
+                lt_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
+                lt_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
                 break;
             case 1:
                 run_ptr_stepper = ptr_5160_clamp_lb_stepper;
                 run_prt_state = &lb_state;
 
-                lb_ticks = run_ptr_stepper->get_old_x();
-                lb_encoder = run_ptr_stepper->get_encoder_count();
+                lb_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
+                lb_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
                 break;
             case 2:
                 run_ptr_stepper = ptr_5160_clamp_rt_stepper;
                 run_prt_state = &rt_state;
 
-                rt_ticks = run_ptr_stepper->get_old_x();
-                rt_encoder = run_ptr_stepper->get_encoder_count();
+                rt_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
+                rt_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
                 break;
             case 3:
                 run_ptr_stepper = ptr_5160_clamp_rb_stepper;
                 run_prt_state = &rb_state;
 
-                rb_ticks = run_ptr_stepper->get_old_x();
-                rb_encoder = run_ptr_stepper->get_encoder_count();
+                rb_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
+                rb_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
                 break;
         }
         
@@ -522,10 +541,10 @@ void ClampsFSMClass::run()
                     /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
                     checked_clamp_for_avo = true;
 
-                    if( (abs(lt_ticks - lt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
-                        (abs(lb_ticks - lb_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
-                        (abs(rt_ticks - rt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
-                        (abs(rb_ticks - rb_encoder) < CLAMPS_NO_AVO_IN_CLAMP))
+                    if( (abs(lt_motor - lt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                        (abs(lb_motor - lb_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                        (abs(rt_motor - rt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
+                        (abs(rb_motor - rb_encoder) < CLAMPS_NO_AVO_IN_CLAMP))
                     {
                         avo_in_clamp = false;
                     }else
@@ -756,13 +775,13 @@ void ClampsFSMClass::write_interfaces()
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_CLAMP_STATE, rt_state);
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_CLAMP_STATE, rb_state);
 
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lt_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lt_motor);
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, lt_encoder);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_TICK, lb_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_TICK, lb_motor);
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_ENCODER, lb_encoder);
-    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_TICK, rt_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_TICK, rt_motor);
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_ENCODER, rt_encoder);
-    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_TICK, rb_ticks);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_TICK, rb_motor);
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_ENCODER, rb_encoder);
 
     //parameters

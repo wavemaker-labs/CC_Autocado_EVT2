@@ -15,12 +15,12 @@
 #define RIGHT_ROT_HOME_OFFSET   0       //7300
 #define LEFT_ROT_HOME_OFFSET    25000   //0
 
-#define ROTS_HOME_VMAX          -51200
-#define ROTS_MOVE_VMAX           512000
+#define ROTS_HOME_VMAX          -92
+#define ROTS_MOVE_VMAX           920
 
-#define ROTS_DEFAULT_RECEIVE_POS    132.7  //was 92 degrees
-#define ROTS_DEFAULT_PRESQUISH_POS  117.7  //was 75 degree
-#define ROTS_DEFAULT_SQUISH_POS     0.5
+#define ROTS_DEFAULT_RECEIVE_POS    13270  //was 92 degrees
+#define ROTS_DEFAULT_PRESQUISH_POS  11770  //was 75 degree
+#define ROTS_DEFAULT_SQUISH_POS     50
 
 
 namespace Rots
@@ -70,14 +70,9 @@ class RotsFSMClass {
             rots_home_vmax = ROTS_HOME_VMAX;
             rots_move_vmax = ROTS_MOVE_VMAX;
 
-            float catch_atp = (ROTS_DEFAULT_RECEIVE_POS/360.0)*51200.0*46.656;       //converting up angle to pulses
-            receive_position = (int32_t)catch_atp;                                     //converting up pulses to int
-
-            float presquish_atp = (ROTS_DEFAULT_PRESQUISH_POS/360.0)*51200.0*46.656; //converting close angle to pulses
-            presquish_position = (int32_t)presquish_atp;                             //converting close pulses to int
-
-            float squish_atp = (ROTS_DEFAULT_SQUISH_POS/360.0)*51200.0*46.656;       //converting open angle to pulses
-            squish_position = (int32_t)squish_atp;                                   //converting open pulses to int
+            receive_position = ROTS_DEFAULT_RECEIVE_POS;
+            presquish_position = ROTS_DEFAULT_PRESQUISH_POS;
+            squish_position = ROTS_DEFAULT_SQUISH_POS;
         }
 
     private:
@@ -94,8 +89,8 @@ class RotsFSMClass {
 
         Rots::RotsPositions cmd_position;
 
-        uint32_t rots_home_vmax;
-        uint32_t rots_move_vmax;
+        int32_t rots_home_vmax;
+        int32_t rots_move_vmax;
 
         int32_t receive_position;
         int32_t presquish_position;

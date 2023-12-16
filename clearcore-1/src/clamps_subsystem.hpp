@@ -101,13 +101,13 @@ class ClampsFSMClass {
             rt_state = Clamp::ClampStates::SETUP;
             rb_state = Clamp::ClampStates::SETUP;
 
-            lt_ticks = 0;
+            lt_motor = 0;
             lt_encoder = 0;
-            lb_ticks = 0;
+            lb_motor = 0;
             lb_encoder = 0;
-            rt_ticks = 0;
+            rt_motor = 0;
             rt_encoder = 0;
-            rb_ticks = 0;
+            rb_motor = 0;
             rb_encoder = 0;
 
             //velocities
@@ -163,13 +163,13 @@ class ClampsFSMClass {
         int16_t squish_switch_input;
         int16_t home_command;
 
-        int32_t lt_ticks;
+        int32_t lt_motor;
         int32_t lt_encoder;
-        int32_t lb_ticks;
+        int32_t lb_motor;
         int32_t lb_encoder;
-        int32_t rt_ticks;
+        int32_t rt_motor;
         int32_t rt_encoder;
-        int32_t rb_ticks;
+        int32_t rb_motor;
         int32_t rb_encoder;
         
         

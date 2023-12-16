@@ -30,7 +30,7 @@ void CutterFSMClass::setup()
 
         float flo_val;
 
-        flo_val = (4.25*30*51200.0*CUTTER_VELOCITY/(0.7152557373046875*100))/60;
+        flo_val = (CUTTER_VELOCITY*4.25*30*51200.0)/(0.7152557373046875*100*60);
         cutter_velocity = (int32_t)flo_val; 
         
         flo_val = (CUTTER_LOAD_REV*4.25*30*51200.0)/100;
@@ -39,7 +39,9 @@ void CutterFSMClass::setup()
         flo_val = (CUTTER_CUT_REV*4.25*30*51200.0)/100;
         cutter_cut_rev = (int32_t)flo_val; 
 
-        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CUTTER_VEL, CUTTER_VELOCITY);  //test, not working
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CUTTER_VEL, CUTTER_VELOCITY);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::LOADING_REV, CUTTER_LOAD_REV);
+        CcIoManager.set_mb_holding_data(MbRegisterOffsets::CUT_REV, CUTTER_CUT_REV);
     }
 }
 
@@ -59,7 +61,7 @@ void CutterFSMClass::read_interfaces()
 
         float flo_val;
 
-        flo_val = (4.25*30*51200.0*cutter_velocity/(0.7152557373046875*100))/60;
+        flo_val = (cutter_velocity*4.25*30*51200.0)/(0.7152557373046875*100*60);
         cutter_velocity = (int32_t)flo_val; 
         
         flo_val = (cutter_load_rev*4.25*30*51200.0)/100;
