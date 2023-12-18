@@ -70,11 +70,7 @@ void RotsFSMClass::read_interfaces()
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
 
     if (new_rots_motor_mb_cmd){
-Serial.println("");
-Serial.println("before");
-Serial.println(ROTS_HOME_VMAX);
-Serial.println(rots_home_vmax);
-        rots_home_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_HOMING_VEL);
+        rots_home_vmax = static_cast<int16_t>((CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_HOMING_VEL)));
         rots_move_vmax = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_MOVE_VEL);
         receive_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_RECEIVE_POS);
         presquish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_PRESQUISH_POS);
@@ -86,10 +82,6 @@ Serial.println(rots_home_vmax);
         //velocities
         flo_val = (rots_home_vmax*46.656*51200.0)/(0.7152557373046875*100*60);
         rots_home_vmax = (int32_t)flo_val; 
-Serial.println("");
-Serial.println("after");
-Serial.println(ROTS_HOME_VMAX);
-Serial.println(rots_home_vmax);
         flo_val = (rots_move_vmax*46.656*51200.0)/(0.7152557373046875*100*60);
         rots_move_vmax = (int32_t)flo_val;  
 
@@ -102,7 +94,10 @@ Serial.println(rots_home_vmax);
         
         flo_val = (squish_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
         squish_position = (int32_t)flo_val;                                     //converting up pulses to int
+    
+        new_rots_motor_mb_cmd = false;
     }
+
 
     #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons, else use commands from intracomms
     switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);

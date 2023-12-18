@@ -103,12 +103,16 @@ class ClampsFSMClass {
 
             lt_motor = 0;
             lt_encoder = 0;
+            lt_stallguard = 0;
             lb_motor = 0;
             lb_encoder = 0;
+            lb_stallguard = 0;
             rt_motor = 0;
             rt_encoder = 0;
+            rt_stallguard = 0;
             rb_motor = 0;
             rb_encoder = 0;
+            rb_stallguard = 0;
 
             //velocities
             initial_close_vmax = CLAMPS_INITIAL_CLOSE_VMAX;
@@ -165,13 +169,16 @@ class ClampsFSMClass {
 
         int32_t lt_motor;
         int32_t lt_encoder;
+        int32_t lt_stallguard;
         int32_t lb_motor;
         int32_t lb_encoder;
+        int32_t lb_stallguard;
         int32_t rt_motor;
         int32_t rt_encoder;
+        int32_t rt_stallguard;
         int32_t rb_motor;
         int32_t rb_encoder;
-        
+        int32_t rb_stallguard;
         
         int32_t home_velocity;
         int32_t initial_close_vmax;
