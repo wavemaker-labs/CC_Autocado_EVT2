@@ -9,25 +9,23 @@
 #define CLAMP_SUBSYSTEM_HPP
 
 #include "control_node_1.hpp"
-// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 
-#define CLAMPS_STEPS_AWAY_HOME          -10000
-#define CLAMPS_HOME_VMAX                -102400
-#define CLAMPS_NO_AVO_IN_CLAMP          30000 //less than 1/4 of full spring travel
+#define CLAMPS_STEPS_AWAY_HOME          -10000 //steps
 
 #define CLAMPS_HOME_VMAX                -184
 #define CLAMPS_INITIAL_CLOSE_VMAX       92
 #define CLAMPS_MOVE_VMAX                561  
 #define CLAMPS_CONTACT_VMAX             92   //velocity after contact is made with avocado
 
+#define CLAMPS_NO_AVO_IN_CLAMP                    4.52    //less than 1/4 of full spring travel
 #define CLAMPS_DEFAULT_PRE_CLAMP_POS              6028    //Position before checking encoder
-#define CLAMPS_DEFAULT_CLAMP_POS                  9042    //was 800000, NEED TO TEST 600K! Limit if encoders don't stop the clamps
-#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    527     //was 35,000, moving to close more after clamping stops, this plus the clamp pos should not be more than squish
-#define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   452     //was 60000, moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
+#define CLAMPS_DEFAULT_CLAMP_POS                  9042    //Limit if encoders don't stop the clamps
+#define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    527     //moving to close more after clamping stops, this plus the clamp pos should not be more than squish
+#define CLAMPS_DEFAULT_PRE_CORE_CLAMPING_OFFSET   452     //moving to close more after pre cut stops, waits until PRE_SQUISH_DELAY is reached
 #define CLAMPS_DEFAULT_SQUISH_POSITION            12056
 #define CLAMPS_DEFAULT_OPEN_POSITION              0
 
-#define TOP_CLAMPS_OFFSET           5275      //Stepps from current 0 position to the vertical (matching bottom clamps)
+#define TOP_CLAMPS_OFFSET           5275      //angle from current 0 position to the vertical (matching bottom clamps)
 #define TOP_RECEIVING_POSITION      0
 #define BOTTOM_RECEIVING_POSITION   5124
 

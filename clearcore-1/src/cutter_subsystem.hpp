@@ -12,7 +12,7 @@
 #include "control_node_1.hpp"
 
 //4.2A motor, not geared
-// #define CUTTER_VELOCITY     100000 
+// #define CUTTER_VELOCITY     66 
 // #define CUTTER_LOAD_REV     319 
 // #define CUTTER_CUT_REV      7 
 

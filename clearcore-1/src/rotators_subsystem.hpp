@@ -12,14 +12,14 @@
 
 #define ROTS_STEPS_AWAY_HOME    10000
 
-#define RIGHT_ROT_HOME_OFFSET   0       //7300
-#define LEFT_ROT_HOME_OFFSET    25000   //0
+#define RIGHT_ROT_HOME_OFFSET   0   
+#define LEFT_ROT_HOME_OFFSET    0   
 
 #define ROTS_HOME_VMAX          -92
 #define ROTS_MOVE_VMAX           920
 
-#define ROTS_DEFAULT_RECEIVE_POS    13270  //was 92 degrees
-#define ROTS_DEFAULT_PRESQUISH_POS  11770  //was 75 degree
+#define ROTS_DEFAULT_RECEIVE_POS    13270
+#define ROTS_DEFAULT_PRESQUISH_POS  11770
 #define ROTS_DEFAULT_SQUISH_POS     50
 
 

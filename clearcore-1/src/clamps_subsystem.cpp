@@ -165,9 +165,6 @@ void ClampsFSMClass::read_interfaces()
         rub_velocity = (int32_t)flo_val; 
 
         //positions
-        flo_val = (top_position_offset/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        top_position_offset = (int32_t)flo_val;                                     //converting up pulses to int
-
         flo_val = (receive_position_top/(360.0*100))*51200.0*46.656;       //converting angle to pulses
         receive_position_top = (int32_t)flo_val;                                     //converting up pulses to int
         
