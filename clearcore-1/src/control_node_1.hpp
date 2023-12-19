@@ -246,7 +246,7 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
 #define R0A 0x00080400  // DRVCONF
 //#define R10 0x00070F02  // IHOLD_IRUN, 15.3:1 geared motor parameter
 //#define R10 0x00071F02  // IHOLD_IRUN, 4.2A not geared motor parameters 
-#define R10 0x00055555  // IHOLD_IRUN, 2.8A not geared motor parameters 
+#define R10 0x00071A02  // IHOLD_IRUN, 2.8A not geared motor parameters 
 #define R11 0x0000000A  // TPOWERDOWN
 #define R13 0x000001F4  // TPWMTHRS
 #define R14 0x00001388  // TCOOLTHRS

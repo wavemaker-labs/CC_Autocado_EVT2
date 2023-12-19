@@ -324,7 +324,7 @@ void ClampsFSMClass::run()
 
                 lt_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
                 lt_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
-                lt_encoder = run_ptr_stepper->get_stallguard_result();
+                lt_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
             case 1:
                 run_ptr_stepper = ptr_5160_clamp_lb_stepper;
@@ -332,7 +332,7 @@ void ClampsFSMClass::run()
 
                 lb_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
                 lb_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
-                lb_encoder = run_ptr_stepper->get_stallguard_result();
+                lb_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
             case 2:
                 run_ptr_stepper = ptr_5160_clamp_rt_stepper;
@@ -340,7 +340,7 @@ void ClampsFSMClass::run()
 
                 rt_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
                 rt_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
-                rt_encoder = run_ptr_stepper->get_stallguard_result();
+                rt_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
             case 3:
                 run_ptr_stepper = ptr_5160_clamp_rb_stepper;
@@ -348,7 +348,7 @@ void ClampsFSMClass::run()
 
                 rb_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
                 rb_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
-                rb_encoder = run_ptr_stepper->get_stallguard_result();
+                rb_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
         }
         
