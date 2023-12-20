@@ -13,7 +13,7 @@
 #define ROTS_STEPS_AWAY_HOME    10000
 
 #define RIGHT_ROT_HOME_OFFSET   0   
-#define LEFT_ROT_HOME_OFFSET    0   
+#define LEFT_ROT_HOME_OFFSET    25000   
 
 #define ROTS_HOME_VMAX          -92
 #define ROTS_MOVE_VMAX           920
