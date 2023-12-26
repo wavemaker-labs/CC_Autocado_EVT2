@@ -13,7 +13,7 @@
 #include "src\cado_conductor.hpp"
 #include "src\ui_cc1_subsystem.hpp"
 
-#define cycleTimeMs 100
+#define cycleTimeMs 40
 #define jitterLimitMs 10
 uint32_t cycleStartTime;
 uint32_t cycleLastTime;

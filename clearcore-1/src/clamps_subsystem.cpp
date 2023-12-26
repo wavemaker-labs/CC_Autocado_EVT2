@@ -288,12 +288,12 @@ void ClampsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Clamp::ClampStat
     }
 
     if ( 
-     *ptr_state == Clamp::ClampStates::HOME_DONE ||
-     *ptr_state == Clamp::ClampStates::AT_OPEN ||
-     *ptr_state == Clamp::ClampStates::AT_RECIEVE ||
-     *ptr_state == Clamp::ClampStates::AT_POST_CLAMP ||
-     *ptr_state == Clamp::ClampStates::AT_PRE_CORE ||
-     *ptr_state == Clamp::ClampStates::AT_SQUISH)
+        *ptr_state == Clamp::ClampStates::HOME_DONE ||
+        *ptr_state == Clamp::ClampStates::AT_OPEN ||
+        *ptr_state == Clamp::ClampStates::AT_RECIEVE ||
+        *ptr_state == Clamp::ClampStates::AT_POST_CLAMP ||
+        *ptr_state == Clamp::ClampStates::AT_PRE_CORE ||
+        *ptr_state == Clamp::ClampStates::AT_SQUISH)
      {
         led_output = PinStatus::LOW;
     }else
@@ -319,32 +319,32 @@ void ClampsFSMClass::run()
                 run_ptr_stepper = ptr_5160_clamp_lt_stepper;
                 run_prt_state = &lt_state;
 
-                lt_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
-                lt_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
+                lt_motor = run_ptr_stepper->get_old_x();
+                lt_encoder = run_ptr_stepper->get_encoder_count();
                 lt_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
             case 1:
                 run_ptr_stepper = ptr_5160_clamp_lb_stepper;
                 run_prt_state = &lb_state;
 
-                lb_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
-                lb_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
+                lb_motor = run_ptr_stepper->get_old_x();
+                lb_encoder = run_ptr_stepper->get_encoder_count();
                 lb_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
             case 2:
                 run_ptr_stepper = ptr_5160_clamp_rt_stepper;
                 run_prt_state = &rt_state;
 
-                rt_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
-                rt_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
+                rt_motor = run_ptr_stepper->get_old_x();
+                rt_encoder = run_ptr_stepper->get_encoder_count();
                 rt_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
             case 3:
                 run_ptr_stepper = ptr_5160_clamp_rb_stepper;
                 run_prt_state = &rb_state;
 
-                rb_motor = (run_ptr_stepper->get_old_x()/(46.656*51200))*360*100;
-                rb_encoder = (run_ptr_stepper->get_encoder_count()/(46.656*51200))*360*100;
+                rb_motor =run_ptr_stepper->get_old_x();
+                rb_encoder = run_ptr_stepper->get_encoder_count();
                 rb_stallguard = run_ptr_stepper->get_stallguard_result();
                 break;
         }
@@ -534,6 +534,11 @@ void ClampsFSMClass::run()
 
                     /*If there isn't a large difference between encoder and tick at the end of clamping, move back to recieve*/
                     checked_clamp_for_avo = true;
+
+                    Serial.println(abs(lt_motor - lt_encoder));
+                    Serial.println(abs(lb_motor - lb_encoder));
+                    Serial.println(abs(rt_motor - rt_encoder));
+                    Serial.println(abs(rb_motor - rb_encoder));
 
                     if( (abs(lt_motor - lt_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
                         (abs(lb_motor - lb_encoder) < CLAMPS_NO_AVO_IN_CLAMP) &&
@@ -759,6 +764,12 @@ void ClampsFSMClass::run()
     write_interfaces();
 }
 
+
+uint16_t convert_ticks_to_deg(int32_t ticks)
+{
+    return ((ticks * CLAMP_MODBUS_RATIO * DEG_PER_REV)/(CLAMPS_GEAR_RATIO * CLAMPS_US_PER_REV));
+}
+
 void ClampsFSMClass::write_interfaces()
 {
     CcIoManager.set_pin_output_state (AutocadoCcPins::D3_CLAPS_BUSY_LED, led_output);
@@ -769,17 +780,17 @@ void ClampsFSMClass::write_interfaces()
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_CLAMP_STATE, rt_state);
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_CLAMP_STATE, rb_state);
 
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, lt_motor);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, lt_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_TICK, convert_ticks_to_deg(lt_motor));
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_ENCODER, convert_ticks_to_deg(lt_encoder));
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_STALLGUARD, lt_stallguard);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_TICK, lb_motor);
-    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_ENCODER, lb_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_TICK, convert_ticks_to_deg(lb_motor));
+    CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_ENCODER, convert_ticks_to_deg(lb_encoder));
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_BOTTOM_STALLGUARD, lb_stallguard);
-    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_TICK, rt_motor);
-    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_ENCODER, rt_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_TICK, convert_ticks_to_deg(rt_motor));
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_ENCODER, convert_ticks_to_deg(rt_encoder));
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_TOP_STALLGUARD, rt_stallguard);
-    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_TICK, rb_motor);
-    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_ENCODER, rb_encoder);
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_TICK, convert_ticks_to_deg(rb_motor));
+    CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_ENCODER, convert_ticks_to_deg(rb_encoder));
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_BOTTOM_STALLGUARD, rb_stallguard);
 
     //parameters

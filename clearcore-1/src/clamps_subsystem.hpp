@@ -17,7 +17,7 @@
 #define CLAMPS_MOVE_VMAX                561  
 #define CLAMPS_CONTACT_VMAX             92   //velocity after contact is made with avocado
 
-#define CLAMPS_NO_AVO_IN_CLAMP                    4.52    //less than 1/4 of full spring travel
+#define CLAMPS_NO_AVO_IN_CLAMP                    25000    //less than 1/4 of full spring travel
 #define CLAMPS_DEFAULT_PRE_CLAMP_POS              6028    //Position before checking encoder
 #define CLAMPS_DEFAULT_CLAMP_POS                  9042    //Limit if encoders don't stop the clamps
 #define CLAMPS_DEFAULT_PRE_CUT_CLAMPING_OFFSET    527     //moving to close more after clamping stops, this plus the clamp pos should not be more than squish
@@ -36,6 +36,11 @@
 #define PRE_SQUISH_DELAY            5000  //timer until pre core offset action   
 
 #define CLAMPS_STEPPER_COUNT  4
+
+#define CLAMPS_GEAR_RATIO 46.646
+#define CLAMPS_US_PER_REV 51200.0
+#define DEG_PER_REV 360.0
+#define CLAMP_MODBUS_RATIO 100
 
 
 namespace Clamp
