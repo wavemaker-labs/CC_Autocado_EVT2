@@ -85,6 +85,7 @@ void CntrlNode1Io::assign_io_pins() {
     ConnectorA9.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorA10.Mode(ClearCore::Connector::INPUT_DIGITAL);
     ConnectorA11.Mode(ClearCore::Connector::INPUT_DIGITAL);
+    ConnectorA12.Mode(ClearCore::Connector::INPUT_DIGITAL);
 
     /*set up outputs*/
     ConnectorIO3.Mode(ClearCore::Connector::OUTPUT_DIGITAL);     
@@ -136,7 +137,8 @@ void CntrlNode1Io::read_pin_inputs() {
     ptr_io_array[A9_CLP_OPEN_BUTTON].value = ConnectorA9.InputRisen();
     ptr_io_array[A10_CLP_RECIEVE_BTN].value = ConnectorA10.InputRisen();
     ptr_io_array[A11_CLP_CLAMP_BTN].value = ConnectorA11.InputRisen();
-    ptr_io_array[A12_NOT_USED].value = ConnectorA12.InputRisen();
+    ptr_io_array[A12_PRESENCE_BTN].value = ConnectorA12.State();
+    ptr_io_array[A12_PRESENCE_FALL].value = ConnectorA12.InputFallen();
 
 }
 
@@ -147,7 +149,7 @@ void CntrlNode1Io::write_pin_outputs () {
     IO3 - Clamps are busy LED
     IO4 - Solenoid
     */
-    ConnectorIO3.State(ptr_io_array[D3_CLAPS_BUSY_LED].state);
+    ConnectorIO3.State(ptr_io_array[D3_VIBRATOR_MOTOR].state);
     ConnectorIO4.State(ptr_io_array[D4_CUT_SOLENOID].state);
 } 
 

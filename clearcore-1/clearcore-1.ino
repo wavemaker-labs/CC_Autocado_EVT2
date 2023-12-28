@@ -8,6 +8,8 @@
 
 #include "src\control_node_1.hpp"
 #include "src\rotators_subsystem.hpp"
+#include "src\hopper_drum_subsystem.hpp"
+#include "src\release_subsystem.hpp"
 #include "src\cutter_subsystem.hpp"
 #include "src\clamps_subsystem.hpp"
 #include "src\cado_conductor.hpp"
@@ -44,6 +46,8 @@ void setup()
 	*ptr_system_errors = SystemErrors::NO_ERRORS;	
 
 	conductor.setup();
+	hpr_drum.setup();
+	release.setup();
     rotators.setup();
     cutter.setup();
 	clamps.setup();
@@ -68,6 +72,8 @@ void cycleTasks()
 	CcIoManager.update_system_mb();
 
 	conductor.run();
+	hpr_drum.run();
+	release.run();
 	rotators.run();
 	cutter.run();
 	clamps.run();

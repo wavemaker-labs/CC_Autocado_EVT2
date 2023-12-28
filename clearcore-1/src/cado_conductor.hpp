@@ -17,6 +17,7 @@ namespace Cond
 {
     typedef enum {        
         SETUP,
+        HOMING_TRAP_DOORS,
         CLOSING_CLAMPS,
         HOMING_ROTATORS,
         HOMING_CLAMPS,
@@ -26,6 +27,8 @@ namespace Cond
         BACK_TO_RECIEVE,
         AT_READY,
         RUNNING,
+        LOADING,
+        RELEASING,
         CLAMPING,
         CUTTING,
         MOVE_ROT_PRESQUISH_LOAD_CUT,
@@ -72,6 +75,12 @@ class ConductorClass{
 
         int16_t run_input;
         int16_t unload_cutter_input;
+
+        SubCommsClass::SubsystemStates drum_state;
+        SubCommsClass::SubsystemStates last_drum_state;
+
+        SubCommsClass::SubsystemStates release_state;
+        SubCommsClass::SubsystemStates last_release_state;  
 
         SubCommsClass::SubsystemStates cutter_state;
         SubCommsClass::SubsystemStates last_cutter_state;

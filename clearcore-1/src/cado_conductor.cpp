@@ -27,6 +27,12 @@ void ConductorClass::read_interfaces()
     run_input = CcIoManager.get_input(D6_CUT_BUTTON);
     unload_cutter_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
 
+    drum_state = CcIoManager.IntraComms[SubsystemList::DRUM_SUBS].get_ss_state();
+    last_drum_state = CcIoManager.IntraComms[SubsystemList::DRUM_SUBS].get_ss_last_transition();
+
+    release_state = CcIoManager.IntraComms[SubsystemList::RELEASE_SUBS].get_ss_state();
+    last_release_state = CcIoManager.IntraComms[SubsystemList::RELEASE_SUBS].get_ss_last_transition();
+
     cutter_state = CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].get_ss_state();
     last_cutter_state = CcIoManager.IntraComms[SubsystemList::CUTTER_SUBS].get_ss_last_transition();
 
@@ -53,9 +59,19 @@ void ConductorClass::run()
             /* wait for clamps to be ready closed (waiting for home input) */
             Serial.println("Conductor: Setup");
             Serial.println("Conductor: Closing clamps");
-            state = Cond::CLOSING_CLAMPS;
+            state = Cond::HOMING_TRAP_DOORS;
             break;
 
+        case Cond::HOMING_TRAP_DOORS:
+            
+            if(CcIoManager.IntraComms[SubsystemList::RELEASE_SUBS].get_ss_state() == SubCommsClass::SubsystemStates::WAITING_INPUT){
+                Serial.println("Conductor: Trap doors homed. Closing clamps");
+                CcIoManager.IntraComms[SubsystemList::DRUM_SUBS].set_ss_command(SubCommsClass::RDY_COMMAND);
+                CcIoManager.IntraComms[SubsystemList::RELEASE_SUBS].set_ss_command(SubCommsClass::RDY_COMMAND);
+                state = Cond::CLOSING_CLAMPS;
+            }
+            break;
+            
         case Cond::CLOSING_CLAMPS:
             /* Clamps close on start up to get out of the way */
 
@@ -139,10 +155,35 @@ void ConductorClass::run()
                 state = Cond::UNLOAD_CUTTER_TO_FLAG;
             }else if(run_input){
                 Serial.println("Conductor: running cycle");
-                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_CLAMP_CMD);
-                state = Cond::CLAMPING;
+                //CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_CLAMP_CMD);
+                //state = Cond::CLAMPING;
+                CcIoManager.IntraComms[SubsystemList::DRUM_SUBS].set_ss_command(LOAD_DRUM_CMD);
+                state = Cond::LOADING;
             }
             break;
+        
+        case Cond::LOADING:
+            if(
+                release_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
+                drum_state == SubCommsClass::SubsystemStates::WAITING_INPUT
+            ){
+               Serial.println("Conductor: Loaded, now release");
+                
+                CcIoManager.IntraComms[SubsystemList::RELEASE_SUBS].set_ss_command(RELEASE_AVO_CMD);
+                state = Cond::RELEASING;
+            }
+        break;
+
+        case Cond::RELEASING:
+            if(
+                release_state == SubCommsClass::SubsystemStates::WAITING_INPUT && 
+                last_release_state == SubCommsClass::SubsystemStates::MOVING &&
+                drum_state == SubCommsClass::SubsystemStates::WAITING_INPUT
+            ){
+                Serial.println("Conductor: Released, back to ready");
+                state = Cond::CLAMPING;
+            }
+        break;
         
         case Cond::CLAMPING:
             /* wait for clamping to finish moving and checking for avo*/

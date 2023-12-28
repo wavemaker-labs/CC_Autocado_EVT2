@@ -772,7 +772,7 @@ uint16_t convert_ticks_to_deg(int32_t ticks)
 
 void ClampsFSMClass::write_interfaces()
 {
-    CcIoManager.set_pin_output_state (AutocadoCcPins::D3_CLAPS_BUSY_LED, led_output);
+    CcIoManager.set_pin_output_state (AutocadoCcPins::D3_VIBRATOR_MOTOR, led_output);
 
     //input registers
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_CLAMP_STATE, lt_state);
