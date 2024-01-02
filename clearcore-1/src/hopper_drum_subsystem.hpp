@@ -10,10 +10,15 @@
 
 #include "control_node_1.hpp"
 
-
 #define drum_vel_rpm     7.5         //RPM
 #define dump_angle       60.0         //degrees rotation
 
+#define DRUM_US_PER_REV         51200.0
+#define DRUM_MOTOR_GEAR_RATIO   13.733564013840830449826989619377
+#define DRUM_PULLEY_GEAR_RATIO  1.99
+#define CLOCK_RATIO             0.7152557373046875
+#define DEG_PER_REV             360.0
+#define SECS_PER_MIN            60
 
 namespace HopperDrum
 {
@@ -70,6 +75,9 @@ class HopperDrumFSMClass {
         PinStatus dir_out;
         PinStatus double_feed_led;
         
+        int32_t drum_vel;
+        int32_t dump_offset;
+
         uint16_t mb_move_request;
         uint32_t move_start_time_ms;
 };

@@ -7,7 +7,6 @@
 
 #include "rotators_subsystem.hpp"
 
-
 bool new_rots_motor_mb_cmd = false;
 
 uint16_t rots_motor_hreg_write(TRegister* reg, uint16_t val) {
@@ -15,6 +14,15 @@ uint16_t rots_motor_hreg_write(TRegister* reg, uint16_t val) {
     return val;
 }
 
+int32_t rots_rpm_to_ppt(float flo_val)
+{
+    return (int32_t)(flo_val*ROTS_MOTOR_GEAR_RATIO*ROTS_US_PER_REV)/(CLOCK_RATIO*ROTS_MODBUS_RATIO*SECS_PER_MIN);
+}
+
+int32_t rots_angle_to_pulses(float flo_val)
+{
+    return (int32_t)(flo_val/(DEG_PER_REV*ROTS_MODBUS_RATIO))*ROTS_MOTOR_GEAR_RATIO*ROTS_US_PER_REV;
+}
 
 void RotsFSMClass::setup()
 {
@@ -32,25 +40,15 @@ void RotsFSMClass::setup()
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_RECEIVE_POS, &rots_motor_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_PRESQUISH_POS, &rots_motor_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::ROTATOR_SQUISH_POS, &rots_motor_hreg_write);
-
-        float flo_val;
-
+        
         //velocities
-        flo_val = (ROTS_HOME_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
-        rots_home_vmax = (int32_t)flo_val; 
-
-        flo_val = (ROTS_MOVE_VMAX*46.656*51200.0)/(0.7152557373046875*100*60);
-        rots_move_vmax = (int32_t)flo_val;  
+        rots_home_vmax = rots_rpm_to_ppt(ROTS_HOME_VMAX);
+        rots_move_vmax = rots_rpm_to_ppt(ROTS_MOVE_VMAX); 
 
         //positions
-        flo_val = (ROTS_DEFAULT_RECEIVE_POS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        receive_position = (int32_t)flo_val;                                     //converting up pulses to int
-
-        flo_val = (ROTS_DEFAULT_PRESQUISH_POS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        presquish_position = (int32_t)flo_val;                                     //converting up pulses to int
-        
-        flo_val = (ROTS_DEFAULT_SQUISH_POS/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        squish_position = (int32_t)flo_val;                                     //converting up pulses to int
+        receive_position = rots_angle_to_pulses(ROTS_DEFAULT_RECEIVE_POS);
+        presquish_position = rots_angle_to_pulses(ROTS_DEFAULT_PRESQUISH_POS);
+        squish_position = rots_angle_to_pulses(ROTS_DEFAULT_SQUISH_POS);
 
         CcIoManager.set_mb_holding_data(MbRegisterOffsets::ROTATOR_HOMING_VEL, ROTS_HOME_VMAX);
         CcIoManager.set_mb_holding_data(MbRegisterOffsets::ROTATOR_MOVE_VEL, ROTS_MOVE_VMAX);
@@ -76,53 +74,18 @@ void RotsFSMClass::read_interfaces()
         presquish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_PRESQUISH_POS);
         squish_position = CcIoManager.get_mb_data(MbRegisterOffsets::ROTATOR_SQUISH_POS);
 
-        
-        float flo_val;
-
         //velocities
-        flo_val = (rots_home_vmax*46.656*51200.0)/(0.7152557373046875*100*60);
-        rots_home_vmax = (int32_t)flo_val; 
-        flo_val = (rots_move_vmax*46.656*51200.0)/(0.7152557373046875*100*60);
-        rots_move_vmax = (int32_t)flo_val;  
+        rots_home_vmax = rots_rpm_to_ppt(rots_home_vmax);
+        rots_move_vmax = rots_rpm_to_ppt(rots_move_vmax);  
 
         //positions
-        flo_val = (receive_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        receive_position = (int32_t)flo_val;                                     //converting up pulses to int
+        receive_position = rots_angle_to_pulses(receive_position);
+        presquish_position = rots_angle_to_pulses(presquish_position);
+        squish_position = rots_angle_to_pulses(squish_position);
 
-        flo_val = (presquish_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        presquish_position = (int32_t)flo_val;                                     //converting up pulses to int
-        
-        flo_val = (squish_position/(360.0*100))*51200.0*46.656;       //converting angle to pulses
-        squish_position = (int32_t)flo_val;                                     //converting up pulses to int
-    
         new_rots_motor_mb_cmd = false;
     }
 
-
-    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons, else use commands from intracomms
-    switch_0_input = CcIoManager.get_input(D0_RAIL_SW_0);
-    switch_1_input = CcIoManager.get_input(D1_RAIL_SW_1);
-
-    if(conductor_cmd == SubCommsClass::SubsystemCommands::NO_COMMAND){
-        if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::HIGH){ 
-            cmd_position = Rots::RotsPositions::RECEIVE_POS;
-        }else if(switch_0_input == PinStatus::LOW && switch_1_input == PinStatus::LOW){ 
-            cmd_position = Rots::RotsPositions::PRESQUISH_POS;
-        }else if(switch_0_input == PinStatus::HIGH && switch_1_input == PinStatus::LOW){
-            cmd_position = Rots::RotsPositions::SQUISH_POS;
-        }
-    }else{
-        switch (conductor_cmd)
-        {
-        case SubCommsClass::SubsystemCommands::COMMAND_1:
-            cmd_position = Rots::RotsPositions::RECEIVE_POS;
-            break;
-        
-        default:
-            break;
-        }
-    }
-    #else
     switch (conductor_cmd)
     {
         case ROT_RECIEVE_CMD:
@@ -140,8 +103,6 @@ void RotsFSMClass::read_interfaces()
         default:
             break;
     }
-    #endif
-
 }
 
 void RotsFSMClass::act_on_button(Cc5160Stepper * ptr_stepper, Rots::RotsStates * ptr_state)
@@ -390,6 +351,5 @@ void RotsFSMClass::write_interfaces()
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_ROTATOR_STATE, l_state);
     CcIoManager.set_mb_data(MbRegisterOffsets::RIGHT_ROTATOR_STATE, r_state);
 }
-
 
 RotsFSMClass rotators;

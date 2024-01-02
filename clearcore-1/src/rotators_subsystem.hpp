@@ -22,6 +22,12 @@
 #define ROTS_DEFAULT_PRESQUISH_POS  11770
 #define ROTS_DEFAULT_SQUISH_POS     50
 
+#define ROTS_US_PER_REV             51200.0
+#define ROTS_MOTOR_GEAR_RATIO       46.646
+#define CLOCK_RATIO                 0.7152557373046875
+#define DEG_PER_REV                 360.0
+#define ROTS_MODBUS_RATIO           100
+#define SECS_PER_MIN                60
 
 namespace Rots
 {

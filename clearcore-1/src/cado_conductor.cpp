@@ -23,7 +23,6 @@ void ConductorClass::setup()
 
 void ConductorClass::read_interfaces()
 {
-    #ifdef SINGLE_BUTTON_AUTO_RUN
     run_input = CcIoManager.get_input(D6_CUT_BUTTON);
     unload_cutter_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
 
@@ -41,7 +40,6 @@ void ConductorClass::read_interfaces()
 
     rotators_state = CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_state();
     last_rotators_state = CcIoManager.IntraComms[SubsystemList::ROTS_SUBS].get_ss_last_transition();
-    #endif
 }
 
 bool finished_move(SubCommsClass::SubsystemStates current, SubCommsClass::SubsystemStates last){

@@ -21,17 +21,19 @@
 #define TRAP_1_OPEN_ANGLE      -80.0
 #define TRAP_2_OPEN_ANGLE       -100.0      //min ~ -135
 
-#define TRAP_UP_ANGLE           0.0
-#define TRAP_2_UP_ANGLE         32.0
 #define TRAP_CLOSE_ANGLE        -15.0
-#define TRAP_1_OPEN_ANGLE       -70.0
-#define TRAP_2_OPEN_ANGLE       -90.0      //min ~ -135
+#define TRAP_OPEN_ANGLE_1       -70.0
+#define TRAP_OPEN_ANGLE_2       -90.0      //min ~ -135
 
 #define MOVE_1_ORIENT_RPM       25.0     
 #define MOVE_2_ORIENT_RPM       7.0     
 #define MOVE_1_RELEASE_RPM      2.0     
 #define MOVE_2_RELEASE_RPM      100.0     
 
+#define RELEASE_US_PER_REV      51200.0
+#define RELEASE_MOTOR_GEAR_RATIO 13.733564013840830449826989619377
+#define CLOCK_RATIO             0.7152557373046875
+#define SECS_PER_MIN            60
 
 namespace Release
 {
@@ -104,6 +106,12 @@ class ReleaseFSMClass {
         int16_t home_input;
         int16_t ready_input;
 
+        int32_t release_1st_vel;
+        int32_t release_2nd_vel;
+
+        int32_t trap_close_pos;
+        int32_t trap_open_pos_1;
+        int32_t trap_open_pos_2;
 };
 
 extern ReleaseFSMClass release;

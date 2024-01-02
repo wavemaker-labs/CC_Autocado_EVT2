@@ -35,12 +35,14 @@
 
 #define PRE_SQUISH_DELAY            5000  //timer until pre core offset action   
 
-#define CLAMPS_STEPPER_COUNT  4
+#define CLAMPS_STEPPER_COUNT    4
 
-#define CLAMPS_GEAR_RATIO 46.646
-#define CLAMPS_US_PER_REV 51200.0
-#define DEG_PER_REV 360.0
-#define CLAMP_MODBUS_RATIO 100
+#define CLAMPS_US_PER_REV       51200.0
+#define CLAMPS_MOTOR_GEAR_RATIO 46.646
+#define CLOCK_RATIO             0.7152557373046875
+#define DEG_PER_REV             360.0
+#define CLAMP_MODBUS_RATIO      100
+#define SECS_PER_MIN            60
 
 
 namespace Clamp

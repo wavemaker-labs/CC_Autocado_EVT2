@@ -12,8 +12,6 @@
 
 #define CC1_FW_VERSION 1
 
-#define SINGLE_BUTTON_AUTO_RUN //undefine this to go back to manual control.
-
 #define CC1_NUM_SUBSYSTEMS 5
 typedef enum{
     DRUM_SUBS = 0,
@@ -211,19 +209,10 @@ static PinIO cc1_io_pins[NUM_CC_IO_PIN] = {
     PinIO(SWITCH_SENSOR_IN, A12_PRESENCE_FALL, nullptr)
 };
 
-// typedef enum
-// {
-//     FLAT_CON_MOT = 0,
-//     ORIENTOR_ONE_MOT,
-//     ORIENTOR_TWO_MOT,
-//     RELEASE_MOT        
-// } AutocadoCc1Motors;
-
 #define CC1_NUM_MOTORS 1
 static MotorIO cc1_motors[CC1_NUM_MOTORS] = {
     {200, 100, Connector::ConnectorModes::CPM_MODE_STEP_AND_DIR, &ConnectorM0, MotorDriver::MOVE_TARGET_REL_END_POSN}
 };
-
 
 typedef enum {
         STEPPER_CUTTER = 0,

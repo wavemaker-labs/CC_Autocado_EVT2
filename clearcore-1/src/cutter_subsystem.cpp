@@ -15,6 +15,15 @@ uint16_t cutter_motor_hreg_write(TRegister* reg, uint16_t val) {
     return val;
 }
 
+int32_t cutter_rpm_to_ppt(float flo_val)
+{
+    return (int32_t)(flo_val*CUTTER_MOTOR_GEAR_RATIO*CUTTER_GEAR_RATIO*CUTTER_US_PER_REV)/(CLOCK_RATIO*CUTTER_MODBUS_RATIO*SECS_PER_MIN);
+}
+
+int32_t cutter_rev_to_pulses(float flo_val)
+{
+    return (int32_t)(flo_val*CUTTER_MOTOR_GEAR_RATIO*CUTTER_GEAR_RATIO*CUTTER_US_PER_REV)/CUTTER_MODBUS_RATIO;
+}
 
 void CutterFSMClass::setup()
 {
@@ -28,16 +37,9 @@ void CutterFSMClass::setup()
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::LOADING_REV, &cutter_motor_hreg_write);
         CcIoManager.set_mb_w_hreg_cb(MbRegisterOffsets::CUT_REV, &cutter_motor_hreg_write);
 
-        float flo_val;
-
-        flo_val = (CUTTER_VELOCITY*4.25*30*51200.0)/(0.7152557373046875*100*60);
-        cutter_velocity = (int32_t)flo_val; 
-        
-        flo_val = (CUTTER_LOAD_REV*4.25*30*51200.0)/100;
-        cutter_load_rev = (int32_t)flo_val;  
-        
-        flo_val = (CUTTER_CUT_REV*4.25*30*51200.0)/100;
-        cutter_cut_rev = (int32_t)flo_val; 
+        cutter_velocity = cutter_rpm_to_ppt(CUTTER_VELOCITY);
+        cutter_load_rev = cutter_rev_to_pulses(CUTTER_LOAD_REV);
+        cutter_cut_rev = cutter_rev_to_pulses(CUTTER_CUT_REV);
 
         CcIoManager.set_mb_holding_data(MbRegisterOffsets::CUTTER_VEL, CUTTER_VELOCITY);
         CcIoManager.set_mb_holding_data(MbRegisterOffsets::LOADING_REV, CUTTER_LOAD_REV);
@@ -59,25 +61,13 @@ void CutterFSMClass::read_interfaces()
         cutter_load_rev = CcIoManager.get_mb_data(MbRegisterOffsets::LOADING_REV);
         cutter_cut_rev = CcIoManager.get_mb_data(MbRegisterOffsets::CUT_REV);
 
-        float flo_val;
-
-        flo_val = (cutter_velocity*4.25*30*51200.0)/(0.7152557373046875*100*60);
-        cutter_velocity = (int32_t)flo_val; 
-        
-        flo_val = (cutter_load_rev*4.25*30*51200.0)/100;
-        cutter_load_rev = (int32_t)flo_val;  
-        
-        flo_val = (cutter_cut_rev*4.25*30*51200.0)/100;
-        cutter_cut_rev = (int32_t)flo_val; 
+        cutter_velocity = cutter_rpm_to_ppt(cutter_velocity);
+        cutter_load_rev = cutter_rev_to_pulses(cutter_load_rev);
+        cutter_cut_rev = cutter_rev_to_pulses(cutter_cut_rev);
     }
 
-    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
-    cut_switch_input = CcIoManager.get_input(D6_CUT_BUTTON);
-    load_switch_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
-    #else
     cut_switch_input = (conductor_cmd == CUTTER_CUT_CMD);
     load_switch_input = (conductor_cmd == CUTTER_LOAD_CMD);
-    #endif
 }
 
 void CutterFSMClass::determine_comm_state(){

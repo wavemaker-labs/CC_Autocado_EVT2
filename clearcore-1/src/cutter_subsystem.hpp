@@ -8,7 +8,6 @@
 #ifndef CUTTER_SUBSYSTEM_HPP
 #define CUTTER_SUBSYSTEM_HPP
 
-// #include "C:\Projects\Autocado\autocado-evt2-ccc-bench\clearcore-1\src\control_node_1.hpp"
 #include "control_node_1.hpp"
 
 //4.2A motor, not geared
@@ -20,6 +19,13 @@
 #define CUTTER_VELOCITY        263  
 #define CUTTER_LOAD_REV        319
 #define CUTTER_CUT_REV         7
+
+#define CUTTER_US_PER_REV       51200.0
+#define CUTTER_MOTOR_GEAR_RATIO 4.25
+#define CUTTER_GEAR_RATIO       30
+#define CLOCK_RATIO             0.7152557373046875
+#define CUTTER_MODBUS_RATIO     100
+#define SECS_PER_MIN            60
 
 namespace Cutter
 {

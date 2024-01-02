@@ -7,6 +7,15 @@
 
 #include "hopper_drum_subsystem.hpp"
 
+int32_t drum_rpm_to_ppt(float flo_val)
+{
+    return (int32_t)(flo_val*DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN);
+}
+
+int32_t drum_angle_to_pulses(float flo_val)
+{
+    return (int32_t)(flo_val/(DEG_PER_REV))*DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV;
+}
 
 void HopperDrumFSMClass::setup()
 {
@@ -28,14 +37,7 @@ void HopperDrumFSMClass::read_interfaces()
     drum_sensor_input = CcIoManager.get_input(AutocadoCcPins::A12_PRESENCE_BTN);
     drum_sensor_input_fall = CcIoManager.get_input(AutocadoCcPins::A12_PRESENCE_FALL);
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
-
-    
-    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
-    loadDrum_input = CcIoManager.get_input(AutocadoCcPins::D6_LOAD_BUTTON);
-    dumpDrum_input = CcIoManager.get_input(AutocadoCcPins::D7_DUMP_BUTTON);
-    #else
     loadDrum_input = (conductor_cmd == LOAD_DRUM_CMD);
-    #endif
 }
 
 
@@ -73,14 +75,8 @@ void HopperDrumFSMClass::run()
 {
     read_interfaces();
 
-
-    //float dump_offset_a = ((int32_t) dump_angle);                 //converting angle to pulses
-    float dump_offset_a = (dump_angle/360.0)*1406317.0;
-    int32_t dump_offset = (int32_t)dump_offset_a;                  //converting pulses to int
-
-    //float dump_speed_ptr = ((int32_t) drum_vel_rpm);             //converting rpm to pulses per seconds
-    float drum_speed_p = (13.7335640138408304*1.99*51200.0*drum_vel_rpm/(0.7152557373046875))/60;
-    uint32_t drum_vel = (uint32_t)drum_speed_p;                    //converting pulses per seconds to int
+    drum_vel = drum_rpm_to_ppt(drum_vel_rpm);
+    dump_offset = drum_angle_to_pulses(dump_angle);
 
     if (state != HopperDrum::DrumStates::MOVING_TO_LOAD && drum_sensor_input_fall)
     {

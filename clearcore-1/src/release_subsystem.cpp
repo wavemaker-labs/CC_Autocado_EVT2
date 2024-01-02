@@ -15,6 +15,15 @@ uint16_t release_motor_hreg_write(TRegister* reg, uint16_t val) {
     return val;
 }
 
+int32_t release_rpm_to_ppt(float flo_val)
+{
+    return (int32_t)(flo_val*RELEASE_MOTOR_GEAR_RATIO*RELEASE_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN);
+}
+
+int32_t release_angle_to_pulses(float flo_val)
+{
+    return (int32_t)((197294.7467757156)*log(((flo_val)/220.0)+(9.0/11.0)) + 39591);    //Release exponential formula
+}
 
 void ReleaseFSMClass::setup()
 {
@@ -33,75 +42,24 @@ void ReleaseFSMClass::read_interfaces()
     SubCommsClass::SubsystemCommands conductor_cmd;
 
     conductor_cmd = CcIoManager.IntraComms[SubsystemList::RELEASE_SUBS].get_ss_cmd();
-    
-    
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND); 
-
-    #ifndef SINGLE_BUTTON_AUTO_RUN //use buttons else use commands from intracomms
-    orient_switch_input = CcIoManager.get_input(A9_ORIENT_BUTTON);
-    release_switch_input = CcIoManager.get_input(D8_RELEASE_BUTTON);
-    #else
     release_switch_input = (conductor_cmd == RELEASE_AVO_CMD);
-    #endif
-
-    // if(conductor_cmd == SubCommsClass::SubsystemCommands::NO_COMMAND){
-    //     if(release_switch_input == PinStatus::LOW && orient_switch_input == PinStatus::HIGH){ 
-    //         Serial.println("release_switch_input low, orient_switch_input high");
-    //         cmd_position = Release::ReleasePositions::ORIENT_POS;
-    //     }else if(release_switch_input == PinStatus::HIGH && orient_switch_input == PinStatus::LOW){ 
-    //         cmd_position = Release::ReleasePositions::RELEASE_POS;
-    //     }
-    // }else{
-    //     switch (conductor_cmd)
-    //     {
-    //     case SubCommsClass::SubsystemCommands::COMMAND_1:
-    //     Serial.println("COMMAND_1");
-    //         cmd_position = Release::ReleasePositions::ORIENT_POS;
-    //         break;
-    //     case SubCommsClass::SubsystemCommands::COMMAND_2:
-    //     Serial.println("COMMAND_2");
-    //         cmd_position = Release::ReleasePositions::RELEASE_POS;
-    //         break;
-    //     default:
-    //         break;
-    //     }
-    // }
 }
 
 void ReleaseFSMClass::run()
 {
 
-read_interfaces();
+    read_interfaces();
 
-Cc5160Stepper * run_ptr_stepper;
-Release::ReleaseStates * state;
+    Cc5160Stepper * run_ptr_stepper;
+    Release::ReleaseStates * state;
 
-    float trap_up_atp = (197294.7467757156)*log(((TRAP_UP_ANGLE)/220.0)+(9.0/11.0)) + 39591;           //converting up angle to pulses
-    int32_t TRAP_UP_POS = (int32_t)trap_up_atp;                                                     //converting up pulses to int
+    release_1st_vel = release_rpm_to_ppt(MOVE_1_RELEASE_RPM);
+    release_2nd_vel = release_rpm_to_ppt(MOVE_2_RELEASE_RPM);
 
-    float trap_2_up_atp = (197294.7467757156)*log((( TRAP_2_UP_ANGLE)/220.0)+(9.0/11.0)) + 39591;           //converting up angle to pulses
-    int32_t TRAP_2_UP_POS = (int32_t)trap_2_up_atp;                                                     //converting up pulses to int
-
-    float trap_close_atp = (197294.7467757156)*log((( TRAP_CLOSE_ANGLE)/220.0)+(9.0/11.0)) + 39591;     //converting close angle to pulses
-    int32_t TRAP_CLOSE_POS = (int32_t)trap_close_atp;                                               //converting close pulses to int
-
-    float trap_1_open_atp = (197294.7467757156)*log((( TRAP_1_OPEN_ANGLE)/220.0)+(9.0/11.0)) + 39591;       //converting open angle to pulses
-    int32_t TRAP_1_OPEN_POS = (int32_t)trap_1_open_atp;          
-    
-    float trap_2_open_atp = (197294.7467757156)*log((( TRAP_2_OPEN_ANGLE)/220.0)+(9.0/11.0)) + 39591;     //converting close angle to pulses
-    int32_t TRAP_2_OPEN_POS = (int32_t)trap_2_open_atp;                                       //converting open pulses to int
-    
-    float orient_speed1_ptr = (13.7335640138408304*51200.0*MOVE_1_ORIENT_RPM)/(0.7152557373046875*60) + 39591;                                 //converting rpm to pulses per seconds
-    uint32_t first_orient_vel = (uint32_t)orient_speed1_ptr;                                                 //converting pulses per seconds to int
-    
-    float orient_speed2_ptr = (13.7335640138408304*51200.0*MOVE_2_ORIENT_RPM)/(0.7152557373046875*60) + 39591;                                 //converting rpm to pulses per seconds
-    uint32_t second_orient_vel = (uint32_t)orient_speed2_ptr;                                                 //converting pulses per seconds to int
-
-    float release_1_speed_ptr = (13.7335640138408304*51200.0*MOVE_1_RELEASE_RPM)/(0.7152557373046875*60) + 39591;                                 //converting rpm to pulses per seconds
-    uint32_t release_1_vel = (uint32_t)release_1_speed_ptr;  
-
-    float release_2_speed_ptr = (13.7335640138408304*51200.0*MOVE_2_RELEASE_RPM)/(0.7152557373046875*60) + 39591;                                 //converting rpm to pulses per seconds
-    uint32_t release_2_vel = (uint32_t)release_2_speed_ptr;  
+    trap_close_pos =release_angle_to_pulses(TRAP_CLOSE_ANGLE);
+    trap_open_pos_1 =release_angle_to_pulses(TRAP_OPEN_ANGLE_1);
+    trap_open_pos_2 =release_angle_to_pulses(TRAP_OPEN_ANGLE_2);
 
 for(int i = 0; i < 2; i ++){   
 
@@ -174,7 +132,7 @@ for(int i = 0; i < 2; i ++){
 
         case Release::ReleaseStates::HOMED:
 
-            run_ptr_stepper->set_target_position(TRAP_CLOSE_POS, release_2_vel);
+            run_ptr_stepper->set_target_position(trap_close_pos, release_2nd_vel);
 
             if (run_ptr_stepper->at_position())
             {
@@ -190,7 +148,7 @@ for(int i = 0; i < 2; i ++){
             if (release_switch_input)
             {
                 Serial.println("Releasing");
-                run_ptr_stepper->set_target_position(TRAP_1_OPEN_POS,release_1_vel);
+                run_ptr_stepper->set_target_position(trap_open_pos_1,release_1st_vel);
                 *state = Release::ReleaseStates::RELEASING_1;
             }
 
@@ -202,7 +160,7 @@ for(int i = 0; i < 2; i ++){
             {
                 Serial.println("Released, moving to close position");
 
-                run_ptr_stepper->set_target_position(TRAP_1_OPEN_POS, release_1_vel);
+                run_ptr_stepper->set_target_position(trap_open_pos_1, release_1st_vel);
                 delay(500);
                 *state = Release::ReleaseStates::RELEASING_2;
             }
@@ -214,7 +172,7 @@ for(int i = 0; i < 2; i ++){
             if(run_ptr_stepper->at_position())
             {
                 Serial.println("Released, moving to close position");
-                run_ptr_stepper->set_target_position(TRAP_2_OPEN_POS, release_2_vel);
+                run_ptr_stepper->set_target_position(trap_open_pos_2, release_2nd_vel);
 
                 *state = Release::ReleaseStates::RELEASED;
             }
@@ -225,7 +183,7 @@ for(int i = 0; i < 2; i ++){
 
             if(run_ptr_stepper->at_position())
             {
-                run_ptr_stepper->set_target_position(TRAP_CLOSE_POS, release_2_vel);
+                run_ptr_stepper->set_target_position(trap_close_pos, release_2nd_vel);
                 //Serial.println("At up position");
                 delay(250);
                 *state = Release::ReleaseStates::WAITING_READY_CMD;
