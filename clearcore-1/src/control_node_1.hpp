@@ -178,9 +178,9 @@ typedef enum {
         D0_RAIL_SW_0 = 0,
         D1_RAIL_SW_1,
         D2_CLP_GRAB_BUTTON,
-        D3_VIBRATOR_MOTOR,
+        D3_DOUBLE_FEED_LED,
         D4_CUT_SOLENOID,
-        D5_NOT_USED,
+        D5_VIBRATOR_MOTOR,
         D6_CUT_BUTTON,
         D7_LOAD_CUT_BUTTON,
         D8_CLP_SQUISH_BTN,
@@ -196,9 +196,9 @@ static PinIO cc1_io_pins[NUM_CC_IO_PIN] = {
     PinIO(SWITCH_SENSOR_IN, D0_RAIL_SW_0, nullptr),
     PinIO(SWITCH_SENSOR_IN, D1_RAIL_SW_1, nullptr),
     PinIO(SWITCH_SENSOR_IN, D2_CLP_GRAB_BUTTON, nullptr),
-    PinIO(DIGITAL_OUT, D3_VIBRATOR_MOTOR, nullptr),
+    PinIO(DIGITAL_OUT, D3_DOUBLE_FEED_LED, nullptr),
     PinIO(DIGITAL_OUT, D4_CUT_SOLENOID, nullptr),
-    PinIO(SWITCH_SENSOR_IN, D5_NOT_USED, nullptr),
+    PinIO(DIGITAL_OUT, D5_VIBRATOR_MOTOR, nullptr),
     PinIO(SWITCH_SENSOR_IN, D6_CUT_BUTTON, nullptr),  //using this button as start
     PinIO(SWITCH_SENSOR_IN, D7_LOAD_CUT_BUTTON, nullptr), //using this button as run cutter
     PinIO(SWITCH_SENSOR_IN, D8_CLP_SQUISH_BTN, nullptr),

@@ -9,12 +9,12 @@
 
 int32_t drum_rpm_to_ppt(float flo_val)
 {
-    return (int32_t)(flo_val*DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN);
+    return (int32_t)((flo_val*DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN));
 }
 
 int32_t drum_angle_to_pulses(float flo_val)
 {
-    return (int32_t)(flo_val/(DEG_PER_REV))*DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV;
+    return (int32_t)((flo_val/(DEG_PER_REV))*(DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV));
 }
 
 void HopperDrumFSMClass::setup()
@@ -36,6 +36,7 @@ void HopperDrumFSMClass::read_interfaces()
 
     drum_sensor_input = CcIoManager.get_input(AutocadoCcPins::A12_PRESENCE_BTN);
     drum_sensor_input_fall = CcIoManager.get_input(AutocadoCcPins::A12_PRESENCE_FALL);
+    clear_doublefeed_input = CcIoManager.get_input(AutocadoCcPins::A10_CLP_RECIEVE_BTN);
     ready_input = (conductor_cmd == SubCommsClass::SubsystemCommands::RDY_COMMAND);
     loadDrum_input = (conductor_cmd == LOAD_DRUM_CMD);
 }
@@ -77,9 +78,11 @@ void HopperDrumFSMClass::run()
 
     drum_vel = drum_rpm_to_ppt(drum_vel_rpm);
     dump_offset = drum_angle_to_pulses(dump_angle);
-
+    
     if (state != HopperDrum::DrumStates::MOVING_TO_LOAD && drum_sensor_input_fall)
     {
+        Serial.println("Double feed detected");
+        double_feed_led = PinStatus::HIGH;
         state = HopperDrum::DrumStates::DOUBLE_FEED_DETECTED;
     }
 
@@ -150,8 +153,10 @@ void HopperDrumFSMClass::run()
             
         case HopperDrum::DrumStates::DOUBLE_FEED_DETECTED:
             
-            Serial.println("Double feed detected");
-            state = HopperDrum::DrumStates::WAIT_READY_CMD;
+            if (clear_doublefeed_input){
+                double_feed_led = PinStatus::LOW;
+                state = HopperDrum::DrumStates::WAIT_READY_CMD;
+            }
             
             break;
 
@@ -172,7 +177,8 @@ void HopperDrumFSMClass::run()
 
 void HopperDrumFSMClass::write_interfaces()
 {
-    CcIoManager.set_pin_output_state(AutocadoCcPins::D3_VIBRATOR_MOTOR, vibrator_motor_out);
+    CcIoManager.set_pin_output_state(AutocadoCcPins::D3_DOUBLE_FEED_LED, double_feed_led);
+    CcIoManager.set_pin_output_state(AutocadoCcPins::D5_VIBRATOR_MOTOR, vibrator_motor_out);
 }
 
 HopperDrumFSMClass hpr_drum;

@@ -21,7 +21,7 @@ int32_t rots_rpm_to_ppt(float flo_val)
 
 int32_t rots_angle_to_pulses(float flo_val)
 {
-    return (int32_t)(flo_val/(DEG_PER_REV*ROTS_MODBUS_RATIO))*ROTS_MOTOR_GEAR_RATIO*ROTS_US_PER_REV;
+    return (int32_t)((flo_val/(DEG_PER_REV*ROTS_MODBUS_RATIO))*(ROTS_MOTOR_GEAR_RATIO*ROTS_US_PER_REV));
 }
 
 void RotsFSMClass::setup()
@@ -270,7 +270,7 @@ void RotsFSMClass::run()
                 *run_prt_state = Rots::RotsStates::FINISH_HOME_AT_RECIEVE;
                 break;
 
-            case Rots::RotsStates::FINISH_HOME_AT_RECIEVE:            
+            case Rots::RotsStates::FINISH_HOME_AT_RECIEVE:
                 run_ptr_stepper->set_target_position(receive_position, rots_move_vmax);
                 if(run_ptr_stepper->at_position())
                 {

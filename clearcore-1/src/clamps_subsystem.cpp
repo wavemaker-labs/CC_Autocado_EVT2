@@ -21,7 +21,7 @@ int32_t clamps_rpm_to_ppt(float flo_val)
 
 int32_t clamps_angle_to_pulses(float flo_val)
 {
-    return (int32_t)(flo_val/(DEG_PER_REV*CLAMP_MODBUS_RATIO))*CLAMPS_MOTOR_GEAR_RATIO*CLAMPS_US_PER_REV;
+    return (int32_t)((flo_val/(DEG_PER_REV*CLAMP_MODBUS_RATIO))*(CLAMPS_MOTOR_GEAR_RATIO*CLAMPS_US_PER_REV));
 }
 
 void ClampsFSMClass::setup()
@@ -708,7 +708,7 @@ uint16_t convert_ticks_to_deg(int32_t ticks)
 
 void ClampsFSMClass::write_interfaces()
 {
-    CcIoManager.set_pin_output_state (AutocadoCcPins::D3_VIBRATOR_MOTOR, led_output);
+    //CcIoManager.set_pin_output_state (AutocadoCcPins::D5_VIBRATOR_MOTOR, led_output);
 
     //input registers
     CcIoManager.set_mb_data(MbRegisterOffsets::LEFT_TOP_CLAMP_STATE, lt_state);

@@ -17,12 +17,12 @@ uint16_t release_motor_hreg_write(TRegister* reg, uint16_t val) {
 
 int32_t release_rpm_to_ppt(float flo_val)
 {
-    return (int32_t)(flo_val*RELEASE_MOTOR_GEAR_RATIO*RELEASE_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN);
+    return (int32_t)((flo_val*RELEASE_MOTOR_GEAR_RATIO*RELEASE_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN));
 }
 
 int32_t release_angle_to_pulses(float flo_val)
 {
-    return (int32_t)((197294.7467757156)*log(((flo_val)/220.0)+(9.0/11.0)) + 39591);    //Release exponential formula
+    return (int32_t)((197294.7467757156)*(log((flo_val/220.0)+(9.0/11.0))) + 39591);    //Release exponential formula
 }
 
 void ReleaseFSMClass::setup()

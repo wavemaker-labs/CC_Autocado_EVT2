@@ -23,7 +23,10 @@ void ConductorClass::setup()
 
 void ConductorClass::read_interfaces()
 {
-    run_input = CcIoManager.get_input(D6_CUT_BUTTON);
+    //run_input = CcIoManager.get_input(D6_CUT_BUTTON);     //one cycle at the time
+    if (CcIoManager.get_input(D6_CUT_BUTTON)){              //cycle until fault
+        run_input = 1;
+    }
     unload_cutter_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
 
     drum_state = CcIoManager.IntraComms[SubsystemList::DRUM_SUBS].get_ss_state();
@@ -153,8 +156,6 @@ void ConductorClass::run()
                 state = Cond::UNLOAD_CUTTER_TO_FLAG;
             }else if(run_input){
                 Serial.println("Conductor: running cycle");
-                //CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_CLAMP_CMD);
-                //state = Cond::CLAMPING;
                 CcIoManager.IntraComms[SubsystemList::DRUM_SUBS].set_ss_command(LOAD_DRUM_CMD);
                 state = Cond::LOADING;
             }
@@ -178,7 +179,8 @@ void ConductorClass::run()
                 last_release_state == SubCommsClass::SubsystemStates::MOVING &&
                 drum_state == SubCommsClass::SubsystemStates::WAITING_INPUT
             ){
-                Serial.println("Conductor: Released, back to ready");
+                Serial.println("Conductor: Released, now clamping");
+                CcIoManager.IntraComms[SubsystemList::CLAMPS_SUBS].set_ss_command(CLAMPS_CLAMP_CMD);
                 state = Cond::CLAMPING;
             }
         break;

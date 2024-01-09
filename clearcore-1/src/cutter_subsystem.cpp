@@ -17,12 +17,12 @@ uint16_t cutter_motor_hreg_write(TRegister* reg, uint16_t val) {
 
 int32_t cutter_rpm_to_ppt(float flo_val)
 {
-    return (int32_t)(flo_val*CUTTER_MOTOR_GEAR_RATIO*CUTTER_GEAR_RATIO*CUTTER_US_PER_REV)/(CLOCK_RATIO*CUTTER_MODBUS_RATIO*SECS_PER_MIN);
+    return (int32_t)((flo_val*CUTTER_MOTOR_GEAR_RATIO*CUTTER_GEAR_RATIO*CUTTER_US_PER_REV)/(CLOCK_RATIO*CUTTER_MODBUS_RATIO*SECS_PER_MIN));
 }
 
 int32_t cutter_rev_to_pulses(float flo_val)
 {
-    return (int32_t)(flo_val*CUTTER_MOTOR_GEAR_RATIO*CUTTER_GEAR_RATIO*CUTTER_US_PER_REV)/CUTTER_MODBUS_RATIO;
+    return (int32_t)((flo_val*CUTTER_MOTOR_GEAR_RATIO*CUTTER_GEAR_RATIO*CUTTER_US_PER_REV)/CUTTER_MODBUS_RATIO);
 }
 
 void CutterFSMClass::setup()
