@@ -12,7 +12,12 @@ int32_t drum_rpm_to_ppt(float flo_val)
     return (int32_t)((flo_val*DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN));
 }
 
-int32_t drum_angle_to_pulses(float flo_val)
+int32_t vibro_rpm_to_ppt(float flo_val)
+{
+    return (int32_t)((flo_val*DRUM_US_PER_REV)/(CLOCK_RATIO*SECS_PER_MIN));
+}
+
+int32_t hopper_angle_to_pulses(float flo_val)
 {
     return (int32_t)((flo_val/(DEG_PER_REV))*(DRUM_MOTOR_GEAR_RATIO*DRUM_PULLEY_GEAR_RATIO*DRUM_US_PER_REV));
 }
@@ -24,6 +29,7 @@ void HopperDrumFSMClass::setup()
 
         state = HopperDrum::DrumStates::SETUP;
         ptr_5160_drum_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_DRUM);
+        ptr_5160_vibro_stepper = CcIoManager.get_step_ptr(AutocadoCcSteppers::STEPPER_VIBRO);
     }
     
 }
@@ -77,7 +83,8 @@ void HopperDrumFSMClass::run()
     read_interfaces();
 
     drum_vel = drum_rpm_to_ppt(drum_vel_rpm);
-    dump_offset = drum_angle_to_pulses(dump_angle);
+    dump_offset = hopper_angle_to_pulses(dump_angle);
+    vibro_vel = vibro_rpm_to_ppt(vibro_vel_rpm);
     
     if (state != HopperDrum::DrumStates::MOVING_TO_LOAD && drum_sensor_input_fall)
     {
@@ -89,15 +96,16 @@ void HopperDrumFSMClass::run()
     switch (state)
     {
         case HopperDrum::DrumStates::SETUP:
-            if(ptr_5160_drum_stepper->config_ready())
+            if(ptr_5160_drum_stepper->config_ready() && ptr_5160_vibro_stepper->config_ready())
             {
-                Serial.println("Drum Config ready");
+                Serial.println("Hopper Config ready");
                 state = HopperDrum::DrumStates::WAIT_READY_CMD;
 
             }else
             {
-                Serial.println("Drum Config being set up");
+                Serial.println("Hopper Config being set up");
                 Serial.println(ptr_5160_drum_stepper->step_5160_motor_cfg.configIndex);
+                Serial.println(ptr_5160_vibro_stepper->step_5160_motor_cfg.configIndex);
             }
 
             break;
@@ -109,7 +117,7 @@ void HopperDrumFSMClass::run()
                 Serial.println("Attempting load drum move");
 
                 ptr_5160_drum_stepper->set_velocity(drum_vel);
-                vibrator_motor_out = PinStatus::HIGH;
+                ptr_5160_vibro_stepper->set_velocity(vibro_vel);
 
                 state = HopperDrum::DrumStates::MOVING_TO_LOAD;
             } 
@@ -124,7 +132,7 @@ void HopperDrumFSMClass::run()
                 Serial.println("Drum avo presence sensor triggered");
 
                 ptr_5160_drum_stepper->set_velocity(0);
-                vibrator_motor_out = PinStatus::LOW;
+                ptr_5160_vibro_stepper->set_velocity(0);
 
                 state = HopperDrum::DrumStates::AT_LOAD_POS;
             }
@@ -133,10 +141,10 @@ void HopperDrumFSMClass::run()
 
         case HopperDrum::DrumStates::AT_LOAD_POS:
 
-            if (ptr_5160_drum_stepper->at_vmax())
+            if (ptr_5160_drum_stepper->at_vmax() && ptr_5160_vibro_stepper->at_vmax())
             {
                 Serial.println("Avo loaded");
-                Serial.println("Drum ready");
+                Serial.println("Hopper ready");
 
                 state = HopperDrum::DrumStates::WAIT_READY_CMD;
             }
@@ -178,7 +186,6 @@ void HopperDrumFSMClass::run()
 void HopperDrumFSMClass::write_interfaces()
 {
     CcIoManager.set_pin_output_state(AutocadoCcPins::D3_DOUBLE_FEED_LED, double_feed_led);
-    CcIoManager.set_pin_output_state(AutocadoCcPins::D5_VIBRATOR_MOTOR, vibrator_motor_out);
 }
 
 HopperDrumFSMClass hpr_drum;

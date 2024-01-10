@@ -11,7 +11,8 @@
 #include "control_node_1.hpp"
 
 #define drum_vel_rpm     7.5         //RPM
-#define dump_angle       60.0         //degrees rotation
+#define dump_angle       60.0        //degrees rotation
+#define vibro_vel_rpm    1800.0      //RPM
 
 #define DRUM_US_PER_REV         51200.0
 #define DRUM_MOTOR_GEAR_RATIO   13.733564013840830449826989619377
@@ -47,6 +48,7 @@ class HopperDrumFSMClass {
         HopperDrumFSMClass() {
             has_setup = false;
             ptr_5160_drum_stepper = nullptr;
+            ptr_5160_vibro_stepper = nullptr;
             state = HopperDrum::DrumStates::SETUP;
             estop_input = ESTOP_RELEASED;
         }
@@ -61,6 +63,7 @@ class HopperDrumFSMClass {
         HopperDrum::DrumStates state;
 
         Cc5160Stepper * ptr_5160_drum_stepper;
+        Cc5160Stepper * ptr_5160_vibro_stepper;
 
         int16_t estop_input;
         int16_t loadDrum_input;
@@ -76,6 +79,7 @@ class HopperDrumFSMClass {
         PinStatus double_feed_led;
         
         int32_t drum_vel;
+        int32_t vibro_vel;
         int32_t dump_offset;
 
         uint16_t mb_move_request;

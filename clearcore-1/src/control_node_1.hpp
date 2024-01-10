@@ -225,9 +225,10 @@ typedef enum {
         STEPPER_DRUM,
         STEPPER_RELEASE_R,
         STEPPER_RELEASE_L,
+        STEPPER_VIBRO,
 } AutocadoCcSteppers;
 
-#define CC_NUM_DAISY_STEP_MOTORS 10
+#define CC_NUM_DAISY_STEP_MOTORS 11
 static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
     {STEPPER_CUTTER, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_CLAMP_LT, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
@@ -239,6 +240,7 @@ static Cc5160Stepper cc_step_mots[CC_NUM_DAISY_STEP_MOTORS] = {
     {STEPPER_DRUM, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_RELEASE_R, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
     {STEPPER_RELEASE_L, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
+    {STEPPER_VIBRO, CC_NUM_DAISY_STEP_MOTORS - 1, 0},
 };
 
 // Default Cutter Register values
@@ -531,8 +533,6 @@ static const int32_t tmc5160_ClampStepperRegisterResetState[TMC5160_REGISTER_COU
 #undef R6D
 #undef R70
 
-
-
 // Release Front/Back - Default Register values
 #define R00 0x00000004  // GCONF
 #define R09 0x00010606  // SHORTCONF
@@ -643,6 +643,63 @@ static const int32_t tmc5160_DrumStepperRegisterResetState[TMC5160_REGISTER_COUN
 #undef R6D
 #undef R70
 
+//Vibro - Default Register values
+#define R00 0x00000004  // GCONF
+#define R09 0x00010606  // SHORTCONF
+#define R0A 0x00080400  // DRVCONF
+#define R0B 0x00000000  //Motor Current Scalar: 187
+#define R10 0x00070302  // IHOLD_IRUN - 0.63A
+#define R11 0x0000000A  // TPOWERDOWN
+#define R13 0x000001F4  // TPWMTHRS
+#define R14 0x00001388  // TCOOLTHRS:5000 Lower Vthresh to stop on stall
+#define R20 0x00000001  // RAMPMODE: This sets the motor in Velocity mode towards positive VMAX (SHOULD MOVE RIGHT AWAY)
+#define R24 0x000033E8  // A1 = 1 000
+#define R25 0x000161A8  // V1 = 25 000
+#define R26 0x000033E8  // AMAX= 8,000 Acceleration above V1
+#define R27 0x00000000  // VMAX= 51 200
+#define R28 0x000033E8  // DMAX= AMAX = 8,000 Deceleration above V1
+#define R2A 0x000033E8  // D1= A1 = 1 000 Deceleration below V1
+#define R2B 0x0000000A  // VSTOP= 10 Stop velocity (Near to zero)
+#define R3A 0x00010000  // ENC_CONST
+#define R6C 0x000100C3  // CHOPCONF
+#define R6D 0x00030000  // Sets stall guard threshold value =4. Bit 18 is high 
+#define R70 0xC40C001E  // PWMCONF
+
+static const int32_t tmc5160_VibroStepperRegisterResetState[TMC5160_REGISTER_COUNT] =
+{
+//	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   A,   B,   C,   D,   E,   F
+	R00, 0,   0,   0,   0,   0,   0,   0,   0,  R09, R0A, R0B,  0,   0,   0,   0, // 0x00 - 0x0F
+	R10, R11, 0,  R13, R14,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x10 - 0x1F
+	R20, 0,   0,   0,  R24, R25, R26, R27, R28,  0,  R2A, R2B,  0,   0,   0,   0, // 0x20 - 0x2F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  R3A,  0,   0,   0,   0,   0, // 0x30 - 0x3F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x40 - 0x4F
+	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x50 - 0x5F
+	N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, N_A, 0,   0,  R6C, R6D,  0,   0, // 0x60 - 0x6F
+	R70, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, // 0x70 - 0x7F
+};
+
+// Undefine the default register values.
+// This prevents warnings in case multiple TMC-API chip headers are included at once
+#undef R00
+#undef R09
+#undef R0A
+#undef R0B
+#undef R10
+#undef R11
+#undef R13
+#undef R14
+#undef R20
+#undef R24
+#undef R25
+#undef R26
+#undef R27
+#undef R28
+#undef R2A
+#undef R2B
+#undef R3A
+#undef R6C
+#undef R6D
+#undef R70
 
 /*These are used on reset*/
 static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = { 
@@ -656,6 +713,7 @@ static const int32_t * Cc5160StepperCfg[CC_NUM_DAISY_STEP_MOTORS] = {
     tmc5160_DrumStepperRegisterResetState,
     tmc5160_ReleaseFrontStpRegisterResetState,
     tmc5160_ReleaseBackStpRegisterResetState,
+    tmc5160_VibroStepperRegisterResetState,
 };
 
 class CntrlNode1Io : public IoManagerClass {

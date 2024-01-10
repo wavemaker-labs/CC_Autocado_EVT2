@@ -24,8 +24,10 @@ void ConductorClass::setup()
 void ConductorClass::read_interfaces()
 {
     //run_input = CcIoManager.get_input(D6_CUT_BUTTON);     //one cycle at the time
-    if (CcIoManager.get_input(D6_CUT_BUTTON)){              //cycle until fault
+    if (CcIoManager.get_input(D6_CUT_BUTTON)){              //cycle until fault or Open button is pressed
         run_input = 1;
+    }else if (CcIoManager.get_input(A9_CLP_OPEN_BUTTON)){
+        run_input = 0;
     }
     unload_cutter_input = CcIoManager.get_input(D7_LOAD_CUT_BUTTON);
 
